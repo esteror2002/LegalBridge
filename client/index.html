@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Bridge - מערכת לניהול תיקים</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- אייקונים -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- תפריט ניווט -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Legal Bridge</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">בית</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">אודות</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">צור קשר</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- דף הבית -->
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4">Legal Bridge</h1>
+            <p class="lead">המערכת המתקדמת לניהול מסמכים ותיקים לעורכי דין</p>
+            
+            <!-- אזור הכפתורים הוזז שמאלה -->
+            <div class="d-flex justify-content-start button-container">
+                <button class="btn btn-custom" id="register-btn">הרשמה</button>
+                <button class="btn btn-custom" id="login-btn">התחברות</button>
+            </div>
+        </div>
+    </header>
+    
+    
+
+    <!-- איורים ומידע -->
+    <section class="features py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <img src="lawyer.png" alt="עורך דין" class="feature-img">
+                    <h3>ניהול תיקים יעיל</h3>
+                    <p>נהל מסמכים משפטיים ותיקים בצורה חכמה ומסודרת.</p>
+                </div>
+                <div class="col-md-4">
+                    <img src="documents.png" alt="מסמכים" class="feature-img">
+                    <h3>מסמכים דיגיטליים</h3>
+                    <p>שמור, שלח וסדר את כל המסמכים שלך במקום אחד.</p>
+                </div>
+                <div class="col-md-4">
+                    <img src="office.png" alt="משרד עורכי דין" class="feature-img">
+                    <h3>מתאים למשרדים</h3>
+                    <p>פתרון מתקדם לעורכי דין ומשרדים משפטיים.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- חלון קופץ (Modal) -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-btn">&times;</span>
+            <h2 id="modal-title">התחברות</h2>
+            <form id="auth-form">
+                <div class="form-group">
+                    <input type="text" id="username" class="form-control" placeholder="שם משתמש" required>
+                </div>
+                <div class="form-group email-group">
+                    <input type="email" id="email" class="form-control" placeholder="אימייל">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" class="form-control" placeholder="סיסמה" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">שלח</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2025 Legal Bridge. כל הזכויות שמורות.</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
