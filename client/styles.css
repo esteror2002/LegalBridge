@@ -30,23 +30,23 @@
     gap: 10px; /* רווח בין הכפתורים */
     margin-top: -50px; /* מקטין את הרווח למעלה */
     position: absolute; /* קיבוע יחסית לתיבת ה-header */
-    top: 120px; /* מיקום בחלק העליון */
+    top: 130px; /* מיקום בחלק העליון */
     left: 20px; /* מיקום בצד שמאל */
 }
 
 /* שמירה על גודל הכפתורים */
 .btn-custom {
-    background: #2f3031;
+    background: #434649;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-size: 16px;
     transition: 0.3s ease-in-out;
     border-radius: 5px;
 }
 
 .btn-custom:hover {
-    background: #0056b3;
+    background: #464748;
 }
 
 
