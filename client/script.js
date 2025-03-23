@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const usernameField = document.getElementById('username');
     const emailField = document.getElementById('email');
     const passwordField = document.getElementById('password');
+    const roleField = document.getElementById('role');
 
     let isLogin = false;
 
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!isLogin) {
             userData.email = emailField.value.trim();
+            userData.role = roleField.value;
         }
 
         const endpoint = isLogin ? 'login' : 'register';
