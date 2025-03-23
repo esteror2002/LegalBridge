@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>אזור אישי - עורכת דין | Legal Bridge</title>
+  <link rel="stylesheet" href="lawyer-profile.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand">Legal Bridge</div>
+  <div class="user-actions">
+    <button onclick="goHome()">🏠 דף הבית</button>
+    <button onclick="logout()">🚪 התנתקות</button>
+  </div>
+</nav>
+
+<section class="profile-section">
+  <h2>אזור אישי</h2>
+  <form id="profile-form">
+    <label for="firstName">שם פרטי:</label>
+    <input type="text" id="firstName" required />
+    <button type="submit">💾 עדכן</button>
+    <p id="message" class="message"></p>
+  </form>
+</section>
+
+<script>
+  const username = localStorage.getItem('username');
+  const role = localStorage.getItem('role');
+
+  if (!username || role !== 'lawyer') {
+    alert('גישה לעורכות דין בלבד');
+    window.location.href = 'index.html';
+  }
+
+  document.getElementById('firstName').value = username;
+
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('firstName').value.trim();
+    const response = await fetch(`http://localhost:5000/api/auth/update-name`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, newName })
+    });
+
+    const data = await response.json();
+    const message = document.getElementById('message');
+    if (response.ok) {
+      message.textContent = 'השם עודכן בהצלחה ✅';
+      localStorage.setItem('username', newName);
+    } else {
+      message.textContent = data.message || 'אירעה שגיאה';
+    }
+  });
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  function goHome() {
+    window.location.href = 'lawyer-home.html';
+  }
+</script>
+
+</body>
+</html>

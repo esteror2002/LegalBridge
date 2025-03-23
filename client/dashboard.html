@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>דשבורד עורכת דין | Legal Bridge</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">Legal Bridge</div>
+    <div class="user-actions">
+        <button onclick="goHome()">🏠 דף הבית</button>
+        <span id="user-info" class="user-info"></span>
+        <button onclick="logout()">🚪 התנתקות</button>
+    </div>
+</nav>
+
+<h2 style="text-align: center; margin-top: 30px;">משתמשים ממתינים לאישור</h2>
+
+<table id="users-table">
+    <thead>
+        <tr>
+            <th>שם משתמש</th>
+            <th>אימייל</th>
+            <th>טלפון</th>
+            <th>כתובת</th>
+            <th>תפקיד</th>
+            <th>אישור</th>
+            <th>מחיקה</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- שורות יתמלאו כאן -->
+    </tbody>
+</table>
+
+<script>
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
+
+    if (!username || role !== 'lawyer') {
+        alert('הכניסה מותרת רק לעורכות דין');
+        window.location.href = 'index.html';
+    } else {
+        document.getElementById('user-info').innerText = `עורכת דין | ${username}`;
+    }
+
+    async function fetchPendingUsers() {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/pending-users');
+            const users = await response.json();
+            const tbody = document.querySelector('#users-table tbody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>${user.address || '-'}</td>
+                    <td>${user.role}</td>
+                    <td><button class="approve" onclick="approveUser('${user._id}')">✔️ אשר</button></td>
+                    <td><button class="delete" onclick="deleteUser('${user._id}')">🗑️ מחק</button></td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('שגיאה בשליפת משתמשים ממתינים:', error);
+        }
+    }
+
+    async function approveUser(id) {
+        await fetch(`http://localhost:5000/api/auth/approve-user/${id}`, {
+            method: 'POST'
+        });
+        fetchPendingUsers();
+    }
+
+    async function deleteUser(id) {
+        await fetch(`http://localhost:5000/api/auth/delete-user/${id}`, {
+            method: 'DELETE'
+        });
+        fetchPendingUsers();
+    }
+
+    function goHome() {
+        window.location.href = 'lawyer-home.html';
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    fetchPendingUsers();
+</script>
+
+</body>
+</html>

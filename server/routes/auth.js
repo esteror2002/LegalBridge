@@ -9,10 +9,9 @@ const router = express.Router();
 // רישום משתמש חדש
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password, role, phone, address } = req.body;
 
-        // בדיקה אם כל השדות מולאו
-        if (!username || !email || !password) {
+        if (!username || !email || !password || !role) {
             return res.status(400).json({ message: 'אנא מלא את כל השדות' });
         }
 
@@ -34,11 +33,15 @@ router.post('/register', async (req, res) => {
 
         // יצירת משתמש חדש
         const newUser = new User({
-            username: username.trim(),
+            username: username.trim().replace(/['"]+/g, ''),
             email: email.trim().toLowerCase(),
             password: hashedPassword,
             role,
+            phone: req.body.phone?.trim() || '',
+            address: req.body.address?.trim() || '',
+            approved: false  // לוודא שנשמר במפורש
         });
+
 
         // שמירת המשתמש בבסיס הנתונים
         await newUser.save();
@@ -46,14 +49,14 @@ router.post('/register', async (req, res) => {
             { userId: newUser._id },
             process.env.JWT_SECRET,
             { expiresIn: '2d' }
-          );
+        );
           
           const approvalLink = `http://localhost:5000/api/auth/approve/${token}`;
 
           if (role === 'lawyer') {
             await sendEmail(
                 'esteror2002@gmail.com',
-                `עורך דין חדש ממתינה לאישור: ${username}\n\nאשרי אות כאן:\n${approvalLink}`
+                `עורך דין חדש ממתין לאישור: ${username}\n\nאשרי אותו כאן:\n${approvalLink}`
             );
         }
         
@@ -96,7 +99,12 @@ router.post('/login', async (req, res) => {
 
         // console.log(`✅ התחברות מוצלחת למשתמש ${username}`); 
 
-        res.status(200).json({ message: 'התחברת בהצלחה!' });
+        res.status(200).json({
+            message: 'התחברת בהצלחה!',
+            username: user.username,
+            role: user.role
+        });
+        
 
     } catch (error) {
         console.error('❌ שגיאה בשרת:', error);
@@ -140,6 +148,82 @@ router.get('/approve/:token', async (req, res) => {
     }
 });
 
+
+// קבלת רשימת משתמשים שעדיין לא אושרו
+    router.get('/pending-users', async (req, res) => {
+
+    try {
+        const users = await User.find({ role: 'client', approved: false });
+        res.status(200).json(users);
+    } catch (err) {
+        console.error('שגיאה בקבלת משתמשים ממתינים:', err);
+        res.status(500).json({ message: 'שגיאה בשרת' });
+    }
+});
+
+
+
+// אישור משתמש לפי ID
+router.post('/approve-user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+        user.approved = true;
+        await user.save();
+
+        res.status(200).json({ message: 'המשתמש אושר בהצלחה' });
+    } catch (err) {
+        console.error('שגיאה באישור משתמש:', err);
+        res.status(500).json({ message: 'שגיאה באישור המשתמש' });
+    }
+});
+
+// מחיקת משתמש
+router.delete('/delete-user/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+        res.status(200).json({ message: 'המשתמש נמחק בהצלחה' });
+    } catch (err) {
+        console.error('שגיאה במחיקת משתמש:', err);
+        res.status(500).json({ message: 'שגיאה במחיקת המשתמש' });
+    }
+});
+
+// שליפת כל הלקוחות שאושרו
+router.get('/clients', async (req, res) => {
+    try {
+        const clients = await User.find({ role: 'client', approved: true }, 'username email phone address');
+        res.json(clients);
+    } catch (error) {
+        console.error('שגיאה בקבלת לקוחות:', error);
+        res.status(500).json({ message: 'שגיאה בשרת' });
+    }
+});
+
+// עדכון שם משתמש
+router.put('/update-name', async (req, res) => {
+    try {
+        const { username, newName } = req.body;
+
+        // בדיקה אם המשתמש קיים
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'משתמש לא נמצא' });
+        }
+
+        // עדכון השם
+        user.username = newName;
+        await user.save();
+
+        res.status(200).json({ message: 'השם עודכן בהצלחה' });
+    } catch (error) {
+        console.error('שגיאה בעדכון שם:', error);
+        res.status(500).json({ message: 'שגיאה בעדכון המשתמש' });
+    }
+});
 
 
 module.exports = router;

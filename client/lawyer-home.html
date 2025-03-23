@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>בית עורכת דין | Legal Bridge</title>
+  <link rel="stylesheet" href="lawyer-home.css">
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- אזור צד ימין - אזור אישי -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, עורכת דין</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="lawyer-options">
+        <ul>
+          <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
+          <li><a href="dashboard.html">🧾 ניהול משתמשים</a></li>
+          <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
+          <!-- כאן נוסיף עוד בהמשך -->
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- אזור התוכן המרכזי -->
+    <main class="main-content">
+      <h1>ברוכה הבאה למערכת Legal Bridge</h1>
+      <p>כאן תוכלי לנהל את המשתמשים והלקוחות שלך בקלות וביעילות.</p>
+    </main>
+
+  </div>
+
+  <script>
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
+
+    if (!username || role !== 'lawyer') {
+      alert('רק עורכות דין מורשות להיכנס לאזור זה.');
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('greeting').innerText = `שלום, ${username}`;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
