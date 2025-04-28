@@ -19,51 +19,25 @@
   <h2>אזור אישי</h2>
   <form id="profile-form">
     <label for="firstName">שם פרטי:</label>
-    <input type="text" id="firstName" required />
-    <button type="submit">💾 עדכן</button>
+    <input type="text" id="firstName" />
+  
+    <label for="address">כתובת:</label>
+    <input type="text" id="address" />
+  
+    <label for="email">אימייל:</label>
+    <input type="email" id="email" />
+  
+    <label for="phone">מספר פלאפון:</label>
+    <input type="text" id="phone" />
+  
+    <button id="save-button" type="submit">💾 עדכן</button>
     <p id="message" class="message"></p>
   </form>
+  
+  
 </section>
 
-<script>
-  const username = localStorage.getItem('username');
-  const role = localStorage.getItem('role');
-
-  if (!username || role !== 'lawyer') {
-    alert('גישה לעורכות דין בלבד');
-    window.location.href = 'index.html';
-  }
-
-  document.getElementById('firstName').value = username;
-
-  document.getElementById('profile-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const newName = document.getElementById('firstName').value.trim();
-    const response = await fetch(`http://localhost:5000/api/auth/update-name`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, newName })
-    });
-
-    const data = await response.json();
-    const message = document.getElementById('message');
-    if (response.ok) {
-      message.textContent = 'השם עודכן בהצלחה ✅';
-      localStorage.setItem('username', newName);
-    } else {
-      message.textContent = data.message || 'אירעה שגיאה';
-    }
-  });
-
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-  }
-
-  function goHome() {
-    window.location.href = 'lawyer-home.html';
-  }
-</script>
+<script src="lawyer-profile.js"></script>
 
 </body>
 </html>

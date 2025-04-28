@@ -203,27 +203,31 @@ router.get('/clients', async (req, res) => {
     }
 });
 
-// עדכון שם משתמש
-router.put('/update-name', async (req, res) => {
+// עדכון פרטי משתמש
+router.put('/update-profile', async (req, res) => {
     try {
-        const { username, newName } = req.body;
-
-        // בדיקה אם המשתמש קיים
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).json({ message: 'משתמש לא נמצא' });
-        }
-
-        // עדכון השם
-        user.username = newName;
-        await user.save();
-
-        res.status(200).json({ message: 'השם עודכן בהצלחה' });
+      const { username, newName, newAddress, newEmail, newPhone } = req.body;
+  
+      // בדיקה אם המשתמש קיים
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(404).json({ message: 'משתמש לא נמצא' });
+      }
+  
+      // עדכון פרטים
+      user.username = newName || user.username;
+      user.address = newAddress || user.address;
+      user.email = newEmail || user.email;
+      user.phone = newPhone || user.phone;
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'הפרטים עודכנו בהצלחה' });
     } catch (error) {
-        console.error('שגיאה בעדכון שם:', error);
-        res.status(500).json({ message: 'שגיאה בעדכון המשתמש' });
+      console.error('שגיאה בעדכון פרופיל:', error);
+      res.status(500).json({ message: 'שגיאה בעדכון המשתמש' });
     }
-});
-
+  });
+  
 
 module.exports = router;
