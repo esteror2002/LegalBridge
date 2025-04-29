@@ -1,4 +1,3 @@
-/* עיצוב כללי */
 body {
     direction: rtl;
     font-family: 'Arial', sans-serif;
@@ -48,19 +47,19 @@ body {
     background-color: #bd2130;
   }
   
-  /* רשימת האפשרויות */
-  .lawyer-options ul {
+  /* תפריט הלקוח */
+  .client-options ul {
     list-style: none;
     padding: 0;
     margin: 0;
     width: 100%;
   }
   
-  .lawyer-options ul li {
+  .client-options ul li {
     margin-bottom: 15px;
   }
   
-  .lawyer-options ul li a {
+  .client-options ul li a {
     color: white;
     text-decoration: none;
     font-size: 16px;
@@ -69,7 +68,7 @@ body {
     border-bottom: 1px solid #555;
   }
   
-  .lawyer-options ul li a:hover {
+  .client-options ul li a:hover {
     text-decoration: underline;
   }
   
@@ -88,14 +87,5 @@ body {
   .main-content p {
     font-size: 18px;
     color: #555;
-  }
-  
-  .badge {
-    background-color: #dc3545;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    margin-right: 5px;
   }
   

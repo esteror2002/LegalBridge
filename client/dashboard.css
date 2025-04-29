@@ -6,6 +6,10 @@ body {
     padding: 0;
     direction: rtl;
 }
+#greeting {
+    color: white !important;
+  }
+  
 
 /* תפריט עליון */
 .navbar {

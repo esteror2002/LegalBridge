@@ -3,98 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <title>רשימת לקוחות | Legal Bridge</title>
+  <link rel="stylesheet" href="lawyer-home.css">
   <link rel="stylesheet" href="clients-list.css">
-
-  <!-- SheetJS לייצוא Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+  <div class="layout-container">
 
-<nav class="navbar">
-  <div class="navbar-brand">Legal Bridge</div>
-  <div class="user-actions">
-    <button onclick="goHome()">🏠 דף הבית</button>
-    <button onclick="logout()">🚪 התנתקות</button>
+    <!-- תפריט צד -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, עורכת דין</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="lawyer-options">
+        <ul>
+          <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
+          <li><a href="dashboard.html">🧾 לקוחות ממתינים לאישור</a></li>
+          <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
+          <li><a href="lawyer-requests.html">📬 פניות לקוחות</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- אזור תוכן -->
+    <main class="main-content">
+      <h2>רשימת הלקוחות המאושרים</h2>
+
+      <!-- כפתור ייצוא -->
+      <div style="margin-bottom: 20px;">
+        <button onclick="exportToExcel()">📄 ייצוא ל-Excel</button>
+      </div>
+
+      <!-- שדה חיפוש -->
+      <input type="text" id="search-input" placeholder="🔍 חפש לפי שם, אימייל או טלפון..." oninput="filterClients()" style="margin-bottom: 20px; padding: 8px; width: 50%; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
+
+      <!-- טבלת לקוחות -->
+      <table id="clients-table">
+        <thead>
+          <tr>
+            <th>שם משתמש</th>
+            <th>אימייל</th>
+            <th>טלפון</th>
+            <th>כתובת</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
   </div>
-</nav>
 
-<section class="clients-section">
-  <h2>רשימת הלקוחות המאושרים</h2>
+  <script>
+    let clientsList = [];
 
-  <!-- כפתור ייצוא ל-Excel בלבד -->
-  <div style="margin-bottom: 20px;">
-    <button onclick="exportToExcel()">📄 ייצוא ל-Excel</button>
-  </div>
+    async function loadClients() {
+      const res = await fetch('http://localhost:5000/api/auth/clients');
+      clientsList = await res.json();
+      displayClients(clientsList);
+    }
 
-  <!-- חיפוש -->
-  <input type="text" id="search-input" placeholder="🔍 חפש לפי שם, אימייל או טלפון..." oninput="filterClients()" style="margin-bottom: 20px; padding: 8px; width: 50%; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
-  <!-- טבלה -->
-  <table id="clients-table">
-    <thead>
-      <tr>
-        <th>שם משתמש</th>
-        <th>אימייל</th>
-        <th>טלפון</th>
-        <th>כתובת</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</section>
+    function displayClients(clients) {
+      const tbody = document.querySelector('#clients-table tbody');
+      tbody.innerHTML = '';
 
-<script>
-  let clientsList = [];
+      clients.forEach(client => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${client.username}</td>
+          <td>${client.email}</td>
+          <td>${client.phone || '-'}</td>
+          <td>${client.address || '-'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
 
-  async function loadClients() {
-    const res = await fetch('http://localhost:5000/api/auth/clients');
-    clientsList = await res.json();
-    displayClients(clientsList);
-  }
+    function filterClients() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const filtered = clientsList.filter(client =>
+        client.username.toLowerCase().includes(searchTerm) ||
+        client.email.toLowerCase().includes(searchTerm) ||
+        (client.phone && client.phone.toLowerCase().includes(searchTerm))
+      );
+      displayClients(filtered);
+    }
 
-  function displayClients(clients) {
-    const tbody = document.querySelector('#clients-table tbody');
-    tbody.innerHTML = '';
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
 
-    clients.forEach(client => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${client.username}</td>
-        <td>${client.email}</td>
-        <td>${client.phone || '-'}</td>
-        <td>${client.address || '-'}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  }
+    function exportToExcel() {
+      const ws = XLSX.utils.json_to_sheet(clientsList);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Clients");
+      XLSX.writeFile(wb, "clients-list.xlsx");
+    }
 
-  function filterClients() {
-    const searchTerm = document.getElementById('search-input').value.toLowerCase();
-    const filtered = clientsList.filter(client =>
-      client.username.toLowerCase().includes(searchTerm) ||
-      client.email.toLowerCase().includes(searchTerm) ||
-      (client.phone && client.phone.toLowerCase().includes(searchTerm))
-    );
-    displayClients(filtered);
-  }
-
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-  }
-
-  function goHome() {
-    window.location.href = 'lawyer-home.html';
-  }
-
-  function exportToExcel() {
-    const ws = XLSX.utils.json_to_sheet(clientsList);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Clients");
-    XLSX.writeFile(wb, "clients-list.xlsx");
-  }
-
-  loadClients();
-</script>
-
+    loadClients();
+  </script>
 </body>
 </html>

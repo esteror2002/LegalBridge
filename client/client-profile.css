@@ -1,0 +1,29 @@
+body {
+    background-color: #f8f9fa;
+  }
+  
+  .card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .navbar .btn {
+    font-size: 0.9rem;
+  }
+  
+  input[readonly] {
+    background-color: #e9ecef;
+  }
+
+  input[readonly] {
+    background-color: #e9ecef;
+  }
+  
+  #save-btn {
+    margin-right: 10px;
+  }
+  
+  

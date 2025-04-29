@@ -16,6 +16,8 @@ app.use(express.json());
 
 // נתיבים
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/requests', require('./routes/requests'));
+
 
 app.get('/', (req, res) => {
     res.send('Legal Bridge API is running...');

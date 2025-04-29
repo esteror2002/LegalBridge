@@ -228,6 +228,29 @@ router.put('/update-profile', async (req, res) => {
       res.status(500).json({ message: 'שגיאה בעדכון המשתמש' });
     }
   });
+
+  // שליפת פרופיל של משתמש לפי username
+router.get('/get-profile/:username', async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await User.findOne({ username });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'משתמש לא נמצא' });
+      }
+  
+      res.status(200).json({
+        username: user.username,
+        phone: user.phone,
+        address: user.address,
+        email: user.email
+      });
+    } catch (error) {
+      console.error('שגיאה בשליפת פרופיל:', error);
+      res.status(500).json({ message: 'שגיאה בשרת' });
+    }
+  });
+  
   
 
 module.exports = router;

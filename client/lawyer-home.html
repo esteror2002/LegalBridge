@@ -17,9 +17,17 @@
       <nav class="lawyer-options">
         <ul>
           <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
-          <li><a href="dashboard.html">🧾 ניהול משתמשים</a></li>
           <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
-          <!-- כאן נוסיף עוד בהמשך -->
+          <li>
+            <a href="dashboard.html">🧾 לקוחות ממתינים לאישור 
+              <span id="pending-count" class="badge"></span>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-requests.html">📬 פניות לקוחות 
+              <span id="open-requests-count" class="badge"></span>
+            </a>
+          </li>
         </ul>
       </nav>
     </aside>
@@ -32,21 +40,7 @@
 
   </div>
 
-  <script>
-    const username = localStorage.getItem('username');
-    const role = localStorage.getItem('role');
+  <script src="lawyer-home.js"></script>
 
-    if (!username || role !== 'lawyer') {
-      alert('רק עורכות דין מורשות להיכנס לאזור זה.');
-      window.location.href = 'index.html';
-    } else {
-      document.getElementById('greeting').innerText = `שלום, ${username}`;
-    }
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    }
-  </script>
 </body>
 </html>

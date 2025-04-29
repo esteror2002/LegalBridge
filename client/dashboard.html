@@ -3,39 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>דשבורד עורכת דין | Legal Bridge</title>
+    <link rel="stylesheet" href="lawyer-home.css">
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+  <div class="layout-container">
 
-<nav class="navbar">
-    <div class="navbar-brand">Legal Bridge</div>
-    <div class="user-actions">
-        <button onclick="goHome()">🏠 דף הבית</button>
-        <span id="user-info" class="user-info"></span>
+    <!-- סרגל צד -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, עורכת דין</h2>
         <button onclick="logout()">🚪 התנתקות</button>
-    </div>
-</nav>
+      </div>
+      <nav class="lawyer-options">
+        <ul>
+          <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
+          <li><a href="dashboard.html">🧾 לקוחות ממתינים לאישור</a></li>
+          <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
+          <li><a href="lawyer-requests.html">📬 פניות לקוחות</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-<h2 style="text-align: center; margin-top: 30px;">משתמשים ממתינים לאישור</h2>
+    <!-- תוכן עיקרי -->
+    <main class="main-content">
+      <h1>לקוחות ממתינים לאישור</h1>
 
-<table id="users-table">
-    <thead>
-        <tr>
-            <th>שם משתמש</th>
-            <th>אימייל</th>
-            <th>טלפון</th>
-            <th>כתובת</th>
-            <th>תפקיד</th>
-            <th>אישור</th>
-            <th>מחיקה</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- שורות יתמלאו כאן -->
-    </tbody>
-</table>
+      <table id="users-table">
+          <thead>
+              <tr>
+                  <th>שם משתמש</th>
+                  <th>אימייל</th>
+                  <th>טלפון</th>
+                  <th>כתובת</th>
+                  <th>תפקיד</th>
+                  <th>אישור</th>
+                  <th>מחיקה</th>
+              </tr>
+          </thead>
+          <tbody></tbody>
+      </table>
+    </main>
+  </div>
 
-<script>
+  <script>
     const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
 
@@ -43,7 +54,7 @@
         alert('הכניסה מותרת רק לעורכות דין');
         window.location.href = 'index.html';
     } else {
-        document.getElementById('user-info').innerText = `עורכת דין | ${username}`;
+        document.getElementById('greeting').innerText = `שלום, ${username}`;
     }
 
     async function fetchPendingUsers() {
@@ -55,7 +66,6 @@
 
             users.forEach(user => {
                 const row = document.createElement('tr');
-
                 row.innerHTML = `
                     <td>${user.username}</td>
                     <td>${user.email}</td>
@@ -65,7 +75,6 @@
                     <td><button class="approve" onclick="approveUser('${user._id}')">✔️ אשר</button></td>
                     <td><button class="delete" onclick="deleteUser('${user._id}')">🗑️ מחק</button></td>
                 `;
-
                 tbody.appendChild(row);
             });
         } catch (error) {
@@ -87,17 +96,12 @@
         fetchPendingUsers();
     }
 
-    function goHome() {
-        window.location.href = 'lawyer-home.html';
-    }
-
     function logout() {
         localStorage.clear();
         window.location.href = 'index.html';
     }
 
     fetchPendingUsers();
-</script>
-
+  </script>
 </body>
 </html>

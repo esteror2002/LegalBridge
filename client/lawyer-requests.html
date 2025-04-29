@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>פניות לקוחות | Legal Bridge</title>
+  <link rel="stylesheet" href="lawyer-home.css">
+  <link rel="stylesheet" href="lawyer-requests.css">
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- תפריט צד -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, עורכת דין</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="lawyer-options">
+        <ul>
+          <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
+          <li><a href="dashboard.html">🧾 ניהול משתמשים</a></li>
+          <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
+          <li><a href="lawyer-requests.html">📬 פניות לקוחות</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- אזור התוכן המרכזי -->
+    <main class="main-content">
+      <h1>📬 פניות ממתינות מהלקוחות</h1>
+      <table id="requests-table">
+        <thead>
+          <tr>
+            <th>שם משתמש</th>
+            <th>נושא</th>
+            <th>תיאור</th>
+            <th>תאריך</th>
+            <th>סטטוס</th>
+            <th>פעולות</th> 
+          </tr>
+        </thead>
+        <tbody id="requests-body"></tbody>
+      </table>
+      
+    </main>
+
+  </div>
+  <div class="modal-overlay" id="request-modal">
+    <div class="modal-content">
+      <h3>פירוט פנייה</h3>
+      <p><strong>שם משתמש:</strong> <span id="modal-username"></span></p>
+      <p><strong>נושא:</strong> <span id="modal-subject"></span></p>
+      <p><strong>תיאור:</strong> <span id="modal-message"></span></p>
+  
+      <textarea id="modal-response" placeholder="הקלידי כאן את תגובתך..."></textarea>
+      
+      <div>
+        <button onclick="sendResponse()">📤 שלח תגובה</button>
+        <button onclick="closeRequest()">✔️ סיום פנייה</button>
+        <button onclick="closeModal()">❌ סגור</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="lawyer-requests.js"></script>
+</body>
+</html>

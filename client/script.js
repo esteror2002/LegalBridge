@@ -101,10 +101,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 closeModal();
                 authForm.reset();
 
-                // ✅ אם המשתמש הוא עורך דין – נשלח לדשבורד
+                // ✅ אם המשתמש הוא עורך דין/לקוח – נשלח לדשבורד
                 if (isLogin && data.role === 'lawyer') {
                     window.location.href = 'lawyer-home.html';
+                } else if (isLogin && data.role === 'client') {
+                    window.location.href = 'client-home.html';
                 }
+                
             } else {
                 alert(data.message || 'שגיאה, נסה שוב.');
             }

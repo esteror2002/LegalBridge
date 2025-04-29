@@ -6,6 +6,10 @@ body {
     padding: 0;
   }
   
+  #greeting {
+    color: white !important;
+  }
+   
   .navbar {
     background-color: #212529;
     color: white;

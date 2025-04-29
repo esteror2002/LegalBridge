@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>בית לקוח | Legal Bridge</title>
+  <link rel="stylesheet" href="client-home.css">
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- סרגל צד של הלקוח -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, לקוח</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="client-options">
+        <ul>
+          <li><a href="client-profile.html">👤 אזור אישי</a></li>
+          <li><a href="client-request.html">📤 פנייה לעורך דין</a></li>
+          <li><a href="#">📁 המסמכים שלי</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- תוכן מרכזי -->
+    <main class="main-content">
+      <h1>ברוך הבא למערכת Legal Bridge</h1>
+      <p>כאן תוכל לצפות במסמכים שלך, לשלוח פנייה לעורך דין ולעדכן את הפרטים האישיים שלך.</p>
+    </main>
+
+  </div>
+
+  <script>
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
+
+    if (!username || role !== 'client') {
+      alert('רק לקוחות רשאים לגשת לאזור זה.');
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('greeting').innerText = `שלום, ${username}`;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

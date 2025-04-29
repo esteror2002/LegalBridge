@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>האזור האישי שלי | Legal Bridge</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="client-profile.css">
+</head>
+<body class="bg-light">
+
+  <!-- ניווט עליון -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Legal Bridge</a>
+      <div class="d-flex ms-auto align-items-center">
+        <span class="text-white me-3" id="client-name"></span>
+        <button class="btn btn-outline-light btn-sm ms-2" onclick="logout()">התנתקות</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- אזור תוכן -->
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">האזור האישי שלי</h1>
+
+    <div class="card p-4 shadow-sm">
+      <div class="mb-3">
+        <label class="form-label">שם משתמש:</label>
+        <input type="text" id="username" class="form-control" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">מספר טלפון:</label>
+        <input type="text" id="phone" class="form-control" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">כתובת:</label>
+        <input type="text" id="address" class="form-control" readonly>
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <button class="btn btn-warning" id="edit-btn" onclick="enableEditing()">ערוך פרטים</button>
+          <button class="btn btn-success d-none" id="save-btn" onclick="saveChanges()">שמור שינויים</button>
+        </div>
+        <div>
+          <button class="btn btn-secondary" onclick="goBack()">חזור לעמוד הבית</button>
+          <button class="btn btn-outline-danger" onclick="logout()">התנתקות</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="client-profile.js"></script>
+
+</body>
+</html>

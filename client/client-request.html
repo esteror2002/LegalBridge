@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>פנייה לעורך דין | Legal Bridge</title>
+  <link rel="stylesheet" href="client-home.css">
+  <link rel="stylesheet" href="client-request.css">
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- תפריט צד של לקוח -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, לקוח</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="client-options">
+        <ul>
+          <li><a href="client-profile.html">👤 אזור אישי</a></li>
+          <li><a href="client-request.html">📤 פנייה לעורך דין</a></li>
+          <li><a href="#">📁 המסמכים שלי</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- תוכן מרכזי -->
+    <main class="main-content">
+      <div class="form-container">
+        <h2>שלח פנייה לעורך דין</h2>
+        <form id="request-form">
+          <div class="form-group">
+            <label for="subject">נושא הפנייה:</label>
+            <input type="text" id="subject" required>
+          </div>
+          <div class="form-group">
+            <label for="message">תיאור הפנייה:</label>
+            <textarea id="message" required></textarea>
+          </div>
+          <button type="submit" class="submit-btn">שלח פנייה</button>
+        </form>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="client-request.js"></script>
+</body>
+</html>

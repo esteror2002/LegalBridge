@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     loadProfile();
   });
+  
   
   function enableEditing() {
     document.getElementById('phone').readOnly = false;
     document.getElementById('address').readOnly = false;
-  
+    
     document.getElementById('edit-btn').classList.add('d-none');
     document.getElementById('save-btn').classList.remove('d-none');
   }
@@ -32,10 +33,13 @@ document.addEventListener('DOMContentLoaded', function () {
   
       if (response.ok) {
         alert('הפרטים נשמרו בהצלחה!');
+        
         document.getElementById('phone').readOnly = true;
         document.getElementById('address').readOnly = true;
+  
         document.getElementById('edit-btn').classList.remove('d-none');
         document.getElementById('save-btn').classList.add('d-none');
+  
       } else {
         alert(data.message || 'שגיאה בעדכון הפרטים');
       }
@@ -46,18 +50,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   
+  
   function goBack() {
-    window.location.href = 'lawyer-home.html';
+    window.location.href = 'client-home.html';
   }
   
   function logout() {
     localStorage.clear();
     window.location.href = 'index.html';
   }
-  
+
   async function loadProfile() {
     const username = localStorage.getItem('username');
-  
+    
     if (!username) {
       alert('שגיאה: אין משתמש מחובר');
       window.location.href = 'index.html';
@@ -82,6 +87,5 @@ document.addEventListener('DOMContentLoaded', function () {
       alert('שגיאה בטעינת הפרטים');
     }
   }
-
   
   
