@@ -3,14 +3,14 @@ const role = localStorage.getItem('role');
 
 if (!username || role !== 'client') {
   alert('רק לקוחות רשאים לגשת לעמוד זה.');
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 } else {
   document.getElementById('greeting').innerText = `שלום, ${username}`;
 }
 
 function logout() {
   localStorage.clear();
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
 
 document.getElementById('request-form').addEventListener('submit', async function (e) {

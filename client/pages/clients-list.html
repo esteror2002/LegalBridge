@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>רשימת לקוחות | Legal Bridge</title>
-  <link rel="stylesheet" href="lawyer-home.css">
-  <link rel="stylesheet" href="clients-list.css">
+  <link rel="stylesheet" href="../css/lawyer-home.css">
+  <link rel="stylesheet" href="../css/clients-list.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="../js/clients-list.js" defer></script>
 </head>
 <body>
   <div class="layout-container">
@@ -52,55 +53,5 @@
       </table>
     </main>
   </div>
-
-  <script>
-    let clientsList = [];
-
-    async function loadClients() {
-      const res = await fetch('http://localhost:5000/api/auth/clients');
-      clientsList = await res.json();
-      displayClients(clientsList);
-    }
-
-    function displayClients(clients) {
-      const tbody = document.querySelector('#clients-table tbody');
-      tbody.innerHTML = '';
-
-      clients.forEach(client => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${client.username}</td>
-          <td>${client.email}</td>
-          <td>${client.phone || '-'}</td>
-          <td>${client.address || '-'}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function filterClients() {
-      const searchTerm = document.getElementById('search-input').value.toLowerCase();
-      const filtered = clientsList.filter(client =>
-        client.username.toLowerCase().includes(searchTerm) ||
-        client.email.toLowerCase().includes(searchTerm) ||
-        (client.phone && client.phone.toLowerCase().includes(searchTerm))
-      );
-      displayClients(filtered);
-    }
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    }
-
-    function exportToExcel() {
-      const ws = XLSX.utils.json_to_sheet(clientsList);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Clients");
-      XLSX.writeFile(wb, "clients-list.xlsx");
-    }
-
-    loadClients();
-  </script>
 </body>
 </html>

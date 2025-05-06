@@ -103,9 +103,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // ✅ אם המשתמש הוא עורך דין/לקוח – נשלח לדשבורד
                 if (isLogin && data.role === 'lawyer') {
-                    window.location.href = 'lawyer-home.html';
+                    window.location.href = 'pages/lawyer-home.html';
                 } else if (isLogin && data.role === 'client') {
-                    window.location.href = 'client-home.html';
+                    window.location.href = 'pages/client-home.html';
                 }
                 
             } else {

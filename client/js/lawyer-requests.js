@@ -108,7 +108,7 @@ async function closeRequest() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
 
 async function closeRequestFromTable(id) {

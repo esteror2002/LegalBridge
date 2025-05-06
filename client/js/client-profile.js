@@ -52,12 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   
   function goBack() {
-    window.location.href = 'client-home.html';
+    window.location.href = 'client-home.html'; 
   }
+  
   
   function logout() {
     localStorage.clear();
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   }
 
   async function loadProfile() {

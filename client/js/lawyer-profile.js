@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
   function logout() {
     localStorage.clear();
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   }
   
   async function loadProfile() {

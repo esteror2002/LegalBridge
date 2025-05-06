@@ -7,8 +7,10 @@ body {
     direction: rtl;
 }
 #greeting {
-    color: white !important;
-  }
+    color: #212529; /* צבע כהה וקריא */
+    font-weight: bold;
+}
+  
   
 
 /* תפריט עליון */

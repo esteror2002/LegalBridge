@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>בית לקוח | Legal Bridge</title>
-  <link rel="stylesheet" href="client-home.css">
+  <link rel="stylesheet" href="../css/client-home.css">
+  <script src="../js/client-home.js" defer></script>
 </head>
 <body>
   <div class="layout-container">
@@ -30,22 +31,5 @@
     </main>
 
   </div>
-
-  <script>
-    const username = localStorage.getItem('username');
-    const role = localStorage.getItem('role');
-
-    if (!username || role !== 'client') {
-      alert('רק לקוחות רשאים לגשת לאזור זה.');
-      window.location.href = 'index.html';
-    } else {
-      document.getElementById('greeting').innerText = `שלום, ${username}`;
-    }
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    }
-  </script>
 </body>
 </html>

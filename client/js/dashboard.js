@@ -2,17 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     const role = localStorage.getItem('role');
 
-    const userInfo = document.getElementById('user-info');
-    userInfo.innerText = `${username} | ${role === 'lawyer' ? 'עורכת דין' : 'לקוח'}`;
-
-    if (role !== 'lawyer') {
+    if (!username || role !== 'lawyer') {
         alert('גישה מוגבלת לעורכי דין בלבד');
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
         return;
     }
 
+    document.getElementById('greeting').innerText = `שלום, ${username}`;
+    document.getElementById('user-info').innerText = `${username} | עורכת דין`;
+
     fetchPendingUsers();
 });
+
 
 async function fetchPendingUsers() {
     const response = await fetch('http://localhost:5000/api/auth/pending-users');
@@ -22,14 +23,15 @@ async function fetchPendingUsers() {
 
     users.forEach(user => {
         const row = document.createElement('tr');
-
         row.innerHTML = `
             <td>${user.username}</td>
             <td>${user.email}</td>
-            <td><button class="approve" onclick="approveUser('${user._id}')">אשר</button></td>
-            <td><button class="delete" onclick="deleteUser('${user._id}')">מחק</button></td>
+            <td>${user.phone || '-'}</td>
+            <td>${user.address || '-'}</td>
+            <td>${user.role}</td>
+            <td><button class="approve" onclick="approveUser('${user._id}')">✔️ אשר</button></td>
+            <td><button class="delete" onclick="deleteUser('${user._id}')">🗑️ מחק</button></td>
         `;
-
         tbody.appendChild(row);
     });
 }
