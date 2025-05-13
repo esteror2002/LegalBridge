@@ -92,3 +92,71 @@ body {
   font-size: 12px;
   margin-right: 5px;
 }
+
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.notification-icon .badge {
+  position: absolute;
+  top: -6px;
+  left: -8px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* פאנל ההתראות */
+.notif-panel {
+  position: fixed;
+  top: 100px;
+  right: 300px;
+  width: 280px;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 9999;
+}
+
+.notif-panel h3 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.notif-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notif-panel li {
+  margin-bottom: 12px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.notif-panel button {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.notif-panel .approve {
+  background-color: #28a745;
+  color: white;
+}
+
+.notif-panel .delete {
+  background-color: #dc3545;
+  color: white;
+}

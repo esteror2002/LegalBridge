@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>בית עורכת דין | Legal Bridge</title>
   <link rel="stylesheet" href="../css/lawyer-home.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </head>
 <body>
   <div class="layout-container">
@@ -12,13 +14,17 @@
    <aside class="sidebar">
     <div class="sidebar-header">
       <h2 id="greeting">שלום, עורכת דין</h2>
+      <div class="notification-icon" onclick="toggleNotifications()">
+        <i class="bi bi-bell"></i>
+        <span id="notif-count" class="badge" style="display: none;">0</span>
+      </div>
+      
       <button onclick="logout()">🚪 התנתקות</button>
     </div>
     <nav class="lawyer-options">
       <ul>
         <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
         <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
-        <li><a href="dashboard.html">🧾 לקוחות ממתינים לאישור</a></li>
         <li><a href="lawyer-requests.html">📬 פניות לקוחות</a></li>
         <li><a href="lawyer-cases.html">📁 ניהול תיקים</a></li>
       </ul>
@@ -33,7 +39,10 @@
 
   </div>
 
-  <script src="lawyer-home.js"></script>
-
+  <div id="notif-panel" class="notif-panel" style="display: none;">
+    <h3>לקוחות ממתינים לאישור</h3>
+    <ul id="notif-list"></ul>
+  </div>
+  <script src="../js/lawyer-home.js"></script>
 </body>
 </html>
