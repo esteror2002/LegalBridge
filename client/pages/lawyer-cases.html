@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <title>דשבורד עורכת דין | Legal Bridge</title>
-    <link rel="stylesheet" href="../css/lawyer-home.css">
-    <link rel="stylesheet" href="../css/dashboard.css">
+  <meta charset="UTF-8">
+  <title>ניהול תיקים | Legal Bridge</title>
+  <link rel="stylesheet" href="../css/lawyer-cases.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
   <div class="layout-container">
@@ -26,26 +26,20 @@
       </nav>
     </aside>
 
-    <!-- תוכן עיקרי -->
+    <!-- תוכן ראשי -->
     <main class="main-content">
-      <h1>לקוחות ממתינים לאישור</h1>
+      <h1>📁 ניהול תיקים</h1>
 
-      <table id="users-table">
-          <thead>
-              <tr>
-                  <th>שם משתמש</th>
-                  <th>אימייל</th>
-                  <th>טלפון</th>
-                  <th>כתובת</th>
-                  <th>תפקיד</th>
-                  <th>אישור</th>
-                  <th>מחיקה</th>
-              </tr>
-          </thead>
-          <tbody></tbody>
-      </table>
+      <input type="text" id="searchInput" placeholder="חיפוש לפי שם לקוח..." class="search-input" oninput="filterCases()">
+
+      <div id="cases-container" class="cases-grid"></div>
+
+      <button class="add-case-btn" onclick="showAddCasePrompt()" title="הוסף תיק">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="הוסף תיק" class="add-icon">
+      </button>      
     </main>
   </div>
-  <script src="../js/dashboard.js"></script>
+
+  <script src="../js/lawyer-cases.js"></script>
 </body>
 </html>

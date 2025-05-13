@@ -57,3 +57,15 @@ exports.closeRequest = async (req, res) => {
     res.status(500).json({ message: 'שגיאה בשרת' });
   }
 };
+
+exports.getRequestsByUser = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const requests = await Request.find({ username }).sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error('שגיאה בקבלת הפניות של המשתמש:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+

@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('username').value = data.username || '';
         document.getElementById('phone').value = data.phone || '';
         document.getElementById('address').value = data.address || '';
-        document.getElementById('client-name').textContent = data.username || '';
+        document.getElementById('greeting').textContent = `שלום, ${data.username}`;
       } else {
         alert(data.message || 'שגיאה בטעינת הפרטים');
       }

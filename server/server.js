@@ -17,6 +17,8 @@ app.use(express.json());
 // נתיבים
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/requests', require('./routes/requests'));
+app.use('/api/cases', require('./routes/cases'));
+
 
 
 app.get('/', (req, res) => {

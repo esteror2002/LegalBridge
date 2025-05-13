@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>הפניות שלי | Legal Bridge</title>
+  <link rel="stylesheet" href="../css/client-home.css">
+  <link rel="stylesheet" href="../css/client-requests.css">
+  <script src="../js/client-requests.js" defer></script>
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- תפריט צד -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 id="greeting">שלום, לקוח</h2>
+        <button onclick="logout()">🚪 התנתקות</button>
+      </div>
+      <nav class="client-options">
+        <ul>
+          <li><a href="client-profile.html">👤 אזור אישי</a></li>
+          <li><a href="client-requests.html">📬 הפניות שלי</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- אזור תוכן -->
+    <main class="main-content">
+      <div class="header-bar">
+        <h1>📬 הפניות שלי</h1>
+        <button class="new-request-btn" onclick="openRequestModal()">✉️ פנייה חדשה</button>
+      </div>
+
+      <!-- טבלת פניות -->
+      <div id="requests-list" class="requests-list">
+        <!-- הפניות ייטענו כאן דינאמית -->
+      </div>
+    </main>
+  </div>
+
+  <!-- מודל לשליחת פנייה -->
+  <div class="modal-overlay" id="request-modal">
+    <div class="modal-content">
+      <h3>✉️ שליחת פנייה לעורך דין</h3>
+      <form id="request-form">
+        <label>נושא:</label>
+        <input type="text" id="subject" required>
+        <label>תיאור:</label>
+        <textarea id="message" required></textarea>
+        <div class="modal-actions">
+          <button type="submit">📤 שלח</button>
+          <button type="button" onclick="closeRequestModal()">❌ ביטול</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
