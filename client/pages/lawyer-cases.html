@@ -33,9 +33,21 @@
 
       <div id="cases-container" class="cases-grid"></div>
 
-      <button class="add-case-btn" onclick="showAddCasePrompt()" title="הוסף תיק">
+      <!-- כפתור הצגת טופס -->
+      <button class="add-case-btn" onclick="showAddCaseForm()" title="הוסף תיק">
         <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="הוסף תיק" class="add-icon">
-      </button>      
+      </button>
+
+      <!-- טופס הוספת תיק -->
+      <div id="add-case-form" style="display: none; margin-top: 30px; max-width: 400px;">
+        <h3>יצירת תיק חדש</h3>
+        <select id="clientSelect">
+          <option value="">בחר לקוח</option>
+        </select>
+        <input type="text" id="caseDescription" placeholder="תיאור תיק" style="margin-top: 10px;">
+        <button onclick="submitNewCase()" style="margin-top: 10px;">📁 שמור תיק</button>
+      </div>
+
     </main>
   </div>
 
