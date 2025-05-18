@@ -98,9 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function viewCase(caseId) {
-    alert(`תיק מספר ${caseId} – כאן תוכל להוסיף דף צפייה בעתיד 😊`);
-    // בעתיד: window.location.href = `lawyer-case-details.html?id=${caseId}`;
-  }
+    window.location.href = `lawyer-case-details.html?id=${caseId}`;
+  }  
   
   async function deleteCase(caseId) {
     const confirmDelete = confirm("האם את בטוחה שברצונך למחוק את התיק?");

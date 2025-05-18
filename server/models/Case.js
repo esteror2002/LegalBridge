@@ -1,12 +1,20 @@
 const mongoose = require('mongoose');
 
+const subCaseSchema = new mongoose.Schema({
+  title: String,
+  documents: [String]
+});
+
 const caseSchema = new mongoose.Schema({
   clientName: { type: String, required: true },
-  status: { type: String, default: 'פתוח' }, // פתוח / בטיפול / סגור וכו'
+  clientEmail: { type: String },
+  clientPhone: { type: String },
+  clientAddress: { type: String },
+  status: { type: String, default: 'פתוח' },
   openDate: { type: Date, default: Date.now },
   closeDate: Date,
   description: String,
-  documents: [String] // קישורים לקבצים שהועלו
+  subCases: [subCaseSchema]
 });
 
 module.exports = mongoose.model('Case', caseSchema);

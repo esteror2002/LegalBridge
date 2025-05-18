@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>פרטי תיק | Legal Bridge</title>
+  <link rel="stylesheet" href="../css/lawyer-case-details.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+  <div class="container">
+    <a href="lawyer-cases.html" class="back-link">
+      <i class="bi bi-arrow-right"></i> חזרה לניהול תיקים
+    </a>
+
+    <h1>📁 פרטי תיק</h1>
+
+    <div id="client-info" class="card"></div>
+    <div id="case-details" class="card"></div>
+
+    <div class="subcases-section">
+      <h2>תתי-תיקים</h2>
+      <button onclick="addSubcase()">➕ הוסף תת-תיק</button>
+      <div id="subcases-container"></div>
+    </div>
+
+    <div class="chat-section">
+      <h2>💬 צ'אט עם הלקוח</h2>
+      <div id="chat-messages" class="chat-box"></div>
+      <div class="chat-input">
+        <input type="text" id="chat-message" placeholder="כתוב הודעה...">
+        <button onclick="sendMessage()">שלח</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/lawyer-case-details.js"></script>
+</body>
+</html>
