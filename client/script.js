@@ -12,9 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const phoneField = document.getElementById('phone');
     const addressField = document.getElementById('address');
 
+    const forgotLink = document.getElementById('forgot-password-link');
+    const forgotModal = document.getElementById('forgot-password-modal');
+    const forgotCloseBtn = document.getElementById('forgot-close-btn');
+    const forgotForm = document.getElementById('forgot-password-form');
+
     let isLogin = false;
 
-    // הסתרת המודל כברירת מחדל
+    // סגור את מודל ברירת מחדל
     modal.style.display = 'none';
 
     registerBtn.addEventListener('click', function () {
@@ -45,26 +50,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function openModal(title) {
         modalTitle.innerText = title;
-        modal.style.display = 'flex'; // מוודא שהתצוגה תהיה גמישה כדי שהמודל יופיע
+        modal.style.display = 'flex';
     }
 
     closeBtn.addEventListener('click', function () {
-        closeModal();
+        modal.style.display = 'none';
     });
 
     window.addEventListener('click', function (event) {
         if (event.target === modal) {
-            closeModal();
+            modal.style.display = 'none';
+        }
+        if (event.target === forgotModal) {
+            forgotModal.style.display = 'none';
         }
     });
 
-    function closeModal() {
-        modal.style.display = 'none';
-    }
-
-    // **שליחת טופס הרשמה או התחברות**
     authForm.addEventListener('submit', async function (event) {
-        event.preventDefault(); // מונע רענון העמוד
+        event.preventDefault();
 
         const userData = {
             username: usernameField.value.trim(),
@@ -80,43 +83,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const endpoint = isLogin ? 'login' : 'register';
 
-        console.log(`🚀 שולח לשרת:`, userData); // ✅ בדיקה ב-Console
-
         try {
             const response = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),
             });
 
             const data = await response.json();
-            console.log(`🔍 תגובת השרת:`, data); // ✅ לבדוק מה מחזיר השרת
+            alert(data.message);
 
             if (response.ok) {
                 localStorage.setItem('username', data.username);
                 localStorage.setItem('role', data.role);
-                alert(data.message || 'הפעולה בוצעה בהצלחה!');
-                closeModal();
+                modal.style.display = 'none';
                 authForm.reset();
 
-                // ✅ אם המשתמש הוא עורך דין/לקוח – נשלח לדשבורד
                 if (isLogin && data.role === 'lawyer') {
                     window.location.href = 'pages/lawyer-home.html';
                 } else if (isLogin && data.role === 'client') {
                     window.location.href = 'pages/client-home.html';
                 }
-                
-            } else {
-                alert(data.message || 'שגיאה, נסה שוב.');
             }
-
         } catch (error) {
-            console.error('❌ שגיאה בשליחת הנתונים:', error);
-            alert('שגיאה בשרת, נסה שוב מאוחר יותר.');
+            alert('שגיאה בשרת, נסה שוב מאוחר יותר');
         }
     });
+
+    // 💡 שכחתי סיסמה
+    forgotLink.addEventListener('click', () => {
+        modal.style.display = 'none';
+        forgotModal.style.display = 'flex';
+    });
+
+    forgotCloseBtn.addEventListener('click', () => {
+        forgotModal.style.display = 'none';
+    });
+
+    forgotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('forgot-username').value.trim();
+        const email = document.getElementById('forgot-email').value.trim();
+      
+        try {
+          const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email }),
+          });
+      
+          const data = await response.json();
+          alert(data.message);
+          forgotModal.style.display = 'none';
+          forgotForm.reset();
+        } catch (err) {
+          alert('שגיאה בשליחת בקשה לאיפוס סיסמה');
+        }
+      });      
 });
-
-

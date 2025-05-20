@@ -18,7 +18,12 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/requests', require('./routes/requests'));
 app.use('/api/cases', require('./routes/cases'));
+app.use(express.static(path.join(__dirname, '../client')));
 
+
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/pages/reset-password.html'));
+});
 
 
 app.get('/', (req, res) => {

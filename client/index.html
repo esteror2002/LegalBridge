@@ -76,38 +76,56 @@
         <div class="modal-content">
             <span class="close-btn" id="close-btn">&times;</span>
             <h2 id="modal-title">התחברות</h2>
+            <!-- בתוך טופס ההתחברות (בתוך modal-content) -->
             <form id="auth-form">
                 <div class="form-group">
-                    <input type="text" id="username" class="form-control" placeholder="שם משתמש" required>
+                <input type="text" id="username" class="form-control" placeholder="שם משתמש" required>
                 </div>
                 <div class="form-group email-group">
-                    <input type="email" id="email" class="form-control" placeholder="אימייל">
+                <input type="email" id="email" class="form-control" placeholder="אימייל">
                 </div>
-                <!-- שדה טלפון -->
                 <div class="form-group phone-group">
-                    <input type="text" id="phone" class="form-control" placeholder="מספר טלפון">
+                <input type="text" id="phone" class="form-control" placeholder="מספר טלפון">
                 </div>
-
-                <!-- שדה כתובת -->
                 <div class="form-group address-group">
-                    <input type="text" id="address" class="form-control" placeholder="כתובת מגורים">
+                <input type="text" id="address" class="form-control" placeholder="כתובת מגורים">
                 </div>
-
                 <div class="form-group" id="role-group">
-                    <select id="role" class="form-control" required>
-                      <option value="">בחר תפקיד</option>
-                      <option value="lawyer">עורכת דין</option>
-                      <option value="client">לקוח</option>
-                    </select>
-                  </div>                  
+                <select id="role" class="form-control" required>
+                    <option value="">בחר תפקיד</option>
+                    <option value="lawyer">עורכת דין</option>
+                    <option value="client">לקוח</option>
+                </select>
+                </div>
                 <div class="form-group">
-                    <input type="password" id="password" class="form-control" placeholder="סיסמה" required>
+                <input type="password" id="password" class="form-control" placeholder="סיסמה" required>
+                </div>
+                <div class="text-end mt-2">
+                <a href="#" id="forgot-password-link" class="text-danger" style="font-size: 0.9em;">שכחתי סיסמה</a>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">שלח</button>
             </form>
         </div>
     </div>
 
+    <!-- מודל שכחתי סיסמה -->
+    <div class="modal-overlay" id="forgot-password-modal" style="display: none;">
+        <div class="modal-content">
+        <span class="close-btn" id="forgot-close-btn">&times;</span>
+        <h2>איפוס סיסמה</h2>
+        <form id="forgot-password-form">
+            <div class="form-group">
+              <input type="text" id="forgot-username" class="form-control" placeholder="שם משתמש" required>
+            </div>
+            <div class="form-group">
+              <input type="email" id="forgot-email" class="form-control" placeholder="אימייל" required>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 mt-2">שלח קישור לאיפוס</button>
+          </form>          
+        </div>
+    </div>
+  
+      
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-3">
         <p>&copy; 2025 Legal Bridge. כל הזכויות שמורות.</p>
