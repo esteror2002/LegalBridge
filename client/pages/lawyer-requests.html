@@ -5,6 +5,7 @@
   <title>פניות לקוחות | Legal Bridge</title>
   <link rel="stylesheet" href="../css/lawyer-home.css">
   <link rel="stylesheet" href="../css/lawyer-requests.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="layout-container">
@@ -28,6 +29,11 @@
     <!-- אזור התוכן המרכזי -->
     <main class="main-content">
       <h1>📬 פניות ממתינות מהלקוחות</h1>
+      <div class="filter-buttons">
+        <button class="btn btn-outline-primary" onclick="filterRequests(false)">📥 דואר נכנס</button>
+        <button class="btn btn-outline-secondary" onclick="filterRequests(true)">🗄️ ארכיון</button>
+      </div>
+           
       <table id="requests-table">
         <thead>
           <tr>
@@ -45,23 +51,32 @@
     </main>
 
   </div>
-  <div class="modal-overlay" id="request-modal">
-    <div class="modal-content">
-      <h3>פירוט פנייה</h3>
-      <p><strong>שם משתמש:</strong> <span id="modal-username"></span></p>
-      <p><strong>נושא:</strong> <span id="modal-subject"></span></p>
-      <p><strong>תיאור:</strong> <span id="modal-message"></span></p>
+  <div class="modal fade" id="request-modal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow">
+        <div class="modal-header border-bottom-0 d-flex justify-content-between align-items-center">
+          <h5 class="modal-title m-0" id="requestModalLabel">📬 פירוט פנייה</h5>
+          <button type="button" class="btn btn-sm btn-outline-danger" onclick="closeModal()" aria-label="Close">✖</button>
+        </div>                
+        <div class="modal-body">
+          <p><strong>👤 שם משתמש:</strong> <span id="modal-username"></span></p>
+          <p><strong>📝 נושא:</strong> <span id="modal-subject"></span></p>
+          <p><strong>📄 תיאור:</strong> <span id="modal-message"></span></p>
   
-      <textarea id="modal-response" placeholder="הקלידי כאן את תגובתך..."></textarea>
-      
-      <div>
-        <button onclick="sendResponse()">📤 שלח תגובה</button>
-        <button onclick="closeRequest()">✔️ סיום פנייה</button>
-        <button onclick="closeModal()">❌ סגור</button>
+          <div class="mt-4">
+            <label for="modal-response" class="form-label">💬 תגובה ללקוח</label>
+            <textarea id="modal-response" class="form-control" placeholder="הקלידי כאן את תגובתך..." rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-end">
+          <button type="button" class="btn btn-success me-2" onclick="closeRequest()">✔️ סיום פנייה</button>
+          <button type="button" class="btn btn-primary" onclick="sendResponse()">📤 שלח תגובה</button>
+        </div>        
       </div>
     </div>
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/lawyer-requests.js"></script>
 </body>
 </html>

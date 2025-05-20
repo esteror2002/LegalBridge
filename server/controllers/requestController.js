@@ -69,3 +69,19 @@ exports.getRequestsByUser = async (req, res) => {
   }
 };
 
+exports.archiveRequest = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: 'פנייה לא נמצאה' });
+
+    request.archived = true;
+    await request.save();
+
+    res.status(200).json({ message: 'הפנייה הועברה לארכיון' });
+  } catch (error) {
+    console.error('שגיאה בהעברת פנייה לארכיון:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+
+

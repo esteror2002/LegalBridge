@@ -6,7 +6,8 @@ const requestSchema = new mongoose.Schema({
   message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   response: { type: String, default: '' },
-  status: { type: String, default: 'open' }
+  status: { type: String, default: 'open' },
+  archived: { type: Boolean, default: false }
 
 });
 
