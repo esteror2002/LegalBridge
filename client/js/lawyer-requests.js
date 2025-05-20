@@ -72,26 +72,28 @@ async function sendResponse() {
 }
 
 async function closeRequest() {
-  if (!confirm('האם לסמן את הפנייה כסגורה?')) return;
+  if (!confirm('האם לסגור ולהעביר את הפנייה לארכיון?')) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/requests/close/${currentRequestId}`, {
+    // סגירה
+    await fetch(`http://localhost:5000/api/requests/close/${currentRequestId}`, {
       method: 'POST'
     });
 
-    const data = await response.json();
-    if (response.ok) {
-      alert('הפנייה סומנה כסגורה');
-      closeModal();
-      location.reload();
-    } else {
-      alert(data.message || 'שגיאה בסגירת הפנייה');
-    }
+    // העברה לארכיון
+    await fetch(`http://localhost:5000/api/requests/archive/${currentRequestId}`, {
+      method: 'POST'
+    });
+
+    alert('הפנייה סומנה כסגורה והועברה לארכיון');
+    closeModal();
+    location.reload();
   } catch (error) {
-    console.error('שגיאה בסגירת פנייה:', error);
+    console.error('שגיאה בטיפול בפנייה:', error);
     alert('שגיאה בשרת');
   }
 }
+
 
 function logout() {
   localStorage.clear();
@@ -99,25 +101,31 @@ function logout() {
 }
 
 async function closeRequestFromTable(id) {
-  if (!confirm('האם אתה בטוח שברצונך לסגור את הפנייה?')) return;
+  if (!confirm('האם לסגור ולהעביר את הפנייה לארכיון?')) return;
 
   try {
-    const response = await fetch(`http://localhost:5000/api/requests/close/${id}`, {
+    // סגירה
+    await fetch(`http://localhost:5000/api/requests/close/${id}`, {
       method: 'POST'
     });
 
-    const data = await response.json();
-    if (response.ok) {
-      alert('הפנייה נסגרה בהצלחה');
-      location.reload();
-    } else {
-      alert(data.message || 'שגיאה בסגירת הפנייה');
-    }
+    // העברה לארכיון
+    await fetch(`http://localhost:5000/api/requests/archive/${id}`, {
+      method: 'POST'
+    });
+
+    const row = document.querySelector(`button[onclick="closeRequestFromTable('${id}')"]`).closest('tr');
+    row.classList.add('fade-out');
+
+    setTimeout(() => {
+      row.remove(); // הסרה ויזואלית בלי רענון מלא
+    }, 500);
   } catch (error) {
-    console.error('שגיאה בסגירת פנייה:', error);
+    console.error('שגיאה בטיפול בפנייה:', error);
     alert('שגיאה בשרת');
   }
 }
+
 
 async function filterRequests(showArchived) {
   try {
@@ -144,7 +152,6 @@ async function filterRequests(showArchived) {
   <td>
     <button class="btn btn-sm btn-info text-white me-1" onclick="openModal('${req._id}', '${req.username}', '${req.subject}', \`${req.message}\`)">צפה</button>
     <button class="btn btn-sm btn-warning text-dark me-1" onclick="closeRequestFromTable('${req._id}')" ${disableClose}>סגור פנייה</button>
-    <button class="btn btn-sm btn-secondary text-white" onclick="archiveRequest('${req._id}')" ${disableArchive}>🗄️ העבר לארכיון</button>
   </td>
 `;
 
