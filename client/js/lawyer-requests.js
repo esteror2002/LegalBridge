@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('greeting').innerText = `שלום, ${username}`;
 
-  // ✅ הוספת מחלקה 'active' לכפתור הלחוץ
   document.querySelectorAll('.filter-buttons button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-buttons button').forEach(b => b.classList.remove('active'));
@@ -20,22 +19,36 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // טוען כברירת מחדל רק את הפניות שאינן בארכיון
   filterRequests(false);
 });
 
-
-function openModal(id, username, subject, message) {
+function openModal(id, username, subject, message, status, response) {
   currentRequestId = id;
   document.getElementById('modal-username').textContent = username;
   document.getElementById('modal-subject').textContent = subject;
   document.getElementById('modal-message').textContent = message;
   document.getElementById('modal-response').value = '';
 
+  const actions = document.getElementById('modal-actions');
+  const responseWrapper = document.getElementById('modal-response-wrapper');
+  const lawyerResponse = document.getElementById('modal-lawyer-response');
+  const responseText = document.getElementById('modal-response-text');
+
+  const isClosed = status === 'closed';
+
+  if (response && response.trim() !== '') {
+    responseText.textContent = response;
+    lawyerResponse.style.display = 'block';
+  } else {
+    lawyerResponse.style.display = 'none';
+  }
+
+  actions.style.display = isClosed ? 'none' : 'flex';
+  responseWrapper.style.display = isClosed ? 'none' : 'block';
+
   const modal = new bootstrap.Modal(document.getElementById('request-modal'));
   modal.show();
 }
-
 
 function closeModal() {
   const modalElement = document.getElementById('request-modal');
@@ -44,7 +57,6 @@ function closeModal() {
     modalInstance.hide();
   }
 }
-
 
 async function sendResponse() {
   const responseText = document.getElementById('modal-response').value.trim();
@@ -75,15 +87,8 @@ async function closeRequest() {
   if (!confirm('האם לסגור ולהעביר את הפנייה לארכיון?')) return;
 
   try {
-    // סגירה
-    await fetch(`http://localhost:5000/api/requests/close/${currentRequestId}`, {
-      method: 'POST'
-    });
-
-    // העברה לארכיון
-    await fetch(`http://localhost:5000/api/requests/archive/${currentRequestId}`, {
-      method: 'POST'
-    });
+    await fetch(`http://localhost:5000/api/requests/close/${currentRequestId}`, { method: 'POST' });
+    await fetch(`http://localhost:5000/api/requests/archive/${currentRequestId}`, { method: 'POST' });
 
     alert('הפנייה סומנה כסגורה והועברה לארכיון');
     closeModal();
@@ -94,7 +99,6 @@ async function closeRequest() {
   }
 }
 
-
 function logout() {
   localStorage.clear();
   window.location.href = '../index.html';
@@ -104,28 +108,20 @@ async function closeRequestFromTable(id) {
   if (!confirm('האם לסגור ולהעביר את הפנייה לארכיון?')) return;
 
   try {
-    // סגירה
-    await fetch(`http://localhost:5000/api/requests/close/${id}`, {
-      method: 'POST'
-    });
-
-    // העברה לארכיון
-    await fetch(`http://localhost:5000/api/requests/archive/${id}`, {
-      method: 'POST'
-    });
+    await fetch(`http://localhost:5000/api/requests/close/${id}`, { method: 'POST' });
+    await fetch(`http://localhost:5000/api/requests/archive/${id}`, { method: 'POST' });
 
     const row = document.querySelector(`button[onclick="closeRequestFromTable('${id}')"]`).closest('tr');
     row.classList.add('fade-out');
 
     setTimeout(() => {
-      row.remove(); // הסרה ויזואלית בלי רענון מלא
+      row.remove();
     }, 500);
   } catch (error) {
     console.error('שגיאה בטיפול בפנייה:', error);
     alert('שגיאה בשרת');
   }
 }
-
 
 async function filterRequests(showArchived) {
   try {
@@ -141,20 +137,29 @@ async function filterRequests(showArchived) {
 
       const statusLabel = req.status === 'closed' ? 'סגור' : 'ממתין לטיפול';
       const disableClose = req.status === 'closed' ? 'disabled' : '';
-      const disableArchive = req.archived ? 'disabled' : '';
 
       row.innerHTML = `
-  <td>${req.username}</td>
-  <td>${req.subject}</td>
-  <td>${req.message}</td>
-  <td>${new Date(req.createdAt).toLocaleString('he-IL')}</td>
-  <td>${statusLabel}</td>
-  <td>
-    <button class="btn btn-sm btn-info text-white me-1" onclick="openModal('${req._id}', '${req.username}', '${req.subject}', \`${req.message}\`)">צפה</button>
-    <button class="btn btn-sm btn-warning text-dark me-1" onclick="closeRequestFromTable('${req._id}')" ${disableClose}>סגור פנייה</button>
-  </td>
-`;
-
+        <td>${req.username}</td>
+        <td>${req.subject}</td>
+        <td>${req.message}</td>
+        <td>${new Date(req.createdAt).toLocaleString('he-IL')}</td>
+        <td>${statusLabel}</td>
+        <td>
+          <button class="btn btn-sm btn-info text-white me-1"
+            onclick="openModal(
+              '${req._id}',
+              '${req.username}',
+              '${req.subject}',
+              \`${req.message}\`,
+              '${req.status}',
+              \`${req.response || ''}\`
+            )">צפה</button>
+          <button class="btn btn-sm btn-warning text-dark me-1"
+            onclick="closeRequestFromTable('${req._id}')" ${disableClose}>
+            סגור פנייה
+          </button>
+        </td>
+      `;
 
       tableBody.appendChild(row);
     });
