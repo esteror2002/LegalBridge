@@ -7,49 +7,145 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-  <div class="layout-container">
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+  </div>
 
-    <!-- תפריט צד -->
+  <div class="layout-container">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2 id="greeting">שלום, עורכת דין</h2>
-        <button onclick="logout()">🚪 התנתקות</button>
+        <div class="profile-section">
+          <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h2 id="greeting">שלום, עורכת דין</h2>
+        </div>
+        
+        <div class="header-actions">
+          <button class="logout-btn" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>התנתקות</span>
+          </button>
+        </div>
       </div>
+
       <nav class="lawyer-options">
         <ul>
-          <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
-          <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
-          <li><a href="lawyer-requests.html">📬 דואר</a></li>
-          <li><a href="lawyer-cases.html">📁 ניהול תיקים</a></li>
+          <li>
+            <a href="lawyer-profile.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-person"></i>
+              </div>
+              <span>אזור אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="clients-list.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <span>צפייה בלקוחות</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-requests.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <span>דואר</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-cases.html" class="nav-item active">
+              <div class="nav-icon">
+                <i class="bi bi-folder"></i>
+              </div>
+              <span>ניהול תיקים</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
         </ul>
       </nav>
     </aside>
 
-    <!-- תוכן ראשי -->
+    <!-- Main Content -->
     <main class="main-content">
-      <h1>📁 ניהול תיקים</h1>
-
-      <input type="text" id="searchInput" placeholder="חיפוש לפי שם לקוח..." class="search-input" oninput="filterCases()">
-
-      <div id="cases-container" class="cases-grid"></div>
-
-      <!-- כפתור הצגת טופס -->
-      <button class="add-case-btn" onclick="showAddCaseForm()" title="הוסף תיק">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" alt="הוסף תיק" class="add-icon">
-      </button>
-
-      <!-- טופס הוספת תיק -->
-      <div id="add-case-form" style="display: none; margin-top: 30px; max-width: 400px;">
-        <h3>יצירת תיק חדש</h3>
-        <select id="clientSelect">
-          <option value="">בחר לקוח</option>
-        </select>
-        <input type="text" id="caseDescription" placeholder="תיאור תיק" style="margin-top: 10px;">
-        <button onclick="submitNewCase()" style="margin-top: 10px;">📁 שמור תיק</button>
+      <div class="content-header">
+        <h1 class="main-title">
+          <span class="title-text">ניהול תיקים</span>
+          <span class="title-highlight">Legal Bridge</span>
+        </h1>
+        <p class="subtitle">כאן תוכלי לנהל ולעקוב אחר כל התיקים הפעילים שלך בקלות וביעילות</p>
       </div>
 
+      <!-- Search Section -->
+      <div class="search-section">
+        <div class="search-container">
+          <i class="bi bi-search"></i>
+          <input type="text" id="searchInput" placeholder="חיפוש לפי שם לקוח..." class="search-input" oninput="filterCases()">
+        </div>
+      </div>
+
+      <!-- Cases Grid -->
+      <div id="cases-container" class="cases-grid"></div>
+
+      <!-- Add Case Form -->
+      <div id="add-case-form" class="add-case-form" style="display: none;">
+        <div class="form-header">
+          <h3>יצירת תיק חדש</h3>
+          <button class="close-form" onclick="hideAddCaseForm()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        <div class="form-content">
+          <div class="input-group">
+            <label>בחירת לקוח</label>
+            <select id="clientSelect">
+              <option value="">בחר לקוח</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>תיאור התיק</label>
+            <textarea id="caseDescription" placeholder="הזן תיאור מפורט של התיק..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="submit-btn" onclick="submitNewCase()">
+              <i class="bi bi-folder-plus"></i>
+              <span>שמור תיק</span>
+            </button>
+            <button class="cancel-btn" onclick="hideAddCaseForm()">
+              <i class="bi bi-x-circle"></i>
+              <span>ביטול</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
+
+  <!-- Floating Add Button -->
+  <button class="add-case-btn" onclick="showAddCaseForm()" title="הוסף תיק חדש">
+    <i class="bi bi-folder-plus"></i>
+  </button>
 
   <script src="../js/lawyer-cases.js"></script>
 </body>

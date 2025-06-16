@@ -2,57 +2,249 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>האזור האישי שלי | Legal Bridge</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../css/client-profile.css">
-  <script src="../js/client-profile.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
-<body class="bg-light">
-
-  <!-- ניווט עליון -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand" href="#">Legal Bridge</a>
-      <div class="d-flex ms-auto align-items-center">
-        <span class="text-white me-3" id="client-name"></span>
-        <button class="btn btn-outline-light btn-sm ms-2" onclick="logout()">התנתקות</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- אזור תוכן -->
-  <div class="container mt-5">
-    <h1 class="text-center mb-4">האזור האישי שלי</h1>
-
-    <div class="card p-4 shadow-sm">
-      <div class="mb-3">
-        <label class="form-label">שם משתמש:</label>
-        <input type="text" id="username" class="form-control" readonly>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">מספר טלפון:</label>
-        <input type="text" id="phone" class="form-control" readonly>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">כתובת:</label>
-        <input type="text" id="address" class="form-control" readonly>
-      </div>
-
-      <div class="d-flex justify-content-between mt-4">
-        <div>
-          <button class="btn btn-warning" id="edit-btn" onclick="enableEditing()">ערוך פרטים</button>
-          <button class="btn btn-success d-none" id="save-btn" onclick="saveChanges()">שמור שינויים</button>
-        </div>
-        <div>
-          <button class="btn btn-secondary" onclick="goBack()">חזור לעמוד הבית</button>
-          <button class="btn btn-outline-danger" onclick="logout()">התנתקות</button>
-        </div>
-      </div>
+<body>
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
     </div>
   </div>
 
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="profile-section">
+          <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h2 id="greeting">שלום, לקוח</h2>
+        </div>
+        
+        <div class="header-actions">
+          <button class="logout-btn" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>התנתקות</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="client-options">
+        <ul>
+          <li>
+            <a href="client-home.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-house"></i>
+              </div>
+              <span>עמוד הבית</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="client-profile.html" class="nav-item active">
+              <div class="nav-icon">
+                <i class="bi bi-person"></i>
+              </div>
+              <span>אזור אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="client-requests.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <span>דואר</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1 class="main-title">
+          <span class="title-text">האזור האישי שלי</span>
+          <span class="title-highlight">
+            <i class="bi bi-person-gear"></i>
+          </span>
+        </h1>
+        <p class="subtitle">כאן תוכל לעדכן ולנהל את הפרטים האישיים שלך</p>
+      </div>
+
+      <div class="profile-container">
+        <!-- Profile Info Card -->
+        <div class="profile-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="header-text">
+              <h3>פרטים אישיים</h3>
+              <p>עדכן את הפרטים האישיים שלך</p>
+            </div>
+            <div class="header-actions">
+              <button class="edit-btn" id="edit-btn" onclick="enableEditing()">
+                <i class="bi bi-pencil"></i>
+                <span>ערוך</span>
+              </button>
+              <button class="save-btn d-none" id="save-btn" onclick="saveChanges()">
+                <i class="bi bi-check-circle"></i>
+                <span>שמור</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person"></i>
+                  שם משתמש
+                </label>
+                <input type="text" id="username" class="form-input" readonly>
+                <div class="form-line"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-telephone"></i>
+                  מספר טלפון
+                </label>
+                <input type="text" id="phone" class="form-input" readonly>
+                <div class="form-line"></div>
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt"></i>
+                  כתובת
+                </label>
+                <input type="text" id="address" class="form-input" readonly>
+                <div class="form-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Card -->
+        <div class="activity-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="header-text">
+              <h3>פעילות אחרונה</h3>
+              <p>סיכום הפעילות שלך במערכת</p>
+            </div>
+          </div>
+
+          <div class="activity-stats">
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">5</div>
+                <div class="stat-label">פניות שנשלחו</div>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="bi bi-chat-left-text"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">12</div>
+                <div class="stat-label">הודעות התקבלו</div>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">3</div>
+                <div class="stat-label">פגישות נקבעו</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="security-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="header-text">
+              <h3>אבטחה והגדרות</h3>
+              <p>ניהול הגדרות אבטחה וחשבון</p>
+            </div>
+          </div>
+
+          <div class="security-options">
+            <div class="security-option">
+              <div class="option-icon">
+                <i class="bi bi-key"></i>
+              </div>
+              <div class="option-content">
+                <h4>שינוי סיסמה</h4>
+                <p>עדכן את סיסמת החשבון שלך</p>
+              </div>
+              <button class="option-btn" onclick="showComingSoon()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </div>
+
+            <div class="security-option">
+              <div class="option-icon">
+                <i class="bi bi-bell"></i>
+              </div>
+              <div class="option-content">
+                <h4>הגדרות התראות</h4>
+                <p>נהל את ההתראות שאתה מקבל</p>
+              </div>
+              <button class="option-btn" onclick="showComingSoon()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </div>
+
+            <div class="security-option">
+              <div class="option-icon">
+                <i class="bi bi-download"></i>
+              </div>
+              <div class="option-content">
+                <h4>הורדת נתונים</h4>
+                <p>הורד עותק של הנתונים האישיים שלך</p>
+              </div>
+              <button class="option-btn" onclick="showComingSoon()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/client-profile.js"></script>
 </body>
 </html>

@@ -1,325 +1,171 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>בית לקוח | Legal Bridge</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/client-home.css">
+  <meta charset="UTF-8">
+  <title>בית לקוח | Legal Bridge</title>
+  <link rel="stylesheet" href="../css/client-home.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <i class="fas fa-gavel"></i>
-            <p>טוען...</p>
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+  </div>
+
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="profile-section">
+          <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h2 id="greeting">שלום, לקוח</h2>
         </div>
+        
+        <div class="header-actions">
+          <div class="notification-icon" onclick="toggleNotifications()">
+            <i class="bi bi-bell"></i>
+            <span id="notif-count" class="badge" style="display: none;">0</span>
+            <div class="notification-pulse"></div>
+          </div>
+          <button class="logout-btn" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>התנתקות</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="client-options">
+        <ul>
+          <li>
+            <a href="client-profile.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-person"></i>
+              </div>
+              <span>אזור אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="client-requests.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <span>דואר</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1 class="main-title">
+          <span class="title-text">ברוך הבא למערכת</span>
+          <span class="title-highlight">Legal Bridge</span>
+        </h1>
+        <p class="subtitle">כאן תוכל לנהל את כל הפעילות המשפטית שלך במקום אחד</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card" onclick="navigateTo('client-profile.html')">
+          <div class="card-icon">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>אזור אישי</h3>
+            <p>עריכת פרטים אישיים והגדרות</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-card" onclick="navigateTo('client-requests.html')">
+          <div class="card-icon">
+            <i class="bi bi-envelope-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>דואר</h3>
+            <p>פנייה לעורך דין והודעות</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-card coming-soon">
+          <div class="card-icon">
+            <i class="bi bi-file-text-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>מסמכים</h3>
+            <p>ניהול מסמכים אישיים</p>
+          </div>
+          <div class="card-action">
+            <span class="coming-soon-badge">בקרוב</span>
+          </div>
+        </div>
+
+        <div class="dashboard-card coming-soon">
+          <div class="card-icon">
+            <i class="bi bi-calendar-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>פגישות</h3>
+            <p>תיאום פגישות עם עורכי דין</p>
+          </div>
+          <div class="card-action">
+            <span class="coming-soon-badge">בקרוב</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">פניות פעילות</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2</div>
+          <div class="stat-label">הודעות חדשות</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1</div>
+          <div class="stat-label">פגישות השבוע</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Panel -->
+  <div id="notif-panel" class="notif-panel" style="display: none;">
+    <div class="panel-header">
+      <h3>התראות</h3>
+      <button class="close-panel" onclick="toggleNotifications()">
+        <i class="bi bi-x"></i>
+      </button>
     </div>
-
-    <div class="layout-container">
-        <!-- Header -->
-        <header class="top-header">
-            <div class="header-left">
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="logo">
-                    <i class="fas fa-balance-scale"></i>
-                    <span>Legal Bridge</span>
-                </div>
-            </div>
-            
-            <div class="header-center">
-                <h1 class="page-title">לוח הבקרה שלי</h1>
-            </div>
-            
-            <div class="header-right">
-                <div class="user-menu">
-                    <div class="notifications">
-                        <button class="notification-btn" title="התראות">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </button>
-                    </div>
-                    
-                    <div class="user-profile" onclick="toggleUserMenu()">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="user-info">
-                            <span class="user-name" id="userName">שלום, לקוח</span>
-                            <small class="user-role">לקוח</small>
-                        </div>
-                        <i class="fas fa-chevron-down dropdown-arrow"></i>
-                    </div>
-                    
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="client-profile.html">
-                            <i class="fas fa-user-edit"></i>
-                            עריכת פרופיל
-                        </a>
-                        <a href="#" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i>
-                            התנתקות
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-content">
-                <div class="sidebar-header">
-                    <div class="welcome-card">
-                        <div class="welcome-icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="welcome-text">
-                            <h3 id="sidebarGreeting">שלום, לקוח</h3>
-                            <p>ברוך הבא למערכת</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <nav class="sidebar-nav">
-                    <ul class="nav-list">
-                        <li class="nav-item active">
-                            <a href="#" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-tachometer-alt"></i>
-                                </div>
-                                <span class="nav-text">לוח בקרה</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a href="client-profile.html" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span class="nav-text">אזור אישי</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a href="client-requests.html" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-paper-plane"></i>
-                                </div>
-                                <span class="nav-text">פנייה לעורך דין</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <span class="nav-text">המסמכים שלי</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <span class="nav-text">פגישות ותורים</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                        
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <div class="nav-icon">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                                <span class="nav-text">הודעות</span>
-                                <span class="nav-badge">2</span>
-                                <div class="nav-indicator"></div>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                
-                <div class="sidebar-footer">
-                    <div class="help-card">
-                        <div class="help-icon">
-                            <i class="fas fa-question-circle"></i>
-                        </div>
-                        <div class="help-content">
-                            <h4>זקוק לעזרה?</h4>
-                            <p>צור קשר עם הצוות שלנו</p>
-                            <button class="help-btn">
-                                <i class="fas fa-headset"></i>
-                                פתח צ'אט
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-wrapper">
-                <!-- Welcome Section -->
-                <section class="welcome-section">
-                    <div class="welcome-banner">
-                        <div class="welcome-content">
-                            <h1 class="welcome-title">
-                                <i class="fas fa-hand-wave"></i>
-                                ברוך הבא למערכת Legal Bridge
-                            </h1>
-                            <p class="welcome-description">
-                                כאן תוכל לנהל את כל הפעילות המשפטית שלך במקום אחד - מסמכים, פניות, פגישות ועוד
-                            </p>
-                            <div class="welcome-actions">
-                                <a href="client-requests.html" class="action-btn primary">
-                                    <i class="fas fa-plus"></i>
-                                    פנייה חדשה
-                                </a>
-                                <a href="client-profile.html" class="action-btn secondary">
-                                    <i class="fas fa-user-edit"></i>
-                                    עדכן פרופיל
-                                </a>
-                            </div>
-                        </div>
-                        <div class="welcome-illustration">
-                            <div class="illustration-icon">
-                                <i class="fas fa-scale-balanced"></i>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Quick Stats -->
-                <section class="stats-section">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-paper-plane"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">5</div>
-                                <div class="stat-label">פניות פעילות</div>
-                            </div>
-                            <div class="stat-trend up">
-                                <i class="fas fa-arrow-up"></i>
-                                +2
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-file-check"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">12</div>
-                                <div class="stat-label">מסמכים</div>
-                            </div>
-                            <div class="stat-trend">
-                                <i class="fas fa-minus"></i>
-                                0
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">3</div>
-                                <div class="stat-label">פגישות השבוע</div>
-                            </div>
-                            <div class="stat-trend up">
-                                <i class="fas fa-arrow-up"></i>
-                                +1
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">7</div>
-                                <div class="stat-label">התראות חדשות</div>
-                            </div>
-                            <div class="stat-trend up">
-                                <i class="fas fa-arrow-up"></i>
-                                +4
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Recent Activity -->
-                <section class="activity-section">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <i class="fas fa-clock"></i>
-                            פעילות אחרונה
-                        </h2>
-                        <a href="#" class="view-all-link">
-                            צפה בהכל
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </div>
-                    
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-reply"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>תגובה חדשה לפנייה</h4>
-                                <p>עו"ד כהן השיב לפנייה שלך בנושא חוזה שכירות</p>
-                                <span class="activity-time">לפני שעתיים</span>
-                            </div>
-                            <div class="activity-status new">חדש</div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-file-upload"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>מסמך חדש הועלה</h4>
-                                <p>הועלה מסמך "חוזה_עבודה_עדכני.pdf" לתיק שלך</p>
-                                <span class="activity-time">אתמול</span>
-                            </div>
-                            <div class="activity-status"></div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-calendar-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4>פגישה נקבעה</h4>
-                                <p>פגישה חדשה נקבעה ליום ראשון בשעה 10:00</p>
-                                <span class="activity-time">לפני 3 ימים</span>
-                            </div>
-                            <div class="activity-status"></div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+    <div class="panel-content">
+      <ul id="notif-list">
+        <li class="empty-state">אין התראות חדשות</li>
+      </ul>
     </div>
+  </div>
 
-    <!-- Custom JavaScript -->
-    <script src="../js/client-home.js"></script>
+  <script src="../js/client-home.js"></script>
 </body>
 </html>
