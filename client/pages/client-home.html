@@ -4,6 +4,27 @@
   <meta charset="UTF-8">
   <title>בית לקוח | Legal Bridge</title>
   <link rel="stylesheet" href="../css/client-home.css">
+  <style>
+    .featured-card {
+      background: linear-gradient(135deg, #007bff, #0056b3) !important;
+      color: white !important;
+      border-color: #007bff !important;
+    }
+    
+    .featured-card .card-content h3,
+    .featured-card .card-content p {
+      color: white !important;
+    }
+    
+    .featured-card .card-icon {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .featured-card:hover {
+      transform: translateY(-10px) scale(1.02) !important;
+      box-shadow: 0 25px 60px rgba(0, 123, 255, 0.4) !important;
+    }
+  </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
@@ -56,6 +77,17 @@
             </a>
           </li>
           <li>
+            <a href="client-case.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-folder"></i>
+              </div>
+              <span>התיק שלי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
             <a href="client-requests.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-envelope"></i>
@@ -94,6 +126,19 @@
           </div>
         </div>
 
+        <div class="dashboard-card featured-card" onclick="navigateTo('client-case.html')">
+          <div class="card-icon">
+            <i class="bi bi-folder-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>התיק שלי</h3>
+            <p>עקוב אחרי התקדמות התיק ומסמכים</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+
         <div class="dashboard-card" onclick="navigateTo('client-requests.html')">
           <div class="card-icon">
             <i class="bi bi-envelope-fill"></i>
@@ -104,19 +149,6 @@
           </div>
           <div class="card-action">
             <i class="bi bi-arrow-left"></i>
-          </div>
-        </div>
-
-        <div class="dashboard-card coming-soon">
-          <div class="card-icon">
-            <i class="bi bi-file-text-fill"></i>
-          </div>
-          <div class="card-content">
-            <h3>מסמכים</h3>
-            <p>ניהול מסמכים אישיים</p>
-          </div>
-          <div class="card-action">
-            <span class="coming-soon-badge">בקרוב</span>
           </div>
         </div>
 
@@ -136,16 +168,16 @@
 
       <div class="stats-section">
         <div class="stat-card">
-          <div class="stat-number">5</div>
-          <div class="stat-label">פניות פעילות</div>
+          <div class="stat-number" id="case-status">-</div>
+          <div class="stat-label">סטטוס התיק</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">2</div>
+          <div class="stat-number" id="progress-count">-</div>
+          <div class="stat-label">עדכוני התקדמות</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="messages-count">-</div>
           <div class="stat-label">הודעות חדשות</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">1</div>
-          <div class="stat-label">פגישות השבוע</div>
         </div>
       </div>
     </main>

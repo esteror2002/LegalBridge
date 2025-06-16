@@ -10,5 +10,7 @@ router.put('/:id/documents', caseController.uploadDocuments);
 router.put('/:id/subcases', caseController.addSubcase); // חדש
 router.put('/:id/subcases/:index/documents', caseController.addDocumentToSubcase); // חדש
 router.delete('/:id', caseController.deleteCase);
+router.get('/client/:clientId', caseController.getCasesByClientId); // תיקי לקוח ספציפי
+router.put('/:id/progress', caseController.addProgress); // הוספת עדכון התקדמות
 
 module.exports = router;

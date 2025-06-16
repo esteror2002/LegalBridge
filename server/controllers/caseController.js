@@ -11,7 +11,7 @@ exports.getAllCases = async (req, res) => {
   }
 };
 
-// הוספת תיק חדש עם פרטי לקוחה
+// הוספת תיק חדש עם פרטי לקוחה - מעודכן!
 exports.addCase = async (req, res) => {
   try {
     const { clientName, description } = req.body;
@@ -23,16 +23,24 @@ exports.addCase = async (req, res) => {
     }
 
     const newCase = new Case({
+      clientId: user._id, // ✅ הוספנו את ה-ID של הלקוח!
       clientName,
       description,
       clientEmail: user.email,
       clientPhone: user.phone,
-      clientAddress: user.address
+      clientAddress: user.address,
+      // הוספת עדכון התקדמות ראשוני
+      progress: [{
+        title: 'תיק נפתח',
+        description: 'התיק נוצר במערכת והועבר לטיפול',
+        addedBy: 'המערכת'
+      }]
     });
 
     await newCase.save();
     res.status(201).json(newCase);
   } catch (err) {
+    console.error('שגיאה ביצירת תיק:', err);
     res.status(400).json({ error: 'שגיאה ביצירת תיק חדש' });
   }
 };
@@ -115,5 +123,42 @@ exports.addDocumentToSubcase = async (req, res) => {
     res.json(caseItem);
   } catch (err) {
     res.status(400).json({ error: 'שגיאה בהוספת מסמך לתת-תיק' });
+  }
+};
+
+// שליפת תיקים לפי לקוח
+exports.getCasesByClientId = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const cases = await Case.find({ clientId });
+    res.json(cases);
+  } catch (err) {
+    console.error('שגיאה בשליפת תיקי לקוח:', err);
+    res.status(500).json({ error: 'שגיאה בשליפת תיקי לקוח' });
+  }
+};
+
+//    הוספת עדכון התקדמות
+exports.addProgress = async (req, res) => {
+  try {
+    const { title, description, addedBy } = req.body;
+    const updated = await Case.findByIdAndUpdate(
+      req.params.id,
+      { 
+        $push: { 
+          progress: { 
+            title, 
+            description, 
+            addedBy,
+            date: new Date()
+          } 
+        } 
+      },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    console.error('שגיאה בהוספת עדכון התקדמות:', err);
+    res.status(400).json({ error: 'שגיאה בהוספת עדכון התקדמות' });
   }
 };
