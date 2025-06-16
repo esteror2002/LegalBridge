@@ -5,61 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>אזור אישי - עורכת דין | Legal Bridge</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../css/client-profile.css">
-  <link rel="stylesheet" href="../css/lawyer-home.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../css/lawyer-profile.css">
 </head>
-<body class="bg-light">
-  <div class="layout-container">
-
-   <!-- תפריט צד -->
-   <aside class="sidebar">
-    <div class="sidebar-header">
-      <h2 id="greeting">שלום, עורכת דין</h2>
-      <button onclick="logout()">🚪 התנתקות</button>
+<body>
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
     </div>
-    <nav class="lawyer-options">
-      <ul>
-        <li><a href="lawyer-profile.html">👤 אזור אישי</a></li>
-        <li><a href="clients-list.html">👥 צפייה בלקוחות</a></li>
-        <li><a href="lawyer-requests.html">📬 דואר</a></li>
-        <li><a href="lawyer-cases.html">📁 ניהול תיקים</a></li>
-      </ul>
-    </nav>
-  </aside>
+  </div>
 
-    <!-- אזור תוכן -->
-    <main class="main-content">
-      <h1 class="text-center mb-4">האזור האישי שלי</h1>
-
-      <div class="card p-4 shadow-sm">
-        <div class="mb-3">
-          <label class="form-label">שם משתמש:</label>
-          <input type="text" id="username" class="form-control" readonly>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">מספר טלפון:</label>
-          <input type="text" id="phone" class="form-control" readonly>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">כתובת:</label>
-          <input type="text" id="address" class="form-control" readonly>
-        </div>
-
-        <div class="d-flex justify-content-between mt-4">
-          <div>
-            <button class="btn btn-warning" id="edit-btn" onclick="enableEditing()">ערוך פרטים</button>
-            <button class="btn btn-success d-none" id="save-btn" onclick="saveChanges()">שמור שינויים</button>
+  <div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="profile-section">
+          <div class="profile-avatar">
+            <i class="bi bi-person-circle"></i>
           </div>
-          <div>
-            <!-- <button class="btn btn-secondary" onclick="goBack()">חזור לעמוד הבית</button>
-            <button class="btn btn-outline-danger" onclick="logout()">התנתקות</button> -->
+          <h2 id="greeting">שלום, עורכת דין</h2>
+        </div>
+        
+        <div class="header-actions">
+          <button class="logout-btn" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>התנתקות</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="lawyer-options">
+        <ul>
+          <li>
+            <a href="lawyer-home.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-house"></i>
+              </div>
+              <span>עמוד הבית</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-profile.html" class="nav-item active">
+              <div class="nav-icon">
+                <i class="bi bi-person"></i>
+              </div>
+              <span>אזור אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="clients-list.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <span>צפייה בלקוחות</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-requests.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <span>דואר</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-cases.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-folder"></i>
+              </div>
+              <span>ניהול תיקים</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1 class="page-title">
+          <i class="bi bi-person-gear"></i>
+          האזור האישי שלי
+        </h1>
+        <p class="page-subtitle">ניהול ועריכת פרטים אישיים</p>
+      </div>
+
+      <div class="profile-card">
+        <div class="card-header">
+          <div class="header-icon">
+            <i class="bi bi-person-badge"></i>
+          </div>
+          <div class="header-content">
+            <h3>פרטים אישיים</h3>
+            <p>עדכן את הפרטים האישיים שלך</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-person"></i>
+              שם משתמש:
+            </label>
+            <input type="text" id="username" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-telephone"></i>
+              מספר טלפון:
+            </label>
+            <input type="text" id="phone" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-geo-alt"></i>
+              כתובת:
+            </label>
+            <input type="text" id="address" class="form-control" readonly>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-edit" id="edit-btn" onclick="enableEditing()">
+              <i class="bi bi-pencil"></i>
+              ערוך פרטים
+            </button>
+            <button class="btn btn-save d-none" id="save-btn" onclick="saveChanges()">
+              <i class="bi bi-check-circle"></i>
+              שמור שינויים
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Info Cards -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div class="info-content">
+            <h4>רמת אבטחה</h4>
+            <p>חשבון מאובטח</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="info-content">
+            <h4>פעילות אחרונה</h4>
+            <p>היום בשעה 14:30</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="bi bi-star"></i>
+          </div>
+          <div class="info-content">
+            <h4>סטטוס חשבון</h4>
+            <p>עורך דין מאושר</p>
           </div>
         </div>
       </div>
     </main>
-
   </div>
 
   <script src="../js/lawyer-profile.js"></script>
