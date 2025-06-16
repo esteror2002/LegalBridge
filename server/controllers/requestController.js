@@ -67,7 +67,14 @@ exports.sendToClient = async (req, res) => {
 // קבלת כל הפניות (לעורך דין)
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await Request.find().sort({ createdAt: -1 });
+    // עורך דין רואה הודעות שלא נמחקו על ידו
+    const requests = await Request.find({
+      $or: [
+        { deleted: false }, // הודעות שלא נמחקו
+        { deleted: true, deletedBy: { $ne: 'עורך דין' } } // הודעות שנמחקו על ידי לקוח
+      ]
+    }).sort({ createdAt: -1 });
+    
     res.status(200).json(requests);
   } catch (error) {
     console.error('שגיאה בקבלת הפניות:', error);
@@ -80,11 +87,22 @@ exports.getRequestsByUser = async (req, res) => {
   try {
     const { username } = req.params;
     
-    // לקוח רואה הודעות שהוא שלח או שנשלחו אליו
+    // פשוט יותר - רק הודעות שלא נמחקו על ידי המשתמש הנוכחי
     const requests = await Request.find({
-      $or: [
-        { username: username }, // הודעות שהוא שלח
-        { recipientUsername: username } // הודעות שנשלחו אליו
+      $and: [
+        {
+          $or: [
+            { username: username }, // הודעות שהוא שלח
+            { recipientUsername: username } // הודעות שנשלחו אליו
+          ]
+        },
+        {
+          $or: [
+            { deleted: { $exists: false } }, // הודעות ישנות בלי שדה deleted
+            { deleted: false }, // הודעות חדשות שלא נמחקו
+            { $and: [{ deleted: true }, { deletedBy: { $ne: username } }] } // נמחקו על ידי אחרים
+          ]
+        }
       ]
     }).sort({ createdAt: -1 });
     
@@ -98,13 +116,27 @@ exports.getRequestsByUser = async (req, res) => {
 // מענה לפנייה
 exports.replyToRequest = async (req, res) => {
   try {
-    const request = await Request.findById(req.params.id);
-    if (!request) {
+    const originalRequest = await Request.findById(req.params.id);
+    if (!originalRequest) {
       return res.status(404).json({ message: 'פנייה לא נמצאה' });
     }
 
-    request.response = req.body.response;
-    await request.save();
+    // יצירת הודעת תגובה חדשה
+    const replyMessage = new Request({
+      username: 'עורך דין',
+      recipientUsername: originalRequest.username,
+      subject: `תגובה: ${originalRequest.subject}`,
+      message: req.body.response,
+      sentByLawyer: true,
+      direction: 'outgoing',
+      read: false // הודעה חדשה לא נקראה
+    });
+    
+    await replyMessage.save();
+
+    // סימון ההודעה המקורית כנענתה
+    originalRequest.response = req.body.response;
+    await originalRequest.save();
 
     res.status(200).json({ message: 'תגובה נשלחה בהצלחה' });
   } catch (error) {
@@ -179,6 +211,60 @@ exports.getClients = async (req, res) => {
     res.status(200).json(clients);
   } catch (error) {
     console.error('שגיאה בקבלת לקוחות:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+
+// סימון הודעה כנקראה
+exports.markAsRead = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: 'הודעה לא נמצאה' });
+    }
+
+    request.read = true;
+    await request.save();
+
+    res.status(200).json({ message: 'הודעה סומנה כנקראה' });
+  } catch (error) {
+    console.error('שגיאה בסימון הודעה כנקראה:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+
+// קבלת מספר הודעות לא נקראות
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    const unreadCount = await Request.countDocuments({
+      recipientUsername: username,
+      read: false,
+      archived: false
+    });
+    
+    res.status(200).json({ count: unreadCount });
+  } catch (error) {
+    console.error('שגיאה בספירת הודעות לא נקראות:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+
+exports.deleteMessage = async (req, res) => {
+  try {
+    const message = await Request.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({ message: 'הודעה לא נמצאה' });
+    }
+
+    message.deleted = true;
+    message.deletedBy = req.body.username; // מי מחק
+    await message.save();
+
+    res.status(200).json({ message: 'ההודעה נמחקה בהצלחה' });
+  } catch (error) {
+    console.error('שגיאה במחיקת הודעה:', error);
     res.status(500).json({ message: 'שגיאה בשרת' });
   }
 };

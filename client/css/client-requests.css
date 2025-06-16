@@ -385,9 +385,63 @@ body {
   text-transform: uppercase;
 }
 
+.status-badge.new {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  animation: pulse 2s infinite;
+}
+
 .status-badge.received {
   background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
+}
+
+/* הודעות לא נקראות */
+.unread-message {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+  font-weight: bold;
+  border-right: 4px solid #ff6b6b;
+}
+
+.unread-message:hover {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.2);
+}
+
+/* תג מונה הודעות לא נקראות */
+.unread-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+  z-index: 10;
+}
+
+.filter-btn {
+  position: relative;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
 }
 
 .status-badge.sent {
@@ -455,6 +509,17 @@ body {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
 }
 
 .btn-secondary {
@@ -615,7 +680,50 @@ body {
   font-size: 15px;
 }
 
-/* Form Styling */
+/* Response Section */
+.response-section {
+  margin-top: 25px;
+}
+
+.response-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.response-label i {
+  color: #28a745;
+}
+
+.response-textarea {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.response-textarea:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 20px 25px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
 .form-group {
   margin-bottom: 20px;
 }

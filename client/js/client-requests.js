@@ -1,6 +1,7 @@
 let currentMessageId = null;
 let username = '';
 let userMessages = [];
+let unreadCount = 0;
 
 // טעינת הדף
 document.addEventListener('DOMContentLoaded', function () {
@@ -32,9 +33,58 @@ document.addEventListener('DOMContentLoaded', function () {
   // טעינה ראשונית
   filterMessages('inbox');
   animateElements();
+  
+  // עדכון מונה הודעות לא נקראות כל 30 שניות
+  setInterval(updateUnreadCount, 30000);
 });
 
-// פתיחת מודל פנייה חדשה
+// עדכון מונה הודעות לא נקראות
+async function updateUnreadCount() {
+  try {
+    const response = await fetch(`/api/requests/unread-count/${username}`);
+    if (response.ok) {
+      const data = await response.json();
+      unreadCount = data.count;
+      updateUnreadBadge();
+    }
+  } catch (error) {
+    console.error('שגיאה בעדכון מונה הודעות:', error);
+  }
+}
+
+// עדכון התג הודעות לא נקראות
+function updateUnreadBadge() {
+  const inboxBtn = document.querySelector('.filter-btn[onclick*="inbox"]');
+  if (!inboxBtn) return;
+  
+  // הסרת תג קיים
+  const existingBadge = inboxBtn.querySelector('.unread-badge');
+  if (existingBadge) existingBadge.remove();
+  
+  // הוספת תג חדש אם יש הודעות לא נקראות
+  if (unreadCount > 0) {
+    const badge = document.createElement('span');
+    badge.className = 'unread-badge';
+    badge.textContent = unreadCount;
+    inboxBtn.appendChild(badge);
+    
+    // הוספת אנימציה
+    badge.style.animation = 'pulse 1s infinite';
+  }
+}
+
+// סימון הודעה כנקראה
+async function markAsRead(messageId) {
+  try {
+    await fetch(`/api/requests/mark-read/${messageId}`, {
+      method: 'POST'
+    });
+    // עדכון מונה
+    updateUnreadCount();
+  } catch (error) {
+    console.error('שגיאה בסימון הודעה כנקראה:', error);
+  }
+}
 function openNewMessageModal() {
   // יצירת מודל דינמי
   const modalHtml = `
@@ -223,6 +273,11 @@ function displayMessages(messages, filterType) {
     const row = document.createElement('tr');
     row.style.animationDelay = `${index * 0.1}s`;
     row.className = 'fade-in';
+    
+    // הוספת סגנון להודעות לא נקראות
+    if (!msg.read && msg.recipientUsername === username) {
+      row.classList.add('unread-message');
+    }
 
     let statusLabel = '';
     let actionButtons = '';
@@ -239,21 +294,27 @@ function displayMessages(messages, filterType) {
     if (msg.archived) {
       statusLabel = '<span class="status-badge archived">באריכיון</span>';
       actionButtons = `
-        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`)">
+        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
+        </button>
+        <button class="btn btn-sm btn-danger text-white" onclick="deleteMessageFromTable('${msg._id}')">
+          <i class="bi bi-trash"></i> מחק
         </button>
       `;
     } else if (msg.status === 'closed') {
       statusLabel = '<span class="status-badge closed">סגור</span>';
       actionButtons = `
-        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`)">
+        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
+        </button>
+        <button class="btn btn-sm btn-danger text-white" onclick="deleteMessageFromTable('${msg._id}')">
+          <i class="bi bi-trash"></i> מחק
         </button>
       `;
     } else if (msg.response && msg.response.trim() !== '') {
       statusLabel = '<span class="status-badge responded">נענה</span>';
       actionButtons = `
-        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`)">
+        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
         </button>
       `;
@@ -261,10 +322,10 @@ function displayMessages(messages, filterType) {
       if (msg.username === username) {
         statusLabel = '<span class="status-badge sent">נשלח</span>';
       } else {
-        statusLabel = '<span class="status-badge received">התקבל</span>';
+        statusLabel = !msg.read ? '<span class="status-badge new">חדש!</span>' : '<span class="status-badge received">התקבל</span>';
       }
       actionButtons = `
-        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`)">
+        <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
         </button>
       `;
@@ -274,8 +335,8 @@ function displayMessages(messages, filterType) {
       msg.message.substring(0, 50) + '...' : msg.message;
 
     row.innerHTML = `
-      <td><strong>${displayUser}</strong></td>
-      <td>${msg.subject}</td>
+      <td><strong>${displayUser}${!msg.read && msg.recipientUsername === username ? ' <i class="bi bi-circle-fill text-danger" style="font-size: 8px;"></i>' : ''}</strong></td>
+      <td><strong>${!msg.read && msg.recipientUsername === username ? '🔴 ' : ''}${msg.subject}</strong></td>
       <td title="${msg.message}">${truncatedMessage}</td>
       <td>${new Date(msg.createdAt).toLocaleString('he-IL')}</td>
       <td>${statusLabel}</td>
@@ -284,15 +345,24 @@ function displayMessages(messages, filterType) {
 
     tableBody.appendChild(row);
   });
+  
+  // עדכון מונה אחרי הצגה
+  updateUnreadCount();
 }
 
 // פתיחת מודל צפייה בהודעה
-function openModal(id, sender, subject, message, status, response) {
+function openModal(id, sender, subject, message, status, response, isRead, canReply = false) {
   currentMessageId = id;
   document.getElementById('modal-sender').textContent = sender;
   document.getElementById('modal-subject').textContent = subject;
   document.getElementById('modal-message').textContent = message;
 
+  // סימון הודעה כנקראה אם היא לא נקראה
+  if (!isRead) {
+    markAsRead(id);
+  }
+
+  // הצגת תגובה אם קיימת
   if (response && response.trim() !== '') {
     document.getElementById('modal-response-section').style.display = 'block';
     document.getElementById('modal-responder').textContent = 'עורך הדין';
@@ -301,7 +371,96 @@ function openModal(id, sender, subject, message, status, response) {
     document.getElementById('modal-response-section').style.display = 'none';
   }
 
+  // הצגת אפשרות תגובה ללקוח רק אם זו הודעה מעורך הדין
+  const replyWrapper = document.getElementById('modal-reply-wrapper');
+  const replyBtn = document.getElementById('send-reply-btn');
+  
+  // בדיקה אם זו הודעה שהגיעה מעורך הדין (sender = 'עורך הדין')
+  if (sender === 'עורך הדין' && status !== 'closed') {
+    replyWrapper.style.display = 'block';
+    replyBtn.style.display = 'inline-flex';
+    document.getElementById('modal-reply').value = ''; // ניקוי שדה התגובה
+  } else {
+    replyWrapper.style.display = 'none';
+    replyBtn.style.display = 'none';
+  }
+
   new bootstrap.Modal(document.getElementById('message-modal')).show();
+}
+
+// מחיקת הודעה מהטבלה
+async function deleteMessageFromTable(messageId) {
+  if (!confirm('האם למחוק את ההודעה? פעולה זו לא ניתנת לביטול.')) return;
+
+  try {
+    const response = await fetch(`/api/requests/delete/${messageId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      // הסרת השורה מהטבלה עם אנימציה
+      const row = document.querySelector(`button[onclick*="deleteMessageFromTable('${messageId}')"]`).closest('tr');
+      row.classList.add('fade-out');
+      setTimeout(() => row.remove(), 500);
+      
+      showMessage('ההודעה נמחקה בהצלחה', 'success');
+      updateMessagesCount();
+    } else {
+      showMessage(data.message || 'שגיאה במחיקת ההודעה', 'error');
+    }
+  } catch (error) {
+    console.error('שגיאה במחיקת הודעה:', error);
+    showMessage('שגיאה בשרת', 'error');
+  }
+}
+
+// שליחת תגובה ללקוח
+async function sendReply() {
+  const replyText = document.getElementById('modal-reply').value.trim();
+  if (!replyText) {
+    showMessage('יש להזין תגובה', 'error');
+    return;
+  }
+
+  const sendBtn = document.getElementById('send-reply-btn');
+  const originalText = sendBtn.innerHTML;
+  sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> שולח...';
+  sendBtn.disabled = true;
+
+  try {
+    // יצירת הודעת תגובה חדשה (לא משתמשים ב-API של reply, אלא יוצרים הודעה חדשה)
+    const response = await fetch('/api/requests/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username,
+        subject: `תגובה מלקוח: ${document.getElementById('modal-subject').textContent}`,
+        message: replyText
+      })
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      showMessage('התגובה נשלחה בהצלחה לעורך הדין', 'success');
+      closeModal();
+      setTimeout(() => {
+        filterMessages('sent'); // מעבר לדואר יוצא
+      }, 1000);
+    } else {
+      showMessage(data.message || 'שגיאה בשליחת התגובה', 'error');
+    }
+  } catch (error) {
+    console.error('שגיאה בשליחת תגובה:', error);
+    showMessage('שגיאה בשרת', 'error');
+  } finally {
+    sendBtn.innerHTML = originalText;
+    sendBtn.disabled = false;
+  }
 }
 
 // סגירת מודל

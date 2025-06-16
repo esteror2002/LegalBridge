@@ -10,6 +10,9 @@ const requestSchema = new mongoose.Schema({
   status: { type: String, default: 'open' }, // open, closed
   archived: { type: Boolean, default: false },
   sentByLawyer: { type: Boolean, default: false }, // true אם עורך דין שלח ללקוח
+  read: { type: Boolean, default: false },
+  deleted: { type: Boolean, default: false },
+  deletedBy: { type: String, default: null }, // מי מחק את ההודעה
   direction: { 
     type: String, 
     enum: ['incoming', 'outgoing'], 

@@ -13,8 +13,13 @@ router.post('/close/:id', requestController.closeRequest);
 router.post('/archive/:id', requestController.archiveRequest);
 router.post('/unarchive/:id', requestController.unarchiveRequest);
 
-// מערכת דואר חדשה
+// מערכת דואר 
 router.post('/send-to-client', requestController.sendToClient); // עורך דין שולח ללקוח
 router.get('/clients', requestController.getClients); // קבלת רשימת לקוחות
+router.delete('/delete/:id', requestController.deleteMessage);
+
+// מערכת התראות
+router.post('/mark-read/:id', requestController.markAsRead);
+router.get('/unread-count/:username', requestController.getUnreadCount);
 
 module.exports = router;
