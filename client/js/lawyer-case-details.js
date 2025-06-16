@@ -1,45 +1,57 @@
+// lawyer-case-details.js
+
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('📄 העמוד נטען');
+  
   const params = new URLSearchParams(window.location.search);
   const caseId = params.get('id');
   
+  console.log('🔍 מזהה תיק:', caseId);
+  
   if (!caseId) {
-    showErrorMessage('לא נמצא מזהה תיק');
-    setTimeout(() => {
-      window.location.href = 'lawyer-cases.html';
-    }, 2000);
+    alert('לא נמצא מזהה תיק');
+    console.error('❌ חסר מזהה תיק ב-URL');
     return;
   }
 
-  await loadCaseData(caseId);
-});
+  // הסתרת loading
+  const loadingOverlay = document.getElementById('loading-overlay');
+  if (loadingOverlay) {
+    loadingOverlay.classList.remove('hidden');
+  }
 
-let currentCaseData = null;
-
-async function loadCaseData(caseId) {
-  showLoading(true);
-  
   try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}`);
+    console.log('🌐 שולח בקשה לשרת...');
+    const res = await fetch(`http://localhost:5000/api/cases/${caseId}`);
     
-    if (!response.ok) {
-      throw new Error('שגיאה בטעינת נתוני התיק');
+    console.log('📡 תגובת שרת:', res.status);
+    
+    if (!res.ok) {
+      throw new Error(`שגיאה ${res.status}: ${res.statusText}`);
     }
     
-    currentCaseData = await response.json();
+    const caseData = await res.json();
+    console.log('📋 נתוני תיק:', caseData);
+
+    renderClientInfo(caseData);
+    renderCaseDetails(caseData);
+    renderSubcases(caseData.subCases || [], caseData._id);
     
-    renderClientInfo(currentCaseData);
-    renderCaseDetails(currentCaseData);
-    renderSubcases(currentCaseData.subCases || [], currentCaseData._id);
+    console.log('✅ הדף נטען בהצלחה');
     
   } catch (error) {
-    console.error('שגיאה בטעינת התיק:', error);
-    showErrorMessage('שגיאה בטעינת נתוני התיק');
+    console.error('❌ שגיאה:', error);
+    alert(`שגיאה בטעינת התיק: ${error.message}`);
   } finally {
-    showLoading(false);
+    // הסתרת loading
+    if (loadingOverlay) {
+      loadingOverlay.classList.add('hidden');
+    }
   }
-}
+});
 
 function renderClientInfo(data) {
+  console.log('👤 מציג פרטי לקוח');
   const container = document.getElementById('client-info').querySelector('.card-content');
   
   const clientInfo = [
@@ -61,6 +73,7 @@ function renderClientInfo(data) {
 }
 
 function renderCaseDetails(data) {
+  console.log('📁 מציג פרטי תיק');
   const container = document.getElementById('case-details').querySelector('.card-content');
   
   const openDate = new Date(data.openDate);
@@ -107,6 +120,7 @@ function getStatusText(status) {
 }
 
 function renderSubcases(subCases, caseId) {
+  console.log('📂 מציג תתי-תיקים:', subCases.length);
   const container = document.getElementById('subcases-container');
   
   if (subCases.length === 0) {
@@ -149,139 +163,51 @@ function renderSubcases(subCases, caseId) {
   `).join('');
 }
 
-async function addSubcase() {
-  const title = prompt('הזן שם תת-תיק חדש:');
-  
-  if (!title || title.trim() === '') {
-    return;
-  }
+function addSubcase() {
+  const title = prompt('שם תת-תיק חדש:');
+  if (!title) return;
 
   const params = new URLSearchParams(window.location.search);
   const caseId = params.get('id');
 
-  showLoading(true);
-
-  try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify({ title: title.trim() })
-    });
-
+  fetch(`http://localhost:5000/api/cases/${caseId}/subcases`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title })
+  })
+  .then(response => {
     if (response.ok) {
-      showSuccessMessage('תת-תיק נוסף בהצלחה');
-      await loadCaseData(caseId);
+      alert('תת-תיק נוסף בהצלחה');
+      location.reload();
     } else {
-      throw new Error('שגיאה בהוספת תת-תיק');
+      alert('שגיאה בהוספת תת-תיק');
     }
-  } catch (error) {
-    console.error('שגיאה בהוספת תת-תיק:', error);
-    showErrorMessage('שגיאה בהוספת תת-תיק');
-  } finally {
-    showLoading(false);
-  }
+  })
+  .catch(error => {
+    console.error('שגיאה:', error);
+    alert('שגיאה בהוספת תת-תיק');
+  });
 }
 
-async function addDocument(caseId, subcaseIndex) {
-  const fileName = prompt('הזן שם קובץ (לדוגמה: כתב_הגנה.pdf):');
-  
-  if (!fileName || fileName.trim() === '') {
-    return;
-  }
+function addDocument(caseId, subcaseIndex) {
+  const fileName = prompt('הכנס שם קובץ (למשל: כתב_הגנה.pdf)');
+  if (!fileName) return;
 
-  showLoading(true);
-
-  try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify({ fileName: fileName.trim() })
-    });
-
+  fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileName })
+  })
+  .then(response => {
     if (response.ok) {
-      showSuccessMessage('מסמך נוסף בהצלחה');
-      await loadCaseData(caseId);
+      alert('מסמך נוסף בהצלחה');
+      location.reload();
     } else {
-      throw new Error('שגיאה בהוספת מסמך');
+      alert('שגיאה בהוספת מסמך');
     }
-  } catch (error) {
-    console.error('שגיאה בהוספת מסמך:', error);
-    showErrorMessage('שגיאה בהוספת מסמך');
-  } finally {
-    showLoading(false);
-  }
+  })
+  .catch(error => {
+    console.error('שגיאה:', error);
+    alert('שגיאה בהוספת מסמך');
+  });
 }
-
-// Event listeners for keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  // Ctrl/Cmd + S for quick save (future feature)
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-    e.preventDefault();
-    // Future: Quick save functionality
-  }
-  
-  // ESC to close modals (future feature)
-  if (e.key === 'Escape') {
-    // Future: Close any open modals
-  }
-});
-
-// Utility functions
-function showLoading(show) {
-  const overlay = document.getElementById('loading-overlay');
-  if (show) {
-    overlay.classList.remove('hidden');
-  } else {
-    overlay.classList.add('hidden');
-  }
-}
-
-function showSuccessMessage(message) {
-  const toast = document.getElementById('success-toast');
-  toast.querySelector('span').textContent = message;
-  toast.classList.add('show');
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
-}
-
-function showErrorMessage(message) {
-  // יצירת toast שגיאה זמני
-  const errorToast = document.createElement('div');
-  errorToast.className = 'toast error-toast';
-  errorToast.innerHTML = `
-    <i class="bi bi-exclamation-triangle"></i>
-    <span>${message}</span>
-  `;
-  
-  // הוספת סגנון לשגיאה
-  errorToast.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
-  errorToast.style.boxShadow = '0 10px 30px rgba(220, 53, 69, 0.3)';
-  
-  document.body.appendChild(errorToast);
-  
-  setTimeout(() => errorToast.classList.add('show'), 100);
-  
-  setTimeout(() => {
-    errorToast.classList.remove('show');
-    setTimeout(() => {
-      if (errorToast.parentNode) {
-        errorToast.parentNode.removeChild(errorToast);
-      }
-    }, 300);
-  }, 4000);
-}
-
-// Auto-refresh messages every 30 seconds
-setInterval(async () => {
-  const params = new URLSearchParams(window.location.search);
-  const caseId = params.get('id');
-  if (caseId) {
-    await loadMessages(caseId);
-  }
-}, 30000);
