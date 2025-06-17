@@ -59,6 +59,23 @@
       </div>
     </div>
 
+    <!-- 🆕 Progress Updates Section -->
+    <div class="progress-section">
+      <div class="section-header">
+        <h2>
+          <i class="bi bi-clock-history"></i>
+          <span>עדכוני התקדמות</span>
+        </h2>
+        <button class="add-progress-btn" onclick="showAddProgressForm()">
+          <i class="bi bi-plus-circle"></i>
+          <span>הוסף עדכון התקדמות</span>
+        </button>
+      </div>
+      <div id="progress-timeline" class="progress-timeline">
+        <!-- Progress items will be loaded here -->
+      </div>
+    </div>
+
     <!-- Subcases Section -->
     <div class="subcases-section">
       <div class="section-header">
@@ -73,8 +90,66 @@
       </div>
       <div id="subcases-container" class="subcases-grid"></div>
     </div>
+  </div>
 
+  <!-- 🆕 Add Progress Modal -->
+  <div id="add-progress-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>הוסף עדכון התקדמות</h3>
+        <button class="close-modal" onclick="hideAddProgressForm()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label>כותרת העדכון</label>
+          <input type="text" id="progress-title" placeholder="לדוגמה: הוגש כתב תביעה לבית המשפט">
+        </div>
+        <div class="input-group">
+          <label>תיאור מפורט</label>
+          <textarea id="progress-description" placeholder="תיאור מפורט של העדכון..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="submit-btn" onclick="submitProgress()">
+          <i class="bi bi-check-circle"></i>
+          <span>שמור עדכון</span>
+        </button>
+        <button class="cancel-btn" onclick="hideAddProgressForm()">
+          <i class="bi bi-x-circle"></i>
+          <span>ביטול</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <!-- 🆕 Edit Modal -->
+  <div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="edit-modal-title">עריכה</h3>
+        <button class="close-modal" onclick="hideEditModal()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label id="edit-label">שם</label>
+          <input type="text" id="edit-input" placeholder="הכנס שם חדש">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="submit-btn" onclick="submitEdit()">
+          <i class="bi bi-check-circle"></i>
+          <span>שמור</span>
+        </button>
+        <button class="cancel-btn" onclick="hideEditModal()">
+          <i class="bi bi-x-circle"></i>
+          <span>ביטול</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Loading Overlay -->

@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <title>התיק שלי | Legal Bridge</title>
   <link rel="stylesheet" href="../css/client-case.css">
+  <style>
+    /* מרכוז כפתור התנתקות */
+    .header-actions {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      margin-top: 20px !important;
+    }
+  </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
@@ -30,19 +39,26 @@
         </div>
         
         <div class="header-actions">
-          <button class="back-btn" onclick="goBack()">
-            <i class="bi bi-arrow-right"></i>
-            <span>חזרה</span>
-          </button>
-          <button class="logout-btn" onclick="logout()">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>התנתקות</span>
-          </button>
-        </div>
-      </div>
+            <div></div> <!-- ספייסר ריק -->
+            <button class="logout-btn" onclick="logout()">
+              <i class="bi bi-box-arrow-right"></i>
+              <span>התנתקות</span>
+            </button>
+          </div>
 
       <nav class="client-options">
         <ul>
+            <li>
+                <a href="client-home.html" class="nav-item">
+                  <div class="nav-icon">
+                    <i class="bi bi-house"></i>
+                  </div>
+                  <span>עמוד הבית</span>
+                  <div class="nav-arrow">
+                    <i class="bi bi-chevron-left"></i>
+                  </div>
+                </a>
+              </li>
           <li>
             <a href="client-profile.html" class="nav-item">
               <div class="nav-icon">

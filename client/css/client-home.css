@@ -677,3 +677,132 @@ body {
     font-size: 18px;
   }
 }
+
+/* 🆕 עיצוב התראות חדש */
+.notification-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 123, 255, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 15px !important;
+  margin-bottom: 12px !important;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  border-color: #007bff !important;
+  transform: translateX(-5px);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+}
+
+.notification-item.unread {
+  border-left: 4px solid #007bff;
+  background: rgba(0, 123, 255, 0.05) !important;
+}
+
+.notification-item.read {
+  opacity: 0.8;
+}
+
+.notification-content {
+  color: #333 !important;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notification-header h4 {
+  color: #333 !important;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.notification-time {
+  color: #666 !important;
+  font-size: 11px;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.notification-content p {
+  color: #555 !important;
+  font-size: 13px;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.notification-link {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.unread-dot {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 8px;
+  height: 8px;
+  background: #007bff;
+  border-radius: 50%;
+  animation: notificationPulse 2s infinite;
+}
+
+@keyframes notificationPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* עדכון סגנון הפאנל */
+.panel-content ul {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.panel-content li.empty-state {
+  background: rgba(255, 255, 255, 0.1) !important;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-style: italic;
+  padding: 30px 20px !important;
+  border-radius: 10px;
+}
+
+/* תיקון צבעים בפאנל */
+.notif-panel {
+  background: rgba(0, 123, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+}
+
+.panel-header {
+  background: rgba(255, 255, 255, 0.1) !important;
+}

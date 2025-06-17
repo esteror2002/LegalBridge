@@ -1,5 +1,6 @@
 const Case = require('../models/Case');
 const User = require('../models/User');
+const { createAutoNotification } = require('./notificationController');
 
 // קבלת כל התיקים
 exports.getAllCases = async (req, res) => {
@@ -53,6 +54,26 @@ exports.updateStatus = async (req, res) => {
       { status: req.body.status },
       { new: true }
     );
+
+    // 🆕 שליחת התראה אוטומטית ללקוח
+    if (updated && updated.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        await createAutoNotification(
+          'status_changed',
+          updated.clientId,
+          lawyer._id,
+          {
+            newStatus: req.body.status,
+            caseId: updated._id
+          }
+        );
+        console.log('✅ התראה נשלחה ללקוח על שינוי סטטוס');
+      } catch (notifError) {
+        console.error('❌ שגיאה בשליחת התראה:', notifError);
+      }
+    }
+
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: 'שגיאה בעדכון סטטוס' });
@@ -103,6 +124,26 @@ exports.addSubcase = async (req, res) => {
       { $push: { subCases: { title, documents: [] } } },
       { new: true }
     );
+
+    // 🆕 שליחת התראה אוטומטית ללקוח
+    if (updated && updated.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        await createAutoNotification(
+          'case_update',
+          updated.clientId,
+          lawyer._id,
+          {
+            updateTitle: `נוסף תת-תיק חדש: ${title}`,
+            caseId: updated._id
+          }
+        );
+        console.log('✅ התראה נשלחה ללקוח על תת-תיק חדש');
+      } catch (notifError) {
+        console.error('❌ שגיאה בשליחת התראה:', notifError);
+      }
+    }
+
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: 'שגיאה בהוספת תת-תיק' });
@@ -120,6 +161,26 @@ exports.addDocumentToSubcase = async (req, res) => {
 
     caseItem.subCases[req.params.index].documents.push(fileName);
     await caseItem.save();
+
+    // 🆕 שליחת התראה אוטומטית ללקוח
+    if (caseItem.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        await createAutoNotification(
+          'document_added',
+          caseItem.clientId,
+          lawyer._id,
+          {
+            documentName: fileName,
+            caseId: caseItem._id
+          }
+        );
+        console.log('✅ התראה נשלחה ללקוח על מסמך חדש');
+      } catch (notifError) {
+        console.error('❌ שגיאה בשליחת התראה:', notifError);
+      }
+    }
+
     res.json(caseItem);
   } catch (err) {
     res.status(400).json({ error: 'שגיאה בהוספת מסמך לתת-תיק' });
@@ -138,10 +199,12 @@ exports.getCasesByClientId = async (req, res) => {
   }
 };
 
-//    הוספת עדכון התקדמות
+// הוספת עדכון התקדמות
 exports.addProgress = async (req, res) => {
   try {
     const { title, description, addedBy } = req.body;
+    
+    // עדכון התיק
     const updated = await Case.findByIdAndUpdate(
       req.params.id,
       { 
@@ -156,9 +219,111 @@ exports.addProgress = async (req, res) => {
       },
       { new: true }
     );
+
+    // 🆕 שליחת התראה אוטומטית ללקוח
+    if (updated && updated.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' }); // או לפי מי שמוסיף
+        await createAutoNotification(
+          'case_update',
+          updated.clientId,
+          lawyer._id,
+          {
+            updateTitle: title,
+            caseId: updated._id
+          }
+        );
+        console.log('✅ התראה נשלחה ללקוח על עדכון התקדמות');
+      } catch (notifError) {
+        console.error('❌ שגיאה בשליחת התראה:', notifError);
+      }
+    }
+
     res.json(updated);
   } catch (err) {
     console.error('שגיאה בהוספת עדכון התקדמות:', err);
     res.status(400).json({ error: 'שגיאה בהוספת עדכון התקדמות' });
+  }
+};
+
+// 🆕 עריכת תת-תיק
+exports.editSubcase = async (req, res) => {
+  try {
+    const { id, index } = req.params;
+    const { title } = req.body;
+    
+    const caseItem = await Case.findById(id);
+    if (!caseItem || !caseItem.subCases[index]) {
+      return res.status(404).json({ error: 'תיק או תת-תיק לא נמצאו' });
+    }
+
+    caseItem.subCases[index].title = title;
+    await caseItem.save();
+    
+    res.json({ message: 'תת-תיק עודכן בהצלחה', case: caseItem });
+  } catch (err) {
+    console.error('שגיאה בעריכת תת-תיק:', err);
+    res.status(400).json({ error: 'שגיאה בעריכת תת-תיק' });
+  }
+};
+
+// 🆕 מחיקת תת-תיק
+exports.deleteSubcase = async (req, res) => {
+  try {
+    const { id, index } = req.params;
+    
+    const caseItem = await Case.findById(id);
+    if (!caseItem || !caseItem.subCases[index]) {
+      return res.status(404).json({ error: 'תיק או תת-תיק לא נמצאו' });
+    }
+
+    caseItem.subCases.splice(index, 1); // מחיקת תת-תיק
+    await caseItem.save();
+    
+    res.json({ message: 'תת-תיק נמחק בהצלחה', case: caseItem });
+  } catch (err) {
+    console.error('שגיאה במחיקת תת-תיק:', err);
+    res.status(400).json({ error: 'שגיאה במחיקת תת-תיק' });
+  }
+};
+
+// 🆕 עריכת מסמך
+exports.editDocument = async (req, res) => {
+  try {
+    const { id, subcaseIndex, docIndex } = req.params;
+    const { fileName } = req.body;
+    
+    const caseItem = await Case.findById(id);
+    if (!caseItem || !caseItem.subCases[subcaseIndex] || !caseItem.subCases[subcaseIndex].documents[docIndex]) {
+      return res.status(404).json({ error: 'תיק, תת-תיק או מסמך לא נמצאו' });
+    }
+
+    caseItem.subCases[subcaseIndex].documents[docIndex] = fileName;
+    await caseItem.save();
+    
+    res.json({ message: 'מסמך עודכן בהצלחה', case: caseItem });
+  } catch (err) {
+    console.error('שגיאה בעריכת מסמך:', err);
+    res.status(400).json({ error: 'שגיאה בעריכת מסמך' });
+  }
+};
+
+// 🆕 מחיקת מסמך
+exports.deleteDocument = async (req, res) => {
+  try {
+    const { id, subcaseIndex, docIndex } = req.params;
+    
+    const caseItem = await Case.findById(id);
+    if (!caseItem || !caseItem.subCases[subcaseIndex] || !caseItem.subCases[subcaseIndex].documents[docIndex]) {
+      return res.status(404).json({ error: 'תיק, תת-תיק או מסמך לא נמצאו' });
+    }
+
+    caseItem.subCases[subcaseIndex].documents.splice(docIndex, 1); // מחיקת מסמך
+    await caseItem.save();
+    
+    res.json({ message: 'מסמך נמחק בהצלחה', case: caseItem });
+  } catch (err) {
+    console.error('שגיאה במחיקת מסמך:', err);
+    res.status(400).json({ error: 'שגיאה במחיקת מסמך' });
   }
 };

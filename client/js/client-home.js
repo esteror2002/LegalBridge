@@ -79,23 +79,23 @@ function animateDashboardCards() {
 }
 
 function loadClientStats() {
-  // סימולציה של טעינת נתונים
-  const stats = {
-    activeRequests: Math.floor(Math.random() * 10) + 1,
-    newMessages: Math.floor(Math.random() * 5) + 1,
-    weeklyMeetings: Math.floor(Math.random() * 3) + 1
-  };
-  
-  const statNumbers = document.querySelectorAll('.stat-number');
-  if (statNumbers.length >= 3) {
-    animateCounter(statNumbers[0], stats.activeRequests);
-    animateCounter(statNumbers[1], stats.newMessages);
-    animateCounter(statNumbers[2], stats.weeklyMeetings);
+    // טעינת התראות אמיתיות
+    loadNotifications();
+    
+    // סימולציה של נתונים אחרים (נעדכן אחר כך לנתונים אמיתיים)
+    const stats = {
+      activeRequests: Math.floor(Math.random() * 10) + 1,
+      newMessages: Math.floor(Math.random() * 5) + 1,
+      weeklyMeetings: Math.floor(Math.random() * 3) + 1
+    };
+    
+    const statNumbers = document.querySelectorAll('.stat-number');
+    if (statNumbers.length >= 3) {
+      animateCounter(statNumbers[0], stats.activeRequests);
+      animateCounter(statNumbers[1], stats.newMessages);
+      animateCounter(statNumbers[2], stats.weeklyMeetings);
+    }
   }
-  
-  // עדכון תג התראות
-  updateNotificationBadge(stats.newMessages);
-}
 
 function animateCounter(element, target) {
   let current = 0;
@@ -236,5 +236,133 @@ setTimeout(() => {
     showSuccessMessage(`ברוך הבא ${username}!`);
   }
 }, 1500);
+
+// 🆕 מערכת התראות אמיתית
+let currentUserId = null;
+
+// קבלת ID של המשתמש הנוכחי
+async function getCurrentUserId() {
+  try {
+    const username = localStorage.getItem('username');
+    const response = await fetch('http://localhost:5000/api/auth/clients');
+    const users = await response.json();
+    const currentUser = users.find(user => user.username === username);
+    return currentUser ? currentUser._id : null;
+  } catch (error) {
+    console.error('שגיאה בקבלת ID משתמש:', error);
+    return null;
+  }
+}
+
+// טעינת התראות אמיתיות
+async function loadNotifications() {
+  try {
+    if (!currentUserId) {
+      currentUserId = await getCurrentUserId();
+    }
+    
+    if (!currentUserId) {
+      console.error('לא נמצא ID של המשתמש');
+      return;
+    }
+
+    const response = await fetch(`http://localhost:5000/api/notifications/user/${currentUserId}`);
+    const data = await response.json();
+    
+    // עדכון מספר התראות לא נקראות
+    updateNotificationBadge(data.unreadCount);
+    
+    // הצגת ההתראות בפאנל
+    displayNotifications(data.notifications);
+    
+  } catch (error) {
+    console.error('שגיאה בטעינת התראות:', error);
+  }
+}
+
+// הצגת ההתראות בפאנל
+function displayNotifications(notifications) {
+  const notifList = document.getElementById('notif-list');
+  
+  if (notifications.length === 0) {
+    notifList.innerHTML = '<li class="empty-state">אין התראות חדשות</li>';
+    return;
+  }
+  
+  notifList.innerHTML = '';
+  
+  notifications.forEach(notification => {
+    const listItem = document.createElement('li');
+    listItem.className = `notification-item ${notification.isRead ? 'read' : 'unread'}`;
+    listItem.setAttribute('data-id', notification._id);
+    
+    const timeAgo = getTimeAgo(notification.createdAt);
+    
+    listItem.innerHTML = `
+      <div class="notification-content">
+        <div class="notification-header">
+          <h4>${notification.title}</h4>
+          <span class="notification-time">${timeAgo}</span>
+        </div>
+        <p>${notification.message}</p>
+        ${notification.link ? `<button class="notification-link" onclick="handleNotificationClick('${notification._id}', '${notification.link}')">צפה</button>` : ''}
+      </div>
+      ${!notification.isRead ? '<div class="unread-dot"></div>' : ''}
+    `;
+    
+    notifList.appendChild(listItem);
+  });
+}
+
+// טיפול בלחיצה על התראה
+async function handleNotificationClick(notificationId, link) {
+  try {
+    // סימון ההתראה כנקראה
+    await fetch(`http://localhost:5000/api/notifications/${notificationId}/read`, {
+      method: 'PUT'
+    });
+    
+    // מעבר לדף הרלוונטי
+    if (link) {
+      navigateTo(link);
+    }
+    
+    // רענון ההתראות
+    loadNotifications();
+    
+  } catch (error) {
+    console.error('שגיאה בטיפול בהתראה:', error);
+  }
+}
+
+// חישוב זמן יחסי
+function getTimeAgo(dateString) {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  
+  if (diffInSeconds < 60) return 'זה עתה';
+  if (diffInSeconds < 3600) return `לפני ${Math.floor(diffInSeconds / 60)} דקות`;
+  if (diffInSeconds < 86400) return `לפני ${Math.floor(diffInSeconds / 3600)} שעות`;
+  return `לפני ${Math.floor(diffInSeconds / 86400)} ימים`;
+}
+
+// עדכון פונקציית toggleNotifications
+function toggleNotifications() {
+  const panel = document.getElementById('notif-panel');
+  const isVisible = panel.style.display !== 'none';
+  
+  if (isVisible) {
+    panel.style.animation = 'slideOut 0.3s ease-in forwards';
+    setTimeout(() => {
+      panel.style.display = 'none';
+    }, 300);
+  } else {
+    // טעינת התראות לפני הצגה
+    loadNotifications();
+    panel.style.display = 'block';
+    panel.style.animation = 'slideIn 0.3s ease-out forwards';
+  }
+}
 
 console.log('🎉 סקריפט לקוח נטען בהצלחה!');

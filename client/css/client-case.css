@@ -830,3 +830,169 @@
       justify-content: center;
     }
   }
+
+  /* 🆕 Progress Timeline עם גלילה ללקוח */
+.progress-timeline {
+    position: relative;
+    padding-right: 30px;
+    max-height: 400px; /* 🔧 גובה מקסימלי */
+    overflow-y: auto; /* 🔧 גלילה אנכית */
+    border: 2px solid #f0f0f0;
+    border-radius: 15px;
+    padding: 20px 30px 20px 20px;
+    background: #fafafa;
+  }
+  
+  /* Custom Scrollbar */
+  .progress-timeline::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .progress-timeline::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .progress-timeline::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-radius: 10px;
+  }
+  
+  .progress-timeline::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+  }
+  
+  .progress-timeline::before {
+    content: '';
+    position: absolute;
+    right: 15px;
+    top: 20px;
+    bottom: 20px;
+    width: 2px;
+    background: linear-gradient(to bottom, #007bff, #28a745);
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 25px; /* קצת יותר קטן */
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 12px; /* קצת יותר קטן */
+    padding: 15px; /* קצת יותר קטן */
+    margin-right: 40px; /* קצת יותר קטן */
+    transition: all 0.3s ease;
+  }
+  
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .timeline-item:hover {
+    transform: translateX(-8px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+    border-color: #007bff;
+  }
+  
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    right: -31px; /* מותאם לגלילה */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px; /* קצת יותר קטן */
+    height: 10px;
+    background: #007bff;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #007bff;
+  }
+  
+  .timeline-item.latest::before {
+    background: #28a745;
+    box-shadow: 0 0 0 2px #28a745;
+    animation: notificationPulse 2s infinite;
+  }
+  
+  @keyframes notificationPulse {
+    0% {
+      box-shadow: 0 0 0 2px #28a745;
+    }
+    50% {
+      box-shadow: 0 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 0 2px #28a745;
+    }
+  }
+  
+  .timeline-content h4 {
+    color: #333;
+    font-size: 16px; /* קצת יותר קטן */
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  
+  .timeline-content p {
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  .timeline-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px; /* קצת יותר קטן */
+    color: #999;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  /* Empty State for Progress Timeline */
+  .progress-timeline .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+  }
+  
+  .progress-timeline .empty-state i {
+    font-size: 40px;
+    color: #ccc;
+    margin-bottom: 12px;
+  }
+  
+  .progress-timeline .empty-state h4 {
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  
+  .progress-timeline .empty-state p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  
+  /* תיקון רספונסיב לטיימליין */
+  @media (max-width: 768px) {
+    .progress-timeline {
+      padding-right: 20px;
+      max-height: 300px; /* קצת יותר קטן במובייל */
+    }
+    
+    .timeline-item {
+      margin-right: 25px;
+      padding: 12px;
+    }
+    
+    .timeline-item::before {
+      right: -21px;
+      width: 8px;
+      height: 8px;
+    }
+    
+    .progress-timeline::before {
+      right: 10px;
+    }
+  }
