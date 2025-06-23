@@ -143,7 +143,7 @@ class LawyerCalendar {
         const lastDay = new Date(year, month + 1, 0);
         const firstDayOfWeek = firstDay.getDay();
         const daysInMonth = lastDay.getDate();
-
+    
         let html = `
             <div class="calendar-header">
                 <div class="day-header">ראשון</div>
@@ -156,34 +156,34 @@ class LawyerCalendar {
             </div>
             <div class="calendar-body">
         `;
-
-        // Empty cells for days before month starts
+    
         for (let i = 0; i < firstDayOfWeek; i++) {
             html += '<div class="calendar-day empty"></div>';
         }
-
-        // Days of the month
+    
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
-            // יצירת dateStr מדויקת
             const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             const dayEvents = this.getEventsForDate(dateStr);
             const isToday = this.isToday(date);
             const isWeekend = date.getDay() === 5 || date.getDay() === 6;
-
+    
             html += `
                 <div class="calendar-day ${isToday ? 'today' : ''} ${isWeekend ? 'weekend' : ''}" 
                      onclick="calendar.selectDate('${dateStr}')">
                     <div class="day-number">${day}</div>
                     <div class="day-events">
                         ${dayEvents.map(event => `
-                            <div class="event-dot ${event.type}" title="${event.title}"></div>
+                            <div class="event-dot ${event.type}" 
+                                 title="${event.title} - ${event.startTime}"
+                                 onclick="event.stopPropagation(); calendar.showEventDetails('${event._id}')">
+                            </div>
                         `).join('')}
                     </div>
                 </div>
             `;
         }
-
+    
         html += '</div>';
         container.innerHTML = html;
     }
@@ -237,10 +237,19 @@ class LawyerCalendar {
     }
 
     renderDayView(container) {
-        const dateStr = this.currentDate.toISOString().split('T')[0];
+        // תיקון: חישוב התאריך המדויק
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+        const day = this.currentDate.getDate();
+        const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        
+        console.log('Day view date calculation:');
+        console.log('currentDate object:', this.currentDate);
+        console.log('Calculated dateStr:', dateStr);
+        
         const dayEvents = this.getEventsForDate(dateStr);
         const hours = Array.from({length: 13}, (_, i) => i + 8); // 8:00-20:00
-
+    
         let html = `
             <div class="day-header">
                 <h2>${this.getHebrewDay(this.currentDate.getDay())}, ${this.currentDate.getDate()} ${this.getHebrewMonth(this.currentDate.getMonth())}</h2>
@@ -260,7 +269,7 @@ class LawyerCalendar {
                 </div>
             </div>
         `;
-
+    
         container.innerHTML = html;
     }
 
@@ -270,18 +279,36 @@ class LawyerCalendar {
             const eventHour = parseInt(event.startTime.split(':')[0]);
             return eventHour === hour;
         });
-
+    
         return hourEvents.map(event => `
-            <div class="calendar-event ${event.type}" onclick="calendar.editEvent('${event._id}')">
+            <div class="calendar-event ${event.type}" onclick="calendar.showEventDetails('${event._id}')">
                 <div class="event-time">${this.formatTime(event.startTime)}</div>
                 <div class="event-title">${event.title}</div>
+                <div class="event-actions" onclick="event.stopPropagation();">
+                    <button class="edit-event-btn" onclick="calendar.editEvent('${event._id}')" title="ערוך אירוע">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="delete-event-btn" onclick="calendar.deleteEvent('${event._id}')" title="מחק אירוע">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </div>
         `).join('');
     }
+    
 
     // ===== EVENT MANAGEMENT =====
     getEventsForDate(dateStr) {
-        return this.events.filter(event => event.date === dateStr);
+        console.log('=== DEBUG ===');
+        console.log('Looking for events on:', dateStr);
+        console.log('All events:', this.events);
+        console.log('Event dates:', this.events.map(e => e.date));
+        
+        const filtered = this.events.filter(event => event.date === dateStr);
+        console.log('Found events:', filtered);
+        console.log('=============');
+        
+        return filtered;
     }
 
     async addEvent() {
@@ -295,15 +322,20 @@ class LawyerCalendar {
         const priority = document.getElementById('event-priority').value;
         const reminderEnabled = document.getElementById('event-reminder').checked;
         const notes = document.getElementById('event-notes').value;
-
+    
         if (!title || !date || !startTime) {
             this.showAlert('אנא מלא את כל השדות הנדרשים', 'error');
             return;
         }
-
+    
+        // DEBUG: הדפסת מידע על התאריך
+        console.log('=== ADD EVENT DEBUG ===');
+        console.log('Original date from form:', date);
+        console.log('Current calendar date:', this.currentDate.toISOString().split('T')[0]);
+    
         const eventData = {
             title,
-            date,
+            date, // לא משנים את התאריך כאן
             startTime,
             endTime: endTime || null,
             location: location || null,
@@ -313,15 +345,21 @@ class LawyerCalendar {
             reminderEnabled,
             notes: notes || null
         };
-
+    
+        console.log('Sending event data:', eventData);
+    
         try {
             const newEvent = await this.apiCall('/events', 'POST', eventData);
+            console.log('Received back from server:', newEvent);
+            
             this.events.push(newEvent);
             this.renderCalendar();
             this.hideAddEventModal();
             this.showAlert('האירוע נוסף בהצלחה!', 'success');
+            console.log('===================');
         } catch (error) {
             this.showAlert('שגיאה בהוספת האירוע', 'error');
+            console.log('Error:', error);
         }
     }
 
@@ -331,7 +369,9 @@ class LawyerCalendar {
 
         // Fill modal with event data
         document.getElementById('event-title').value = event.title;
-        document.getElementById('event-date').value = event.date;
+        const eventDate = event.date.includes('T') ? event.date.split('T')[0] : event.date;
+        document.getElementById('event-date').value = eventDate;
+        console.log('Setting edit date to:', eventDate, 'from original:', event.date);
         document.getElementById('event-time').value = event.startTime || '';
         document.getElementById('event-end-time').value = event.endTime || '';
         document.getElementById('event-location').value = event.location || '';
@@ -389,18 +429,27 @@ class LawyerCalendar {
     }
 
     async deleteEvent(eventId) {
-        if (!confirm('האם אתה בטוח שברצונך למחוק את האירוע?')) return;
+        const event = this.events.find(e => e._id === eventId);
+        if (!event) return;
+    
+        const confirmMessage = `האם אתה בטוח שברצונך למחוק את האירוע הזה?\n\n` +
+                              `כותרת: ${event.title}\n` +
+                              `תאריך: ${event.date}\n` +
+                              `שעה: ${event.startTime}\n\n` +
+                              `פעולה זו לא ניתנת לביטול.`;
+        
+        if (!confirm(confirmMessage)) return;
         
         try {
             await this.apiCall(`/events/${eventId}`, 'DELETE');
             this.events = this.events.filter(e => e._id !== eventId);
             this.renderCalendar();
+            this.hideEventDetailsModal();
             this.showAlert('האירוע נמחק בהצלחה!', 'success');
         } catch (error) {
             this.showAlert('שגיאה במחיקת האירוע', 'error');
         }
     }
-
     // ===== TASK MANAGEMENT =====
     renderTasks() {
         const tasksList = document.getElementById('tasks-list');
@@ -603,9 +652,20 @@ class LawyerCalendar {
     }
 
     selectDate(dateStr) {
-        // תיקון בעיית התאריך - שימוש בחלקי התאריך ישירות
-        const [year, month, day] = dateStr.split('-');
-        this.currentDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        console.log('=== SELECT DATE DEBUG ===');
+        console.log('Input dateStr:', dateStr);
+        
+        const [year, month, day] = dateStr.split('-').map(Number);
+        
+        // יצירת תאריך ללא השפעת אזור זמן
+        this.currentDate = new Date(year, month - 1, day);
+        
+        const resultDateStr = this.currentDate.toISOString().split('T')[0];
+        console.log('Created date object:', this.currentDate);
+        console.log('Result dateStr:', resultDateStr);
+        console.log('Match:', dateStr === resultDateStr ? 'YES' : 'NO');
+        console.log('=======================');
+        
         this.changeView('day');
     }
 
@@ -625,7 +685,12 @@ class LawyerCalendar {
     // ===== MODAL MANAGEMENT =====
     showAddEventModal() {
         document.getElementById('add-event-modal').style.display = 'flex';
-        document.getElementById('event-date').value = this.currentDate.toISOString().split('T')[0];
+        
+        // תיקון: וידוא שהתאריך מוגדר נכון
+        const dateStr = this.currentDate.toISOString().split('T')[0];
+        console.log('Setting modal date to:', dateStr);
+        
+        document.getElementById('event-date').value = dateStr;
         document.getElementById('event-title').focus();
         
         // Reset button to add mode
@@ -633,7 +698,6 @@ class LawyerCalendar {
         submitBtn.innerHTML = '<i class="bi bi-check-circle"></i><span>שמור אירוע</span>';
         submitBtn.onclick = () => this.addEvent();
     }
-
     hideAddEventModal() {
         document.getElementById('add-event-modal').style.display = 'none';
         this.clearEventForm();
@@ -759,6 +823,83 @@ class LawyerCalendar {
             }
         });
     }
+    showEventDetails(eventId) {
+        const event = this.events.find(e => e._id === eventId);
+        if (!event) return;
+    
+        const modalHtml = `
+            <div class="modal fade show" id="event-details-modal" style="display: flex;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>פרטי האירוע</h3>
+                        <button class="close-modal" onclick="calendar.hideEventDetailsModal()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="event-detail-item">
+                            <strong>כותרת:</strong> ${event.title}
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>תאריך:</strong> ${event.date}
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>שעה:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}
+                        </div>
+                        ${event.location ? `<div class="event-detail-item"><strong>מיקום:</strong> ${event.location}</div>` : ''}
+                        ${event.description ? `<div class="event-detail-item"><strong>תיאור:</strong> ${event.description}</div>` : ''}
+                        <div class="event-detail-item">
+                            <strong>סוג:</strong> ${this.getEventTypeText(event.type)}
+                        </div>
+                        <div class="event-detail-item">
+                            <strong>עדיפות:</strong> ${this.getPriorityText(event.priority)}
+                        </div>
+                        ${event.notes ? `<div class="event-detail-item"><strong>הערות:</strong> ${event.notes}</div>` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="submit-btn" onclick="calendar.editEvent('${event._id}')">
+                            <i class="bi bi-pencil"></i>
+                            <span>ערוך</span>
+                        </button>
+                        <button class="cancel-btn" onclick="calendar.deleteEvent('${event._id}')" style="background: #dc3545;">
+                            <i class="bi bi-trash"></i>
+                            <span>מחק</span>
+                        </button>
+                        <button class="cancel-btn" onclick="calendar.hideEventDetailsModal()">
+                            <i class="bi bi-x-circle"></i>
+                            <span>סגור</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        const existingModal = document.getElementById('event-details-modal');
+        if (existingModal) existingModal.remove();
+    
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
+    hideEventDetailsModal() {
+        const modal = document.getElementById('event-details-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            setTimeout(() => modal.remove(), 300);
+        }
+    }
+    
+    getEventTypeText(type) {
+        const types = {
+            meeting: 'פגישה',
+            court: 'דיון בבית משפט',
+            deadline: 'דדליין',
+            reminder: 'תזכורת',
+            consultation: 'ייעוץ',
+            research: 'מחקר'
+        };
+        return types[type] || type;
+    }
+
 }
 
 // ===== GLOBAL FUNCTIONS =====

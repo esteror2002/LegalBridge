@@ -17,15 +17,12 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('greeting').innerText = `שלום, ${username}`;
 
   // הגדרת מאזינים לכפתורי סינון
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.textContent.includes('פנייה חדשה')) return; // דילוג על כפתור "פנייה חדשה"
-      
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      const filterType = btn.textContent.includes('נכנס') ? 'inbox' :
-                        btn.textContent.includes('יוצא') ? 'sent' : 'archive';
+      const filterType = btn.getAttribute('data-filter');
       filterMessages(filterType);
     });
   });
@@ -35,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
   animateElements();
   
   // עדכון מונה הודעות לא נקראות כל 30 שניות
+  updateUnreadCount();
   setInterval(updateUnreadCount, 30000);
 });
 
@@ -54,22 +52,14 @@ async function updateUnreadCount() {
 
 // עדכון התג הודעות לא נקראות
 function updateUnreadBadge() {
-  const inboxBtn = document.querySelector('.filter-btn[onclick*="inbox"]');
-  if (!inboxBtn) return;
+  const badge = document.getElementById('unread-badge');
+  if (!badge) return;
   
-  // הסרת תג קיים
-  const existingBadge = inboxBtn.querySelector('.unread-badge');
-  if (existingBadge) existingBadge.remove();
-  
-  // הוספת תג חדש אם יש הודעות לא נקראות
   if (unreadCount > 0) {
-    const badge = document.createElement('span');
-    badge.className = 'unread-badge';
     badge.textContent = unreadCount;
-    inboxBtn.appendChild(badge);
-    
-    // הוספת אנימציה
-    badge.style.animation = 'pulse 1s infinite';
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
   }
 }
 
@@ -85,6 +75,8 @@ async function markAsRead(messageId) {
     console.error('שגיאה בסימון הודעה כנקראה:', error);
   }
 }
+
+// פתיחת מודל הודעה חדשה
 function openNewMessageModal() {
   // יצירת מודל דינמי
   const modalHtml = `
@@ -94,7 +86,7 @@ function openNewMessageModal() {
           <div class="modal-header">
             <h5 class="modal-title">
               <i class="bi bi-envelope-plus"></i>
-              פנייה חדשה לעורך הדין
+              הודעה חדשה לעורך הדין
             </h5>
             <button type="button" class="close-btn" onclick="closeNewMessageModal()">
               <i class="bi bi-x"></i>
@@ -144,7 +136,7 @@ function openNewMessageModal() {
   modal.show();
 }
 
-// סגירת מודל פנייה חדשה
+// סגירת מודל הודעה חדשה
 function closeNewMessageModal() {
   const modal = bootstrap.Modal.getInstance(document.getElementById('new-message-modal'));
   if (modal) {
@@ -190,6 +182,9 @@ async function sendNewMessage() {
       closeNewMessageModal();
       setTimeout(() => {
         filterMessages('sent'); // מעבר לדואר יוצא
+        // עדכון הכפתור הפעיל
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn[data-filter="sent"]').classList.add('active');
       }, 1000);
     } else {
       showMessage(data.message || 'שגיאה בשליחת ההודעה', 'error');
@@ -283,7 +278,7 @@ function displayMessages(messages, filterType) {
     let actionButtons = '';
     let displayUser = '';
     
-    // קביעת מי מוצג בעמודת משתמש
+    // קביעת מי מוצג בעמודת שולח/מקבל
     if (msg.username === username) {
       displayUser = 'עורך הדין'; // הלקוח שלח, אז נציג שזה הלך לעורך הדין
     } else {
@@ -297,6 +292,9 @@ function displayMessages(messages, filterType) {
         <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
         </button>
+        <button class="btn btn-sm btn-success text-white" onclick="restoreMessageFromArchive('${msg._id}')">
+          <i class="bi bi-arrow-counterclockwise"></i> שחזר
+        </button>
         <button class="btn btn-sm btn-danger text-white" onclick="deleteMessageFromTable('${msg._id}')">
           <i class="bi bi-trash"></i> מחק
         </button>
@@ -307,6 +305,9 @@ function displayMessages(messages, filterType) {
         <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
         </button>
+        <button class="btn btn-sm btn-warning text-dark" onclick="archiveMessageFromTable('${msg._id}')">
+          <i class="bi bi-archive"></i> העבר לארכיון
+        </button>
         <button class="btn btn-sm btn-danger text-white" onclick="deleteMessageFromTable('${msg._id}')">
           <i class="bi bi-trash"></i> מחק
         </button>
@@ -316,6 +317,9 @@ function displayMessages(messages, filterType) {
       actionButtons = `
         <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
+        </button>
+        <button class="btn btn-sm btn-warning text-dark" onclick="archiveMessageFromTable('${msg._id}')">
+          <i class="bi bi-archive"></i> העבר לארכיון
         </button>
       `;
     } else {
@@ -328,15 +332,22 @@ function displayMessages(messages, filterType) {
         <button class="btn btn-sm btn-info text-white" onclick="openModal('${msg._id}', '${displayUser}', '${msg.subject}', \`${msg.message.replace(/`/g, '\\`')}\`, '${msg.status}', \`${(msg.response || '').replace(/`/g, '\\`')}\`, ${msg.read})">
           <i class="bi bi-eye"></i> צפה
         </button>
+        <button class="btn btn-sm btn-warning text-dark" onclick="archiveMessageFromTable('${msg._id}')">
+          <i class="bi bi-archive"></i> העבר לארכיון
+        </button>
       `;
     }
 
     const truncatedMessage = msg.message.length > 50 ? 
       msg.message.substring(0, 50) + '...' : msg.message;
 
+    // אייקון נקודה אדומה להודעות לא נקראות
+    const unreadIcon = !msg.read && msg.recipientUsername === username ? ' <i class="bi bi-circle-fill text-danger" style="font-size: 8px;"></i>' : '';
+    const unreadPrefix = !msg.read && msg.recipientUsername === username ? '🔴 ' : '';
+
     row.innerHTML = `
-      <td><strong>${displayUser}${!msg.read && msg.recipientUsername === username ? ' <i class="bi bi-circle-fill text-danger" style="font-size: 8px;"></i>' : ''}</strong></td>
-      <td><strong>${!msg.read && msg.recipientUsername === username ? '🔴 ' : ''}${msg.subject}</strong></td>
+      <td><strong>${displayUser}${unreadIcon}</strong></td>
+      <td><strong>${unreadPrefix}${msg.subject}</strong></td>
       <td title="${msg.message}">${truncatedMessage}</td>
       <td>${new Date(msg.createdAt).toLocaleString('he-IL')}</td>
       <td>${statusLabel}</td>
@@ -351,7 +362,7 @@ function displayMessages(messages, filterType) {
 }
 
 // פתיחת מודל צפייה בהודעה
-function openModal(id, sender, subject, message, status, response, isRead, canReply = false) {
+function openModal(id, sender, subject, message, status, response, isRead) {
   currentMessageId = id;
   document.getElementById('modal-sender').textContent = sender;
   document.getElementById('modal-subject').textContent = subject;
@@ -386,6 +397,62 @@ function openModal(id, sender, subject, message, status, response, isRead, canRe
   }
 
   new bootstrap.Modal(document.getElementById('message-modal')).show();
+}
+
+// העברה לארכיון מהטבלה
+async function archiveMessageFromTable(messageId) {
+  if (!confirm('האם להעביר את ההודעה לארכיון?')) return;
+
+  try {
+    const response = await fetch(`/api/requests/archive/${messageId}`, {
+      method: 'POST'
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      // הסרת השורה מהטבלה עם אנימציה
+      const row = document.querySelector(`button[onclick*="archiveMessageFromTable('${messageId}')"]`).closest('tr');
+      row.classList.add('fade-out');
+      setTimeout(() => row.remove(), 500);
+      
+      showMessage('ההודעה הועברה לארכיון בהצלחה', 'success');
+      updateMessagesCount();
+    } else {
+      showMessage(data.message || 'שגיאה בהעברה לארכיון', 'error');
+    }
+  } catch (error) {
+    console.error('שגיאה בהעברה לארכיון:', error);
+    showMessage('שגיאה בשרת', 'error');
+  }
+}
+
+// שחזור מארכיון (להודעות בארכיון)
+async function restoreMessageFromArchive(messageId) {
+  if (!confirm('האם לשחזר את ההודעה מהארכיון?')) return;
+
+  try {
+    const response = await fetch(`/api/requests/unarchive/${messageId}`, {
+      method: 'POST'
+    });
+
+    const data = await response.json();
+    
+    if (response.ok) {
+      // הסרת השורה מהטבלה עם אנימציה
+      const row = document.querySelector(`button[onclick*="restoreMessageFromArchive('${messageId}')"]`).closest('tr');
+      row.classList.add('fade-out');
+      setTimeout(() => row.remove(), 500);
+      
+      showMessage('ההודעה שוחזרה מהארכיון בהצלחה', 'success');
+      updateMessagesCount();
+    } else {
+      showMessage(data.message || 'שגיאה בשחזור מהארכיון', 'error');
+    }
+  } catch (error) {
+    console.error('שגיאה בשחזור מהארכיון:', error);
+    showMessage('שגיאה בשרת', 'error');
+  }
 }
 
 // מחיקת הודעה מהטבלה

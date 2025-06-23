@@ -268,6 +268,7 @@ body {
   gap: 8px;
   transition: all 0.3s ease;
   font-size: 16px;
+  position: relative;
 }
 
 .filter-btn:hover {
@@ -285,7 +286,7 @@ body {
   box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
 }
 
-/* כפתור פנייה חדשה */
+/* כפתור הודעה חדשה */
 .new-message-btn {
   background: linear-gradient(135deg, #007bff, #0056b3) !important;
   color: white !important;
@@ -297,6 +298,38 @@ body {
   border-color: #0056b3 !important;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+/* תג מונה הודעות לא נקראות */
+.unread-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+  z-index: 10;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
 }
 
 /* Table Container */
@@ -376,6 +409,19 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* הודעות לא נקראות */
+.unread-message {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+  font-weight: bold;
+  border-right: 4px solid #ff6b6b;
+}
+
+.unread-message:hover {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.2);
+}
+
 /* Status Badges */
 .status-badge {
   padding: 4px 12px;
@@ -396,54 +442,6 @@ body {
   color: white;
 }
 
-/* הודעות לא נקראות */
-.unread-message {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
-  font-weight: bold;
-  border-right: 4px solid #ff6b6b;
-}
-
-.unread-message:hover {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
-  transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.2);
-}
-
-/* תג מונה הודעות לא נקראות */
-.unread-badge {
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
-  z-index: 10;
-}
-
-.filter-btn {
-  position: relative;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-  }
-}
-
 .status-badge.sent {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
@@ -457,11 +455,6 @@ body {
 .status-badge.responded {
   background: linear-gradient(135deg, #17a2b8, #138496);
   color: white;
-}
-
-.status-badge.open {
-  background: linear-gradient(135deg, #ffc107, #e0a800);
-  color: #333;
 }
 
 .status-badge.closed {
@@ -531,6 +524,34 @@ body {
 .btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #333;
+  box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Empty State */
@@ -612,6 +633,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-bottom: 25px;
 }
 
 .chat-bubble {
@@ -724,6 +746,8 @@ body {
   justify-content: flex-end;
   gap: 15px;
 }
+
+/* Form Styling for New Message Modal */
 .form-group {
   margin-bottom: 20px;
 }

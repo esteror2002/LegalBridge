@@ -1548,3 +1548,93 @@
       display: none;
     }
   }
+
+
+  /* כפתורי פעולות באירוע */
+.calendar-event {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .calendar-event:hover .event-actions {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .event-actions {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+  
+  .edit-event-btn, .delete-event-btn {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s ease;
+  }
+  
+  .edit-event-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #007bff;
+  }
+  
+  .delete-event-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #dc3545;
+  }
+  
+  .edit-event-btn:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.1);
+  }
+  
+  .delete-event-btn:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+  }
+  
+  /* מודל פרטי אירוע */
+  .event-detail-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .event-detail-item:last-child {
+    border-bottom: none;
+  }
+  
+  .event-detail-item strong {
+    color: #333;
+    font-weight: 600;
+  }
+  
+  /* שיפור הצגת נקודות אירועים בתצוגת חודש */
+  .event-dot {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  
+  .event-dot:hover {
+    transform: scale(1.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
