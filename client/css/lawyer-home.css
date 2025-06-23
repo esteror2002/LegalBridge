@@ -157,6 +157,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+  gap: 10px;
 }
 
 .notification-icon {
@@ -355,6 +356,468 @@ body {
   line-height: 1.6;
 }
 
+/* ===== חלון פגישות פעילות חדש ===== */
+
+.active-meetings-panel {
+  position: fixed;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  width: 450px;
+  max-height: 80vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* כותרת פאנל פגישות */
+.active-meetings-panel .panel-header {
+  padding: 20px;
+  background: rgba(0, 123, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.active-meetings-panel .panel-header h3 {
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* תוכן פאנל פגישות */
+.active-meetings-panel .panel-content {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* מיני כרטיסים קומפקטיים */
+.meeting-item {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  color: #333;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.meeting-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+  transition: left 0.6s;
+}
+
+.meeting-item:hover::before {
+  left: 100%;
+}
+
+.meeting-item:hover {
+  background: rgba(255,255,255,0.95);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+}
+
+/* כותרת קומפקטית */
+.meeting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.meeting-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meeting-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.8rem;
+  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+}
+
+.meeting-header h4 {
+  color: #333;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.meeting-status {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-scheduled {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-active {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.status-completed {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-cancelled {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+/* פרטים קומפקטיים */
+.meeting-details {
+  margin-bottom: 12px;
+}
+
+.meeting-details p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meeting-details i {
+  color: #007bff;
+  width: 14px;
+  font-size: 0.8rem;
+}
+
+/* סטטוס זמן הפגישה */
+.time-status {
+  font-weight: 600 !important;
+}
+
+.time-future {
+  color: #007bff !important;
+}
+
+.time-soon {
+  color: #fd7e14 !important;
+}
+
+.time-now {
+  color: #28a745 !important;
+  animation: pulse-text 2s infinite;
+}
+
+.time-active {
+  color: #dc3545 !important;
+  animation: pulse-text 2s infinite;
+}
+
+.time-late {
+  color: #6f42c1 !important;
+}
+
+@keyframes pulse-text {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* כפתורים קטנים */
+.meeting-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.meeting-actions .btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.meeting-actions .btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+}
+
+.meeting-actions .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.meeting-actions .btn-secondary {
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e9ecef;
+}
+
+.meeting-actions .btn-secondary:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.meeting-actions .btn-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.meeting-actions .btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+/* הודעה כאשר אין פגישות */
+.no-meetings-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 20px;
+  background: rgba(0, 123, 255, 0.05);
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.no-meetings-message i {
+  font-size: 3rem;
+  color: #007bff;
+  margin-bottom: 15px;
+  display: block;
+}
+
+/* מודל יצירת פגישה */
+.video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.video-modal.show {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideUp 0.4s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.modal-header h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.modal-header p {
+  color: #666;
+  font-size: 14px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #666;
+  border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 12px;
+  flex: none;
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
 /* Dashboard Grid */
 .dashboard-grid {
   display: grid;
@@ -478,7 +941,7 @@ body {
   font-weight: 500;
 }
 
-/* Notification Panel */
+/* Notification Panel - תיקון עיצוב להתראות ברורות יותר */
 .notif-panel {
   position: fixed;
   top: 50%;
@@ -486,31 +949,20 @@ body {
   transform: translateY(-50%);
   width: 350px;
   max-height: 80vh;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 123, 255, 0.3);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   z-index: 1000;
   overflow: hidden;
   animation: slideIn 0.3s ease-out;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-}
-
 .panel-header {
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border-bottom: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -520,76 +972,134 @@ body {
   color: white;
   font-size: 18px;
   font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .close-panel {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
   cursor: pointer;
   font-size: 20px;
-  padding: 5px;
+  padding: 8px;
   border-radius: 50%;
   transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-panel:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
 }
 
 .panel-content {
   padding: 20px;
   max-height: 400px;
   overflow-y: auto;
+  background: white;
 }
 
 .panel-content ul {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .panel-content li {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 15px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #007bff;
+  border-radius: 15px;
+  padding: 20px;
   margin-bottom: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.panel-content li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+  border-color: #0056b3;
 }
 
 .panel-content strong {
-  color: white;
-  font-size: 16px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 700;
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 86, 179, 0.1));
+  border-radius: 10px;
+  border: 1px solid rgba(0, 123, 255, 0.2);
 }
 
-.panel-content button {
-  padding: 8px 15px;
+.notification-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.notification-actions button {
+  padding: 12px 20px;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
-  font-weight: 500;
-  margin-left: 10px;
+  font-weight: 600;
+  font-size: 14px;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  justify-content: center;
 }
 
 .approve {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
 .approve:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.5);
 }
 
 .delete {
   background: linear-gradient(135deg, #dc3545, #fd7e14);
   color: white;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
 }
 
 .delete:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
+}
+
+/* הודעת רשימה ריקה */
+.empty-state {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 15px;
+  border: 2px dashed #007bff;
+  margin: 20px 0;
+}
+
+.empty-state::before {
+  content: "🔔";
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 15px;
 }
 
 /* Responsive Design */
@@ -616,11 +1126,42 @@ body {
     grid-template-columns: 1fr;
   }
   
-  .notif-panel {
+  .notif-panel,
+  .active-meetings-panel {
     position: fixed;
     top: 50%;
     right: 10px;
     left: 10px;
     width: auto;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  /* רספונסיב לפגישות */
+  .meeting-actions {
+    flex-direction: column;
+  }
+  
+  .meeting-actions .btn {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .meeting-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

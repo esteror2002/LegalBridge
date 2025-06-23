@@ -28,6 +28,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/requests', require('./routes/requests'));
 app.use('/api/cases', require('./routes/cases'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/meetings', require('./routes/meetings')); 
 
 // סטטיק קבצים
 app.use(express.static(path.join(__dirname, '../client')));

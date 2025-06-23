@@ -35,6 +35,11 @@
             <span id="notif-count" class="badge" style="display: none;">0</span>
             <div class="notification-pulse"></div>
           </div>
+          <!-- כפתור חדש לפגישות פעילות -->
+          <div class="notification-icon" onclick="toggleActiveMeetings()">
+            <i class="bi bi-camera-video"></i>
+            <span id="active-meetings-count" class="badge" style="display: none;">0</span>
+          </div>
           <button class="logout-btn" onclick="logout()">
             <i class="bi bi-box-arrow-right"></i>
             <span>התנתקות</span>
@@ -42,6 +47,7 @@
         </div>
       </div>
 
+      <!-- פגישות וידאו בתפריט הצד -->
       <nav class="lawyer-options">
         <ul>
           <li>
@@ -50,6 +56,28 @@
                 <i class="bi bi-person"></i>
               </div>
               <span>אזור אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-calendar.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-calendar-week"></i>
+              </div>
+              <span>יומן אישי</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="nav-item" onclick="showVideoMeetingModal(); return false;">
+              <div class="nav-icon">
+                <i class="bi bi-camera-video"></i>
+              </div>
+              <span>פגישות וידאו</span>
               <div class="nav-arrow">
                 <i class="bi bi-chevron-left"></i>
               </div>
@@ -183,6 +211,82 @@
     </div>
     <div class="panel-content">
       <ul id="notif-list"></ul>
+    </div>
+  </div>
+
+  <!-- חלון פגישות פעילות חדש -->
+  <div id="active-meetings-panel" class="active-meetings-panel" style="display: none;">
+    <div class="panel-header">
+      <h3>
+        <i class="bi bi-camera-video"></i>
+        פגישות פעילות
+      </h3>
+      <button class="close-panel" onclick="toggleActiveMeetings()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <div class="panel-content">
+      <div id="meetings-list">
+        <!-- רשימת פגישות תטען כאן -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Meeting Modal -->
+  <div id="video-modal" class="video-modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="hideVideoMeetingModal()">
+        <i class="bi bi-x"></i>
+      </button>
+      
+      <div class="modal-header">
+        <h2>יצירת פגישת וידאו</h2>
+        <p>הזן פרטי הפגישה וללקוח יישלח קישור אוטומטי</p>
+      </div>
+
+      <form id="video-meeting-form">
+        <div class="form-group">
+          <label for="client-select">בחר לקוח:</label>
+          <select id="client-select" required>
+            <option value="">בחר לקוח...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-title">נושא הפגישה:</label>
+          <input type="text" id="meeting-title" placeholder="למשל: ייעוץ משפטי - תיק מס' 123" required>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-date">תאריך ושעה:</label>
+          <input type="datetime-local" id="meeting-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-duration">משך הפגישה (דקות):</label>
+          <select id="meeting-duration">
+            <option value="30">30 דקות</option>
+            <option value="45">45 דקות</option>
+            <option value="60">60 דקות</option>
+            <option value="90">90 דקות</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-notes">הערות נוספות:</label>
+          <textarea id="meeting-notes" placeholder="הערות או הוראות מיוחדות ללקוח..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="hideVideoMeetingModal()">
+            ביטול
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-camera-video"></i>
+            צור פגישה ושלח ללקוח
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

@@ -2,10 +2,9 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>מערכת דואר | Legal Bridge</title>
+  <title>בית עורכת דין | Legal Bridge</title>
+  <link rel="stylesheet" href="../css/lawyer-home.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../css/client-requests.css">
 </head>
 <body>
   <!-- Background Animation -->
@@ -27,10 +26,15 @@
           <div class="profile-avatar">
             <i class="bi bi-person-circle"></i>
           </div>
-          <h2 id="greeting">שלום, לקוח</h2>
+          <h2 id="greeting">שלום, עורכת דין</h2>
         </div>
         
         <div class="header-actions">
+          <div class="notification-icon" onclick="toggleNotifications()">
+            <i class="bi bi-bell"></i>
+            <span id="notif-count" class="badge" style="display: none;">0</span>
+            <div class="notification-pulse"></div>
+          </div>
           <button class="logout-btn" onclick="logout()">
             <i class="bi bi-box-arrow-right"></i>
             <span>התנתקות</span>
@@ -38,21 +42,11 @@
         </div>
       </div>
 
-      <nav class="client-options">
+      <!-- פגישות וידאו בתפריט הצד -->
+      <nav class="lawyer-options">
         <ul>
           <li>
-            <a href="client-home.html" class="nav-item">
-              <div class="nav-icon">
-                <i class="bi bi-house"></i>
-              </div>
-              <span>עמוד הבית</span>
-              <div class="nav-arrow">
-                <i class="bi bi-chevron-left"></i>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a href="client-profile.html" class="nav-item">
+            <a href="lawyer-profile.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-person"></i>
               </div>
@@ -63,23 +57,55 @@
             </a>
           </li>
           <li>
-            <a href="client-case.html" class="nav-item">
+            <a href="lawyer-calendar.html" class="nav-item">
               <div class="nav-icon">
-                <i class="bi bi-folder"></i>
+                <i class="bi bi-calendar-week"></i>
               </div>
-              <span>התיק שלי</span>
+              <span>יומן אישי</span>
               <div class="nav-arrow">
                 <i class="bi bi-chevron-left"></i>
               </div>
             </a>
           </li>
           <li>
+            <a href="#" class="nav-item" onclick="showVideoMeetingModal(); return false;">
+              <div class="nav-icon">
+                <i class="bi bi-camera-video"></i>
+              </div>
+              <span>פגישות וידאו</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
           <li>
-            <a href="client-requests.html" class="nav-item active">
+            <a href="clients-list.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <span>צפייה בלקוחות</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-requests.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-envelope"></i>
               </div>
-              <span>מערכת דואר</span>
+              <span>דואר</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="lawyer-cases.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-folder"></i>
+              </div>
+              <span>ניהול תיקים</span>
               <div class="nav-arrow">
                 <i class="bi bi-chevron-left"></i>
               </div>
@@ -92,164 +118,166 @@
     <!-- Main Content -->
     <main class="main-content">
       <div class="content-header">
-        <h1 class="page-title">
-          <i class="bi bi-envelope-fill"></i>
-          מערכת דואר אישית
+        <h1 class="main-title">
+          <span class="title-text">ברוכה הבאה למערכת</span>
+          <span class="title-highlight">Legal Bridge</span>
         </h1>
-        <p class="page-subtitle">תקשורת עם עורך הדין</p>
+        <p class="subtitle">כאן תוכלי לנהל את המשתמשים והלקוחות שלך בקלות וביעילות</p>
       </div>
 
-      <!-- Filter Panel -->
-      <div class="filter-panel">
-        <div class="filter-header">
-          <h3>
-            <i class="bi bi-funnel"></i>
-            מערכת דואר
-          </h3>
-        </div>
-        <div class="filter-buttons">
-          <button class="filter-btn new-message-btn" onclick="openNewMessageModal()">
-            <i class="bi bi-plus-circle"></i>
-            פנייה חדשה
-          </button>
-          <button class="filter-btn active" onclick="filterMessages('inbox')">
-            <i class="bi bi-inbox"></i>
-            דואר נכנס
-          </button>
-          <button class="filter-btn" onclick="filterMessages('sent')">
-            <i class="bi bi-send"></i>
-            דואר יוצא
-          </button>
-          <button class="filter-btn" onclick="filterMessages('archive')">
-            <i class="bi bi-archive"></i>
-            ארכיון
-          </button>
+      <!-- פגישות פעילות - גרסה קומפקטית -->
+      <div class="active-meetings" id="active-meetings" style="display: none;">
+        <h3>
+          <i class="bi bi-camera-video"></i>
+          פגישות פעילות
+        </h3>
+        <div id="meetings-list">
+          <!-- רשימת פגישות תטען כאן -->
         </div>
       </div>
 
-      <!-- Messages Table -->
-      <div class="table-container">
-        <div class="table-header">
-          <h3>
-            <i class="bi bi-table"></i>
-            רשימת הודעות
-          </h3>
-          <div class="table-stats">
-            <span id="messages-count">0 הודעות</span>
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>ניהול לקוחות</h3>
+            <p>צפייה ועריכת פרטי לקוחות</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
           </div>
         </div>
-        
-        <div class="table-wrapper">
-          <table id="messages-table">
-            <thead>
-              <tr>
-                <th>
-                  <i class="bi bi-person"></i>
-                  מאת/אל
-                </th>
-                <th>
-                  <i class="bi bi-chat-text"></i>
-                  נושא
-                </th>
-                <th>
-                  <i class="bi bi-file-text"></i>
-                  תוכן
-                </th>
-                <th>
-                  <i class="bi bi-calendar"></i>
-                  תאריך
-                </th>
-                <th>
-                  <i class="bi bi-flag"></i>
-                  סטטוס
-                </th>
-                <th>
-                  <i class="bi bi-gear"></i>
-                  פעולות
-                </th>
-              </tr>
-            </thead>
-            <tbody id="messages-body"></tbody>
-          </table>
-          
-          <!-- Empty State -->
-          <div id="empty-state" class="empty-state" style="display: none;">
-            <div class="empty-icon">
-              <i class="bi bi-envelope-x"></i>
-            </div>
-            <h3>אין הודעות להצגה</h3>
-            <p>לא נמצאו הודעות במסנן הנוכחי</p>
+
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-envelope-fill"></i>
           </div>
+          <div class="card-content">
+            <h3>הודעות</h3>
+            <p>תיבת הודעות ופניות</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-folder-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>תיקים פעילים</h3>
+            <p>ניהול ומעקב אחר תיקים</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-gear-fill"></i>
+          </div>
+          <div class="card-content">
+            <h3>הגדרות</h3>
+            <p>ניהול הגדרות המערכת</p>
+          </div>
+          <div class="card-action">
+            <i class="bi bi-arrow-left"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-card">
+          <div class="stat-number">24</div>
+          <div class="stat-label">לקוחות פעילים</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">8</div>
+          <div class="stat-label">תיקים פתוחים</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">12</div>
+          <div class="stat-label">הודעות חדשות</div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Modal צפייה בהודעה -->
-  <div class="modal fade" id="message-modal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content modern-modal">
-        <div class="modal-header">
-          <h5 class="modal-title" id="messageModalLabel">
-            <i class="bi bi-envelope-open"></i>
-            פירוט הודעה
-          </h5>
-          <button type="button" class="close-btn" onclick="closeModal()" aria-label="Close">
-            <i class="bi bi-x"></i>
+  <!-- Notification Panel -->
+  <div id="notif-panel" class="notif-panel" style="display: none;">
+    <div class="panel-header">
+      <h3>לקוחות ממתינים לאישור</h3>
+      <button class="close-panel" onclick="toggleNotifications()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+    <div class="panel-content">
+      <ul id="notif-list"></ul>
+    </div>
+  </div>
+
+  <!-- Video Meeting Modal -->
+  <div id="video-modal" class="video-modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="hideVideoMeetingModal()">
+        <i class="bi bi-x"></i>
+      </button>
+      
+      <div class="modal-header">
+        <h2>יצירת פגישת וידאו</h2>
+        <p>הזן פרטי הפגישה וללקוח יישלח קישור אוטומטי</p>
+      </div>
+
+      <form id="video-meeting-form">
+        <div class="form-group">
+          <label for="client-select">בחר לקוח:</label>
+          <select id="client-select" required>
+            <option value="">בחר לקוח...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-title">נושא הפגישה:</label>
+          <input type="text" id="meeting-title" placeholder="למשל: ייעוץ משפטי - תיק מס' 123" required>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-date">תאריך ושעה:</label>
+          <input type="datetime-local" id="meeting-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-duration">משך הפגישה (דקות):</label>
+          <select id="meeting-duration">
+            <option value="30">30 דקות</option>
+            <option value="45">45 דקות</option>
+            <option value="60">60 דקות</option>
+            <option value="90">90 דקות</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="meeting-notes">הערות נוספות:</label>
+          <textarea id="meeting-notes" placeholder="הערות או הוראות מיוחדות ללקוח..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="hideVideoMeetingModal()">
+            ביטול
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-camera-video"></i>
+            צור פגישה ושלח ללקוח
           </button>
         </div>
-        
-        <div class="modal-body">
-          <div class="chat-container">
-            <!-- הודעה מקורית -->
-            <div class="chat-bubble original-message">
-              <div class="message-header">
-                <div class="user-info">
-                  <i class="bi bi-person-circle"></i>
-                  <span id="modal-sender"></span>
-                </div>
-                <div class="message-time" id="modal-date"></div>
-              </div>
-              <div class="message-subject">
-                <i class="bi bi-chat-text"></i>
-                <span id="modal-subject"></span>
-              </div>
-              <div class="message-content" id="modal-message"></div>
-            </div>
+      </form>
+    </div>
+  </div>
 
-            <!-- תגובה -->
-            <div class="chat-bubble response-message" id="modal-response-section" style="display: none;">
-              <div class="message-header">
-                <div class="user-info">
-                  <i class="bi bi-person-badge"></i>
-                  <span id="modal-responder"></span>
-                </div>
-                <div class="message-time" id="modal-response-date"></div>
-              </div>
-              <div class="message-content" id="modal-response-text"></div>
-            </div>
-          </div>
-
-          <!-- טקסט תגובה ללקוח -->
-          <div id="modal-reply-wrapper" class="response-section" style="display: none;">
-            <label for="modal-reply" class="response-label">
-              <i class="bi bi-chat-dots"></i>
-              תגובה לעורך הדין
-            </label>
-            <textarea id="modal-reply" class="response-textarea" placeholder="הקלידי כאן את תגובתך..." rows="4"></textarea>
-          </div>
-        </div>
-
-        <!-- כפתורים -->
-        <div class="modal-footer" id="modal-actions">
-          <button type="button" class="btn btn-primary" id="send-reply-btn" onclick="sendReply()" style="display: none;">
-            <i class="bi bi-send"></i>
-            שלח תגובה
-          </button>
-        </div>
-
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../js/client-requests.js"></script>
+  <script src="../js/lawyer-home.js"></script>
 </body>
 </html>
