@@ -2,6 +2,11 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
+const { sendVerification, checkVerification, SANDBOX } = require('../services/twilio');
+const { normalizeToE164IL } = require('../utils/phone');
+
 
 // פונקציית שליחת מייל
 const sendEmail = async (to, subject, text) => {
@@ -22,6 +27,7 @@ const sendEmail = async (to, subject, text) => {
 };
 
 // רישום משתמש
+// רישום משתמש
 exports.register = async (req, res) => {
   try {
     const { username, email, password, role, phone, address } = req.body;
@@ -31,55 +37,69 @@ exports.register = async (req, res) => {
     }
 
     const existingUser = await User.findOne({ username });
-    if (existingUser) return res.status(400).json({ message: 'שם המשתמש כבר רשום במערכת' });
+    if (existingUser) {
+      return res.status(400).json({ message: 'שם המשתמש כבר רשום במערכת' });
+    }
 
     const existingEmail = await User.findOne({ email });
-    if (existingEmail) return res.status(400).json({ message: 'האימייל כבר רשום במערכת' });
+    if (existingEmail) {
+      return res.status(400).json({ message: 'האימייל כבר רשום במערכת' });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const cleanedUsername = username.trim().replace(/['"]+/g, '');
+    const cleanedEmail = email.trim().toLowerCase();
+    const cleanedPhone = (phone || '').trim();
+    const cleanedAddress = (address || '').trim();
+
     const newUser = new User({
-      username: username.trim().replace(/['"]+/g, ''),
-      email: email.trim().toLowerCase(),
+      username: cleanedUsername,
+      email: cleanedEmail,
       password: hashedPassword,
       role,
-      phone: phone?.trim() || '',
-      address: address?.trim() || '',
+      phone: cleanedPhone,
+      phoneE164: cleanedPhone ? normalizeToE164IL(cleanedPhone) : null, // ⭐ חשוב ל‑SMS
+      address: cleanedAddress,
       approved: false,
     });
 
     await newUser.save();
+
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2d' });
     const approvalLink = `http://localhost:5000/api/auth/approve/${token}`;
 
     if (role === 'lawyer') {
       await sendEmail(
         'esteror2002@gmail.com',
-        `משתמש חדש ממתין לאישור`,
-        `עורך דין חדש ממתין לאישור: ${username}\n\nלאישור:\n${approvalLink}`
+        'משתמש חדש ממתין לאישור',
+        `עורך דין חדש ממתין לאישור: ${cleanedUsername}\n\nלאישור:\n${approvalLink}`
       );
     } else if (role === 'client') {
       await sendEmail(
         'lawyer-email@example.com',
-        `משתמש חדש ממתין לאישור`,
-        `לקוח חדש בשם ${username} ממתין לאישור.`
+        'משתמש חדש ממתין לאישור',
+        `לקוח חדש בשם ${cleanedUsername} ממתין לאישור.`
       );
     }
 
-    res.status(201).json({ message: 'נרשמת בהצלחה!' });
+    return res.status(201).json({ message: 'נרשמת בהצלחה!' });
   } catch (error) {
     console.error('שגיאה בהרשמה:', error);
-    res.status(500).json({ message: 'שגיאה בשרת, נסה שוב מאוחר יותר' });
+    return res.status(500).json({ message: 'שגיאה בשרת, נסה שוב מאוחר יותר' });
   }
 };
 
-// התחברות
+
+
+// התחברות עם 2FA ב-SMS (חובה לכל CLIENT)
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, twoFactorCode } = req.body;
 
-    if (!username || !password)
+    if (!username || !password) {
       return res.status(400).json({ message: 'אנא הזן שם משתמש וסיסמה' });
+    }
 
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ message: 'משתמש לא קיים במערכת' });
@@ -88,16 +108,64 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'סיסמה שגויה' });
 
-    res.status(200).json({
+    // ===== דרישת 2FA לכל לקוח =====
+    const mustDo2FA = (user.role === 'client');  // ← כל לקוח חייב 2FA
+    if (mustDo2FA) {
+      // ודא שיש מספר E.164
+      if (!user.phoneE164 && user.phone) {
+        user.phoneE164 = normalizeToE164IL(user.phone);
+        await user.save();
+      }
+      if (!user.phoneE164) {
+        return res.status(400).json({ message: 'אין מספר טלפון תקין לחשבון – אנא עדכן מספר באזור האישי' });
+      }
+
+      // אם אין קוד – שלח עכשיו קוד והחזר דרישה להזין
+      if (!twoFactorCode) {
+        await sendVerification(user.phoneE164);
+        return res.status(200).json({
+          message: 'נדרש אימות דו-שלבי (קוד נשלח ב-SMS)',
+          requiresTwoFactor: true,
+          method: 'sms',
+          username: user.username
+        });
+      }
+
+      // אימות הקוד
+      const check = await checkVerification(user.phoneE164, twoFactorCode);
+      if (!check || check.status !== 'approved') {
+        return res.status(400).json({ message: 'קוד אימות שגוי או שפג תוקפו' });
+      }
+
+      // נסמן שה‑2FA פעיל ומאומת (פעם ראשונה)
+      if (!user.twoFactorEnabled || user.twoFactorMethod !== 'sms' || !user.phoneVerified) {
+        user.twoFactorEnabled = true;
+        user.twoFactorMethod = 'sms';
+        user.phoneVerified = true;
+        await user.save();
+      }
+    }
+
+    // ===== התחברות מלאה =====
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '2d' }
+    );
+
+    return res.status(200).json({
       message: 'התחברת בהצלחה!',
       username: user.username,
       role: user.role,
+      token
     });
   } catch (error) {
-    console.error('שגיאה בשרת:', error);
-    res.status(500).json({ message: 'שגיאה בשרת, נסה שוב מאוחר יותר' });
+    console.error('שגיאה בשרת (login):', error);
+    return res.status(500).json({ message: 'שגיאה בשרת, נסה שוב מאוחר יותר' });
   }
 };
+
+
 
 // אישור משתמש ע"י טוקן
 exports.approveToken = async (req, res) => {
@@ -260,3 +328,150 @@ exports.getProfile = async (req, res) => {
   }
 };
 
+
+//בדיקת סטטוס FA
+exports.get2FAStatus = async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+    res.json({
+      twoFactorEnabled: user.twoFactorEnabled,
+      backupCodesCount: user.twoFactorBackupCodes.length
+    });
+  } catch (error) {
+    console.error('שגיאה בבדיקת סטטוס 2FA:', error);
+    res.status(500).json({ message: 'שגיאה בשרת' });
+  }
+};
+
+
+exports.setup2FA = async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+    // יצירת סיקרט חדש
+    const secret = speakeasy.generateSecret({
+      name: `Legal Bridge (${user.username})`,
+      issuer: 'Legal Bridge'
+    });
+
+    // שמירת הסיקרט זמנית (יאושר בשלב הבא)
+    user.twoFactorSecret = secret.base32;
+    await user.save();
+
+    // יצירת QR קוד
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.json({
+      secret: secret.base32,
+      qrCode: qrCodeUrl,
+      manualEntryKey: secret.base32
+    });
+  } catch (error) {
+    console.error('שגיאה בהגדרת 2FA:', error);
+    res.status(500).json({ message: 'שגיאה בהגדרת אימות דו-שלבי' });
+  }
+};
+
+
+//  הפעלת 2FA - שלב 2: אימות והפעלה
+exports.enable2FA = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: 'נדרש קוד אימות' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+    // אימות הקוד
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token,
+      window: 2
+    });
+
+    if (!verified) {
+      return res.status(400).json({ message: 'קוד אימות שגוי' });
+    }
+
+    // הפעלת 2FA ויצירת קודי גיבוי
+    user.twoFactorEnabled = true;
+    const backupCodes = user.generateBackupCodes();
+    await user.save();
+
+    res.json({
+      message: 'אימות דו-שלבי הופעל בהצלחה!',
+      backupCodes
+    });
+  } catch (error) {
+    console.error('שגיאה בהפעלת 2FA:', error);
+    res.status(500).json({ message: 'שגיאה בהפעלת אימות דו-שלבי' });
+  }
+};
+
+// שליחת קוד אימות ב-SMS
+exports.sendSmsCode = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+    // אם phoneE164 ריק – ננסה לנרמל את phone
+    if (!user.phoneE164 && user.phone) {
+      user.phoneE164 = normalizeToE164IL(user.phone);
+      await user.save();
+    }
+
+    if (!user.phoneE164) return res.status(400).json({ message: 'אין למשתמש מספר טלפון מאומת' });
+
+    const result = await sendVerification(user.phoneE164);
+    const payload = { message: 'קוד נשלח', status: result.status };
+    if (SANDBOX && result.code) payload.sandboxCode = result.code; // עוזר בבדיקות
+
+    res.json(payload);
+  } catch (e) {
+    console.error('sendSmsCode error:', e);
+    res.status(500).json({ message: 'שגיאה בשליחת קוד' });
+  }
+};
+
+// אימות קוד מה-SMS והפעלת 2FA
+exports.verifySmsCode = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { code } = req.body;
+
+    if (!code) return res.status(400).json({ message: 'נדרש קוד' });
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+    if (!user.phoneE164 && user.phone) user.phoneE164 = normalizeToE164IL(user.phone);
+    if (!user.phoneE164) return res.status(400).json({ message: 'אין מספר טלפון למשתמש' });
+
+    const check = await checkVerification(user.phoneE164, code);
+    if (check.status !== 'approved') {
+      return res.status(400).json({ message: 'קוד שגוי או שפג תוקפו' });
+    }
+
+    user.twoFactorEnabled = true;
+    user.twoFactorMethod = 'sms';
+    user.phoneVerified = true;
+    await user.save();
+
+    res.json({ message: 'אומת בהצלחה' });
+  } catch (e) {
+    console.error('verifySmsCode error:', e);
+    res.status(500).json({ message: 'שגיאה באימות קוד' });
+  }
+};

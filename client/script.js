@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const forgotPasswordContainer = document.getElementById('forgot-password-container');
 
     let isLogin = false;
+    let pendingLogin = null; // { username, password }
+
 
     // הסתרת המודל כברירת מחדל
     modal.style.display = 'none';
@@ -150,6 +152,17 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log(`🔍 תגובת השרת:`, data);
 
             if (response.ok) {
+                // בדיקה אם נדרש 2FA
+                if (isLogin && data.requiresTwoFactor) {
+                    // נשמור את פרטי ההתחברות לשימוש אחרי הקוד
+                    pendingLogin = { username: userData.username, password: userData.password };
+                
+                    showSuccessMessage('נדרש אימות דו-שלבי (קוד נשלח ב‑SMS)');
+                    show2FAModal(userData.username);
+                    return;
+                }
+                
+                
                 // הצגת הודעת הצלחה
                 showSuccessMessage(data.message || 'הפעולה בוצעה בהצלחה!');
                 
@@ -351,4 +364,155 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 300);
         }, 4000);
     }
+
+    function show2FAModal(username) {
+        const modal2FA = document.createElement('div');
+        modal2FA.className = 'modal-overlay';
+        modal2FA.id = 'modal-2fa';
+        modal2FA.style.display = 'flex';
+        modal2FA.innerHTML = `
+            <div class="modal-content">
+                <span class="close-btn" onclick="close2FAModal()">&times;</span>
+                <h2 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    אימות דו-שלבי (SMS)
+                </h2>
+                <div class="text-center mb-3">
+                    <p>הזן את הקוד בן 6 ספרות שנשלח אלייך ב‑SMS.</p>
+                    <button type="button" id="resend-code" class="btn-submit" style="margin-bottom:8px;">
+                        <i class="fas fa-paper-plane me-2"></i> שלח שוב קוד
+                    </button>
+                    <div id="sandbox-hint" style="color:#888;font-size:0.9em;"></div>
+                </div>
+                <form id="two-factor-form">
+                    <div class="form-group">
+                        <input type="text" 
+                               id="two-factor-code" 
+                               class="form-control text-center" 
+                               placeholder="000000" 
+                               inputmode="numeric"
+                               maxlength="6" 
+                               style="font-size: 1.5em; letter-spacing: 5px; font-weight: bold;"
+                               required>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-unlock me-2"></i>
+                        אמת והתחבר
+                    </button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal2FA);
+        document.body.style.overflow = 'hidden';
+    
+        // פוקוס
+        setTimeout(() => document.getElementById('two-factor-code').focus(), 200);
+    
+        // שליחת קוד שוב (וגם מציג sandboxCode אם קיים)
+        const resendBtn = document.getElementById('resend-code');
+        const sandboxHint = document.getElementById('sandbox-hint');
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            const old = resendBtn.innerHTML;
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>שולח...';
+            try {
+                const r = await fetch(`http://localhost:5000/api/auth/2fa/sms/send/${encodeURIComponent(username)}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }
+                });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j.message || 'שגיאה');
+                // אם ב‑Sandbox — נקבל גם sandboxCode
+                if (j.sandboxCode) {
+                    sandboxHint.textContent = `Sandbox code: ${j.sandboxCode}`;
+                } else {
+                    sandboxHint.textContent = 'קוד נשלח ב‑SMS.';
+                }
+            } catch (e) {
+                sandboxHint.textContent = e.message || 'שגיאה בשליחת קוד';
+            } finally {
+                resendBtn.innerHTML = old;
+                resendBtn.disabled = false;
+            }
+        });
+    
+        // נשלח קוד מיד כשנפתחת חלונית (טוב למקרה שהלוגין לא שלח)
+        resendBtn.click();
+    
+        // טיפול בטופס הקוד
+        document.getElementById('two-factor-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('two-factor-code').value.trim();
+            await verify2FACode(username, code);
+        });
+    }
+    
+    // פונקציה לסגירת modal של 2FA
+    window.close2FAModal = function() {
+        const modal2FA = document.getElementById('modal-2fa');
+        if (modal2FA) {
+            modal2FA.remove();
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    async function verify2FACode(username, code) {
+        if (!code || code.length !== 6) {
+            showErrorMessage('אנא הזן קוד בן 6 ספרות');
+            return;
+        }
+        if (!pendingLogin) {
+            showErrorMessage('אין ניסיון התחברות פעיל');
+            return;
+        }
+    
+        const btn = document.querySelector('#modal-2fa .btn-submit');
+        const old = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>מאמת...';
+        btn.disabled = true;
+    
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: pendingLogin.username,
+                    password: pendingLogin.password,
+                    twoFactorCode: code
+                })
+            });
+            const data = await response.json();
+    
+            if (!response.ok) throw new Error(data.message || 'קוד שגוי');
+    
+            // התחברות הושלמה
+            showSuccessMessage('התחברת בהצלחה! 🎉');
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', data.username);
+            localStorage.setItem('role', data.role);
+    
+            setTimeout(() => {
+                close2FAModal();
+                closeModal();
+                if (data.role === 'lawyer') {
+                    window.location.href = 'pages/lawyer-home.html';
+                } else {
+                    window.location.href = 'pages/client-home.html';
+                }
+            }, 800);
+        } catch (err) {
+            showErrorMessage(err.message || 'שגיאה באימות הקוד');
+            document.getElementById('two-factor-code').select();
+        } finally {
+            btn.innerHTML = old;
+            btn.disabled = false;
+        }
+    }
+    
+
+    // פונקציה לאימות עם קוד גיבוי
+    window.verifyWithBackupCode = async function(username) {
+        const backupCode = document.getElementById('backup-code').value.trim();
+        await verify2FACode(username, backupCode, true);
+    }
+
 });
