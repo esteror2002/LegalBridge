@@ -1,10 +1,22 @@
 const mongoose = require('mongoose');
 
+// ----- מסמך בודד בתוך תת-תיק -----
+const documentSchema = new mongoose.Schema({
+  name: { type: String, required: true },            // שם לתצוגה (יכול להיות כמו המקורי)
+  originalName: { type: String },                    // שם הקובץ המקורי מההעלאה
+  mimeType: { type: String },                        // סוג תוכן (application/pdf וכו')
+  size: { type: Number },                            // בייטים
+  url: { type: String, required: true },             // הנתיב לקובץ, למשל: /uploads/123-file.pdf
+  uploadedAt: { type: Date, default: Date.now }      // תאריך העלאה
+}, { _id: true });
+
+// ----- תת-תיק -----
 const subCaseSchema = new mongoose.Schema({
   title: String,
-  documents: [String]
+  documents: [documentSchema] // <-- היה [String]
 });
 
+// ----- עדכון התקדמות -----
 const progressSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   title: String,
@@ -12,6 +24,7 @@ const progressSchema = new mongoose.Schema({
   addedBy: String // שם מי שהוסיף את העדכון
 });
 
+// ----- תיק -----
 const caseSchema = new mongoose.Schema({
   // חיבור חדש ללקוח
   clientId: { 
@@ -20,7 +33,7 @@ const caseSchema = new mongoose.Schema({
     required: true 
   },
   
-  // שמירה על השדות הקיימים לתאימות לאחור
+  // שדות קיימים לתאימות
   clientName: { type: String, required: true },
   clientEmail: { type: String },
   clientPhone: { type: String },
@@ -35,7 +48,7 @@ const caseSchema = new mongoose.Schema({
   // תתי-תיקים
   subCases: [subCaseSchema],
   
-  // מעקב התקדמות - חדש!
+  // מעקב התקדמות
   progress: [progressSchema]
 });
 

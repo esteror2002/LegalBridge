@@ -303,4 +303,4 @@ window.addEventListener('error', function(event) {
 window.addEventListener('online', () => showSuccessMessage('חיבור לאינטרנט חזר'));
 window.addEventListener('offline', () => showErrorMessage('חיבור לאינטרנט נותק'));
 
-console.log('🎉 סקריפט אזור אישי נטען בהצלחה!');
+console.log(' סקריפט אזור אישי נטען בהצלחה!');

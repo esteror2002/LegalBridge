@@ -89,16 +89,11 @@ class LawyerCalendar {
 
     // ===== GREETING SYSTEM =====
     updateGreeting() {
-        const hour = new Date().getHours();
-        let greeting = 'שלום';
-        
-        if (hour < 12) greeting = 'בוקר טוב';
-        else if (hour < 17) greeting = 'צהריים טובים';
-        else if (hour < 21) greeting = 'ערב טוב';
-        else greeting = 'לילה טוב';
-
-        document.getElementById('greeting').textContent = `${greeting}, עורכת דין`;
+        const name = this.username || localStorage.getItem('username') || 'עורכת דין';
+        const el = document.getElementById('greeting');
+        if (el) el.textContent = `שלום, ${name}`;
     }
+    
 
     // ===== DATA LOADING =====
     async loadEvents() {

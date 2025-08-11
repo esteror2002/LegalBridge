@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // הסתרת loading
+  // הצגת loading
   const loadingOverlay = document.getElementById('loading-overlay');
   if (loadingOverlay) {
     loadingOverlay.classList.remove('hidden');
@@ -120,6 +120,7 @@ function getStatusText(status) {
   return status || 'בהמתנה';
 }
 
+// פונקציה מעודכנת לרינדור תתי התיקים עם העיצוב החדש
 function renderSubcases(subCases, caseId) {
   console.log('📂 מציג תתי-תיקים:', subCases.length);
   const container = document.getElementById('subcases-container');
@@ -135,51 +136,161 @@ function renderSubcases(subCases, caseId) {
     return;
   }
 
-  container.innerHTML = subCases.map((sub, index) => `
-    <div class="subcase-card" data-index="${index}">
-      <div class="subcase-header">
-        <h4 class="subcase-title">
-          <i class="bi bi-folder"></i>
-          ${sub.title}
-        </h4>
-        <!-- 🆕 כפתורי עריכה ומחיקה לתת-תיק -->
-        <div class="subcase-actions">
-          <button class="edit-btn" onclick="editSubcase('${caseId}', ${index}, '${sub.title}')" title="ערוך תת-תיק">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button class="delete-btn" onclick="deleteSubcase('${caseId}', ${index})" title="מחק תת-תיק">
-            <i class="bi bi-trash"></i>
+  container.innerHTML = subCases.map((sub, index) => {
+    const validDocuments = (sub.documents || []).filter(doc => {
+      const isString = typeof doc === 'string';
+      const url = isString ? `/uploads/${doc}` : (doc.url || '');
+      return url && url !== '/uploads/file' && (!isString || doc.size !== 0);
+    });
+
+    const documentsCount = validDocuments.length;
+    const documentsHtml = generateDocumentsHtml(validDocuments, caseId, index);
+
+    return `
+      <div class="subcase-card" style="animation-delay: ${index * 0.1}s">
+        <div class="subcase-header">
+          <div class="subcase-title">
+            <i class="bi bi-folder"></i>
+            <span>${sub.title}</span>
+          </div>
+          <div class="subcase-actions">
+            <button class="edit-btn" onclick="editSubcase('${caseId}', ${index}, '${sub.title.replace(/'/g, "\\'")}')" title="ערוך תת-תיק">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="delete-btn" onclick="deleteSubcase('${caseId}', ${index})" title="מחק תת-תיק">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="documents-section">
+          <div class="documents-header">
+            <div class="documents-count">
+              <i class="bi bi-file-earmark-text"></i>
+              <span>מסמכים</span>
+              <span class="count">${documentsCount}</span>
+            </div>
+          </div>
+          
+          ${documentsHtml}
+          
+          <button class="add-document-btn" onclick="addDocument('${caseId}', ${index})">
+            <i class="bi bi-cloud-upload"></i>
+            <span>${documentsCount === 0 ? 'העלה מסמך ראשון' : 'העלה מסמך חדש'}</span>
           </button>
         </div>
       </div>
-      
-      <ul class="documents-list">
-        ${sub.documents.length > 0 
-          ? sub.documents.map((doc, docIndex) => `
-              <li class="document-item">
-                <i class="bi bi-file-earmark"></i>
-                <span>${doc}</span>
-                <!-- 🆕 כפתורי עריכה ומחיקה למסמך -->
-                <div class="document-actions">
-                  <button class="edit-doc-btn" onclick="editDocument('${caseId}', ${index}, ${docIndex}, '${doc}')" title="ערוך מסמך">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="delete-doc-btn" onclick="deleteDocument('${caseId}', ${index}, ${docIndex})" title="מחק מסמך">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </li>
-            `).join('')
-          : '<li class="document-item empty"><i class="bi bi-file-x"></i><span>אין מסמכים</span></li>'
+    `;
+  }).join('');
+}
+
+// פונקציה עזר ליצירת HTML של המסמכים
+function generateDocumentsHtml(documents, caseId, subcaseIndex) {
+  if (!documents || documents.length === 0) {
+    return `
+      <div class="no-documents">
+        <i class="bi bi-file-x"></i>
+        <p>אין מסמכים בתת-תיק זה</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="documents-grid">
+      ${documents.map((doc, docIndex) => {
+        const isString = typeof doc === 'string';
+        const name = isString ? doc : (doc.name || doc.originalName || 'מסמך');
+        const url = isString ? `/uploads/${doc}` : (doc.url || '');
+        const safeName = name.replace(/'/g, "\\'");
+        
+        // קביעת סוג הקובץ ואיקון
+        const extension = name.toLowerCase().split('.').pop();
+        let icon = 'bi-file-earmark';
+        let fileType = 'קובץ';
+        let fileSize = '';
+        
+        // אם יש מידע על גודל קובץ
+        if (!isString && doc.size) {
+          fileSize = formatFileSize(doc.size);
         }
-      </ul>
-      
-      <button class="add-document-btn" onclick="addDocument('${caseId}', ${index})">
-        <i class="bi bi-plus-circle"></i>
-        <span>הוסף מסמך</span>
-      </button>
+        
+        switch (extension) {
+          case 'pdf':
+            icon = 'bi-file-earmark-pdf';
+            fileType = 'PDF';
+            break;
+          case 'doc':
+          case 'docx':
+            icon = 'bi-file-earmark-word';
+            fileType = 'Word';
+            break;
+          case 'jpg':
+          case 'jpeg':
+          case 'png':
+          case 'gif':
+            icon = 'bi-file-earmark-image';
+            fileType = 'תמונה';
+            break;
+          case 'xlsx':
+          case 'xls':
+            icon = 'bi-file-earmark-excel';
+            fileType = 'Excel';
+            break;
+          default:
+            icon = 'bi-file-earmark-text';
+            fileType = 'מסמך';
+        }
+
+        return `
+          <div class="document-item">
+            <div class="document-icon">
+              <i class="bi ${icon}"></i>
+            </div>
+            <div class="document-info">
+              <a href="${url}" target="_blank" rel="noopener" class="document-name">${name}</a>
+              <div class="document-meta">
+                <span>${fileType}${fileSize ? ' • ' + fileSize : ''}</span>
+                <span>עודכן ${getRelativeTime(doc.uploadDate || new Date())}</span>
+              </div>
+            </div>
+            <div class="document-actions">
+              <button class="edit-doc-btn" onclick="editDocument('${caseId}', ${subcaseIndex}, ${docIndex}, '${safeName}')" title="ערוך מסמך">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="delete-doc-btn" onclick="deleteDocument('${caseId}', ${subcaseIndex}, ${docIndex})" title="מחק מסמך">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('')}
     </div>
-  `).join('');
+  `;
+}
+
+// פונקציות עזר נוספות
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function getRelativeTime(date) {
+  if (!date) return 'תאריך לא ידוע';
+  
+  const now = new Date();
+  const uploadDate = new Date(date);
+  const diffMs = now - uploadDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) return 'היום';
+  if (diffDays === 1) return 'אתמול';
+  if (diffDays < 7) return `לפני ${diffDays} ימים`;
+  if (diffDays < 30) return `לפני ${Math.floor(diffDays / 7)} שבועות`;
+  if (diffDays < 365) return `לפני ${Math.floor(diffDays / 30)} חודשים`;
+  return `לפני ${Math.floor(diffDays / 365)} שנים`;
 }
 
 function addSubcase() {
@@ -209,29 +320,10 @@ function addSubcase() {
 }
 
 function addDocument(caseId, subcaseIndex) {
-  const fileName = prompt('הכנס שם קובץ (למשל: כתב_הגנה.pdf)');
-  if (!fileName) return;
-
-  fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileName })
-  })
-  .then(response => {
-    if (response.ok) {
-      alert('מסמך נוסף בהצלחה');
-      location.reload();
-    } else {
-      alert('שגיאה בהוספת מסמך');
-    }
-  })
-  .catch(error => {
-    console.error('שגיאה:', error);
-    alert('שגיאה בהוספת מסמך');
-  });
+  pickFileAndUpload(caseId, subcaseIndex);
 }
 
-// 🆕 פונקציות עדכוני התקדמות
+//  פונקציות עדכוני התקדמות
 let currentCaseId = null;
 
 // שמירת מזהה התיק לשימוש גלובלי
@@ -287,7 +379,6 @@ async function submitProgress() {
     alert('שגיאה בהוספת עדכון התקדמות');
   }
 }
-
 
 // הצגת עדכוני התקדמות
 function renderProgress(progressItems) {
@@ -402,7 +493,7 @@ async function submitEdit() {
       const response = await fetch(`http://localhost:5000/api/cases/${editCaseId}/subcases/${editIndex}/documents/${editDocIndex}/edit`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName: newValue })
+        body: JSON.stringify({ name: newValue })
       });
 
       if (response.ok) {
@@ -463,4 +554,52 @@ async function deleteDocument(caseId, subcaseIndex, docIndex) {
     console.error('שגיאה:', error);
     alert('שגיאה במחיקת מסמך');
   }
+}
+
+// --- העלאת מסמך בפועל לשרת ---
+async function uploadDocument(caseId, subcaseIndex, file, displayName) {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (displayName && displayName.trim()) fd.append('displayName', displayName.trim());
+
+  const headers = {};
+  const token = localStorage.getItem('token');
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents/upload`, {
+    method: 'POST',
+    headers,
+    body: fd
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({ error: 'שגיאה בהעלאה' }));
+    throw new Error(err.error || 'שגיאה בהעלאת מסמך');
+  }
+}
+
+// --- פתיחת בוחר קבצים + שליחה ---
+function pickFileAndUpload(caseId, subcaseIndex) {
+  const input = document.getElementById('hidden-file-input');
+  if (!input) return alert('קלט קובץ לא נמצא');
+
+  input.value = ''; // איפוס בחירה קודמת
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    const displayName = prompt('שם לתצוגה :', file.name);
+    try {
+      await uploadDocument(caseId, subcaseIndex, file, displayName);
+      alert('המסמך הועלה בהצלחה');
+      location.reload(); 
+    } catch (e) {
+      console.error(e);
+      alert(e.message || 'שגיאה בהעלאה');
+    } finally {
+      input.value = '';
+    }
+  };
+
+  input.click();
 }

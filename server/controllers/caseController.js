@@ -246,7 +246,7 @@ exports.addProgress = async (req, res) => {
   }
 };
 
-// 🆕 עריכת תת-תיק
+// עריכת תת-תיק
 exports.editSubcase = async (req, res) => {
   try {
     const { id, index } = req.params;
@@ -267,7 +267,7 @@ exports.editSubcase = async (req, res) => {
   }
 };
 
-// 🆕 מחיקת תת-תיק
+// מחיקת תת-תיק
 exports.deleteSubcase = async (req, res) => {
   try {
     const { id, index } = req.params;
@@ -287,20 +287,20 @@ exports.deleteSubcase = async (req, res) => {
   }
 };
 
-// 🆕 עריכת מסמך
+// עריכת מסמך
 exports.editDocument = async (req, res) => {
   try {
     const { id, subcaseIndex, docIndex } = req.params;
-    const { fileName } = req.body;
-    
+    const { name } = req.body; // שם לתצוגה
+
     const caseItem = await Case.findById(id);
     if (!caseItem || !caseItem.subCases[subcaseIndex] || !caseItem.subCases[subcaseIndex].documents[docIndex]) {
       return res.status(404).json({ error: 'תיק, תת-תיק או מסמך לא נמצאו' });
     }
 
-    caseItem.subCases[subcaseIndex].documents[docIndex] = fileName;
+    if (name) caseItem.subCases[subcaseIndex].documents[docIndex].name = name.trim();
+
     await caseItem.save();
-    
     res.json({ message: 'מסמך עודכן בהצלחה', case: caseItem });
   } catch (err) {
     console.error('שגיאה בעריכת מסמך:', err);
@@ -308,22 +308,105 @@ exports.editDocument = async (req, res) => {
   }
 };
 
-// 🆕 מחיקת מסמך
+
+//  מחיקת מסמך
 exports.deleteDocument = async (req, res) => {
   try {
     const { id, subcaseIndex, docIndex } = req.params;
-    
+
     const caseItem = await Case.findById(id);
     if (!caseItem || !caseItem.subCases[subcaseIndex] || !caseItem.subCases[subcaseIndex].documents[docIndex]) {
       return res.status(404).json({ error: 'תיק, תת-תיק או מסמך לא נמצאו' });
     }
 
-    caseItem.subCases[subcaseIndex].documents.splice(docIndex, 1); // מחיקת מסמך
+    // אם תרצי למחוק גם את הקובץ מהדיסק – נוסיף שלב בהמשך.
+    caseItem.subCases[subcaseIndex].documents.splice(docIndex, 1);
     await caseItem.save();
-    
+
     res.json({ message: 'מסמך נמחק בהצלחה', case: caseItem });
   } catch (err) {
     console.error('שגיאה במחיקת מסמך:', err);
     res.status(400).json({ error: 'שגיאה במחיקת מסמך' });
   }
 };
+
+
+// העלאת קובץ אמיתי ושיוכו לתת-תיק + נרמול מסמכים ישנים
+exports.uploadDocumentToSubcase = async (req, res) => {
+  try {
+    const { id, index } = req.params;
+
+    if (!req.file) return res.status(400).json({ error: 'לא הועלה קובץ' });
+
+    const caseItem = await Case.findById(id);
+    if (!caseItem || !caseItem.subCases[index]) {
+      return res.status(404).json({ error: 'תיק או תת-תיק לא נמצאו' });
+    }
+
+    // ⭐ נרמול מסמכים ישנים בכל התתי-תיקים (מחרוזות -> אובייקטים עם name+url)
+    caseItem.subCases.forEach(sc => {
+      sc.documents = (sc.documents || []).map(d => {
+        if (typeof d === 'string') {
+          const fname = d.trim();
+          const url = fname.startsWith('/uploads/') ? fname : `/uploads/${fname}`;
+          return {
+            name: fname,
+            originalName: fname,
+            mimeType: '',
+            size: 0,
+            url,
+            uploadedAt: new Date()
+          };
+        }
+        // גם אם זה אובייקט חלקי – נשלים שדות החובה
+        if (d && typeof d === 'object') {
+          return {
+            name: d.name || d.originalName || 'קובץ',
+            originalName: d.originalName || d.name || 'file',
+            mimeType: d.mimeType || '',
+            size: d.size || 0,
+            url: d.url || (d.filename ? `/uploads/${d.filename}` : `/uploads/${(d.name || 'file')}`),
+            uploadedAt: d.uploadedAt || new Date()
+          };
+        }
+        return d;
+      });
+    });
+    caseItem.markModified('subCases');
+
+    // הוספת המסמך החדש לתת-תיק שביקשנו
+    const sub = caseItem.subCases[index];
+    const displayName = (req.body.displayName || req.file.originalname || 'מסמך').trim();
+    const doc = {
+      name: displayName,
+      originalName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      url: `/uploads/${req.file.filename}`,
+      uploadedAt: new Date()
+    };
+    sub.documents.push(doc);
+
+    await caseItem.save();
+
+    // התראה ללקוח (אופציונלי – יש לך כבר לוגיקה דומה)
+    if (caseItem.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        await createAutoNotification('document_added', caseItem.clientId, lawyer._id, {
+          documentName: doc.name,
+          caseId: caseItem._id
+        });
+      } catch (e) {
+        console.error('שגיאה בשליחת התראה:', e);
+      }
+    }
+
+    res.json({ message: 'המסמך הועלה ונשמר בהצלחה', case: caseItem });
+  } catch (err) {
+    console.error('שגיאה בהעלאת מסמך:', err);
+    res.status(500).json({ error: 'שגיאה בהעלאת מסמך' });
+  }
+};
+
+
