@@ -252,3 +252,25 @@ exports.getNotificationStats = async (req, res) => {
     res.status(500).json({ error: 'שגיאה בקבלת סטטיסטיקות' });
   }
 };
+
+exports.getForUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const unreadOnly = req.query.unreadOnly === 'true';
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'משתמש לא נמצא' });
+
+    const filter = { recipientId: user._id, isDeleted: false };
+    if (unreadOnly) filter.isRead = false;
+
+    const items = await Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json(items);
+  } catch (err) {
+    console.error('getForUsername error:', err);
+    res.status(500).json({ message: 'שגיאה בשליפת התראות' });
+  }
+};

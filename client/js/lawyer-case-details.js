@@ -358,7 +358,7 @@ async function submitProgress() {
     const username = localStorage.getItem('username'); // שם עורך הדין
     
     const response = await fetch(`http://localhost:5000/api/cases/${currentCaseId}/progress`, {
-      method: 'PUT',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         title, 

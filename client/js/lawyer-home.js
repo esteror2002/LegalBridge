@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // אירועי פגישות וידאו
   setupVideoMeetingEvents();
+  loadRealStats();
 });
 
 // === פונקציות וידאו חדשות ===
@@ -481,9 +482,7 @@ async function loadOpenRequestsCount() {
       if (badge) {
         badge.textContent = openCount;
       }
-      
-      // Update stats section with real data
-      updateStatsSection(requests);
+  
     }
   } catch (err) {
     console.error('שגיאה בשליפת פניות:', err);
@@ -591,18 +590,6 @@ function addDashboardCardListeners() {
   });
 }
 
-function updateStatsSection(requests) {
-  const activeClients = Math.floor(Math.random() * 30) + 15; // Simulate data
-  const openCases = requests.filter(r => r.status !== 'closed').length;
-  const newMessages = requests.filter(r => r.status === 'new').length;
-  
-  const statNumbers = document.querySelectorAll('.stat-number');
-  if (statNumbers.length >= 3) {
-    animateCounter(statNumbers[0], activeClients);
-    animateCounter(statNumbers[1], openCases);
-    animateCounter(statNumbers[2], newMessages);
-  }
-}
 
 function animateCounter(element, target) {
   let current = 0;
@@ -722,3 +709,25 @@ style.textContent = `
 `;
 
 document.head.appendChild(style);
+
+async function loadRealStats() {
+  try {
+    const res = await fetch('http://localhost:5000/api/stats/overview');
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || 'שגיאה בשליפת סטטיסטיקות');
+
+    setStat('#active-clients-count', data.activeClients);
+    setStat('#open-cases-count',     data.openCases);
+    setStat('#new-messages-count',   data.newMessages);
+  } catch (err) {
+    console.error('שגיאה בטעינת סטטיסטיקות:', err);
+    showErrorMessage('שגיאה בטעינת הסטטיסטיקות');
+  }
+}
+
+function setStat(selector, target) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  animateCounter(el, Number(target) || 0); // משתמש באנימציה שכבר יש לך
+}

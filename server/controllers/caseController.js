@@ -12,7 +12,7 @@ exports.getAllCases = async (req, res) => {
   }
 };
 
-// הוספת תיק חדש עם פרטי לקוחה - מעודכן!
+// הוספת תיק חדש עם פרטי לקוחה + בלם כפילויות
 exports.addCase = async (req, res) => {
   try {
     const { clientName, description } = req.body;
@@ -23,14 +23,27 @@ exports.addCase = async (req, res) => {
       return res.status(404).json({ error: 'הלקוחה לא נמצאה במסד המשתמשים' });
     }
 
+    // ❗ בלם: אם כבר יש תיק (פתוח או בארכיון) לאותה לקוחה – לא מאפשרים ליצור חדש
+    const existingCase = await Case.findOne({
+      $or: [
+        { clientId: user._id },        // חדש ויציב
+        { clientName: clientName }     // תאימות לאחור
+      ]
+    });
+
+    if (existingCase) {
+      return res.status(409).json({
+        error: 'כבר קיים תיק ללקוחה זו (פתוח או בארכיון). אם תרצי לעבוד עליו – שחזרי אותו מהארכיון.'
+      });
+    }
+
     const newCase = new Case({
-      clientId: user._id, // ✅ הוספנו את ה-ID של הלקוח!
+      clientId: user._id,
       clientName,
       description,
       clientEmail: user.email,
       clientPhone: user.phone,
       clientAddress: user.address,
-      // הוספת עדכון התקדמות ראשוני
       progress: [{
         title: 'תיק נפתח',
         description: 'התיק נוצר במערכת והועבר לטיפול',
@@ -42,9 +55,17 @@ exports.addCase = async (req, res) => {
     res.status(201).json(newCase);
   } catch (err) {
     console.error('שגיאה ביצירת תיק:', err);
+    // אם יש אינדקס ייחודי ונתקלים בשגיאת כפילות ממונגו
+    if (err && err.code === 11000) {
+      return res.status(409).json({
+        error: 'כבר קיים תיק ללקוחה זו. יש לשחזר מהארכיון במקום לפתוח תיק חדש.'
+      });
+    }
     res.status(400).json({ error: 'שגיאה ביצירת תיק חדש' });
   }
 };
+
+
 
 // עדכון סטטוס
 exports.updateStatus = async (req, res) => {
@@ -408,5 +429,142 @@ exports.uploadDocumentToSubcase = async (req, res) => {
     res.status(500).json({ error: 'שגיאה בהעלאת מסמך' });
   }
 };
+
+// סגירת תיק (ארכיון) + התראה + עדכון התקדמות
+exports.closeCase = async (req, res) => {
+  try {
+    const { closingNote } = req.body;
+
+    const updated = await Case.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          status: 'סגור',
+          closeDate: new Date(),
+          closingNote: closingNote || ''
+        },
+        $push: {
+          progress: {
+            title: 'התיק נסגר',
+            description: closingNote || 'התיק הועבר לארכיון',
+            addedBy: 'המערכת',
+            date: new Date()
+          }
+        }
+      },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: 'תיק לא נמצא' });
+
+    // התראה ללקוח על שינוי סטטוס -> "סגור"
+    if (updated.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        if (lawyer) {
+          await createAutoNotification('status_changed', updated.clientId, lawyer._id, {
+            newStatus: 'סגור',
+            caseId: updated._id
+          });
+        }
+      } catch (e) {
+        console.error('❌ שגיאה בשליחת התראה על סגירת תיק:', e);
+      }
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.error('closeCase error:', err);
+    res.status(500).json({ message: 'שגיאה בסגירת התיק' });
+  }
+};
+
+// שחזור תיק סגור + התראה + עדכון התקדמות
+exports.reopenCase = async (req, res) => {
+  try {
+    const updated = await Case.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          status: 'פתוח',
+          closeDate: null,
+          closingNote: null
+        },
+        $push: {
+          progress: {
+            title: 'התיק נפתח מחדש',
+            description: 'התיק הוחזר לפעילות',
+            addedBy: 'המערכת',
+            date: new Date()
+          }
+        }
+      },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ message: 'תיק לא נמצא' });
+
+    // התראה ללקוח על שינוי סטטוס -> "פתוח"
+    if (updated.clientId) {
+      try {
+        const lawyer = await User.findOne({ role: 'lawyer' });
+        if (lawyer) {
+          await createAutoNotification('status_changed', updated.clientId, lawyer._id, {
+            newStatus: 'פתוח',
+            caseId: updated._id
+          });
+        }
+      } catch (e) {
+        console.error('❌ שגיאה בשליחת התראה על פתיחת תיק מחדש:', e);
+      }
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.error('reopenCase error:', err);
+    res.status(500).json({ message: 'שגיאה בשחזור התיק' });
+  }
+};
+
+
+exports.editProgress = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const { id, progressId } = req.params;
+    const setObj = {};
+    if (title !== undefined) setObj['progress.$.title'] = title;
+    if (description !== undefined) setObj['progress.$.description'] = description;
+
+    const updated = await Case.findOneAndUpdate(
+      { _id: id, 'progress._id': progressId },
+      { $set: setObj },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ message: 'עדכון לא נמצא' });
+    res.json(updated);
+  } catch (err) {
+    console.error('editProgress error:', err);
+    res.status(500).json({ message: 'שגיאה בעריכת עדכון' });
+  }
+};
+
+exports.deleteProgress = async (req, res) => {
+  try {
+    const { id, progressId } = req.params;
+    const updated = await Case.findByIdAndUpdate(
+      id,
+      { $pull: { progress: { _id: progressId } } },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: 'עדכון לא נמצא/תיק לא נמצא' });
+    res.json(updated);
+  } catch (err) {
+    console.error('deleteProgress error:', err);
+    res.status(500).json({ message: 'שגיאה במחיקת עדכון' });
+  }
+};
+
+
+
 
 

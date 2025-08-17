@@ -4,6 +4,7 @@ const notificationController = require('../controllers/notificationController');
 
 // קבלת התראות של משתמש
 router.get('/user/:userId', notificationController.getUserNotifications);
+router.get('/for-username/:username', notificationController.getForUsername);
 
 // יצירת התראה חדשה
 router.post('/', notificationController.createNotification);

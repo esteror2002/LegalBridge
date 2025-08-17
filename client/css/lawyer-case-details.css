@@ -266,12 +266,16 @@ body {
   margin: 0;
 }
 
-.progress-section .section-header h2 i {
-  font-size: 28px;
+.progress-section .section-header h2 i::before {
   background: linear-gradient(45deg, #4facfe, #00f2fe);
+  background-clip: text;
   -webkit-background-clip: text;
+  color: transparent;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
+
+
 
 .add-progress-btn {
   background: linear-gradient(45deg, #667eea, #764ba2);
@@ -436,10 +440,6 @@ body {
   line-height: 1.4;
 }
 
-/* =================================
-   Modern Subcases & Documents Styles
-   ================================= */
-
 /* Subcases Section Header */
 .subcases-section .section-header {
   display: flex;
@@ -466,9 +466,19 @@ body {
 .subcases-section .section-header h2 i {
   font-size: 28px;
   background: linear-gradient(45deg, #4facfe, #00f2fe);
+
+  /* סטנדרטי (חלק מהדפדפנים יתעלמו) */
+  background-clip: text;
+  color: transparent;
+
+  /* תמיכה בכרום/ספארי/-WebKit */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  /* לפעמים עוזר לרינדור */
+  display: inline-block;
 }
+
 
 .add-subcase-btn {
   background: linear-gradient(45deg, #667eea, #764ba2);

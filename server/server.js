@@ -20,7 +20,6 @@ app.use(cors({
   origin: [
     'http://localhost:5000',
     'http://127.0.0.1:5000',
-    // הוסיפי כאן origin של ה-Client אם את מריצה על פורט אחר (למשל 3000)
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -38,6 +37,8 @@ app.use('/api/cases', require('./routes/cases'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/meetings', require('./routes/meetings'));
+app.use('/api/stats', require('./routes/stats'));
+
 
 /** ===== Client static ===== */
 app.use(express.static(path.join(__dirname, '../client')));

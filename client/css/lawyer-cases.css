@@ -673,3 +673,177 @@ body {
     font-size: 20px;
   }
 }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.tab-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  background: #f1f3f5;
+  color: #333;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}
+
+/* Tab content (cases grid) */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: grid; /* ישמור על העיצוב של cases-grid */
+}
+
+
+/* Archive / Reopen buttons */
+.archive-btn {
+  background: linear-gradient(135deg, #6f42c1, #6610f2); /* סגול/אינדיגו */
+  color: white;
+  box-shadow: 0 5px 15px rgba(102, 16, 242, 0.3);
+}
+.archive-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 16, 242, 0.4);
+}
+
+.reopen-btn {
+  background: linear-gradient(135deg, #17a2b8, #0dcaf0); /* טורקיז/תכלת */
+  color: white;
+  box-shadow: 0 5px 15px rgba(13, 202, 240, 0.3);
+}
+.reopen-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(13, 202, 240, 0.4);
+}
+
+/* תג סטטוס קטן בתוך כרטיס ארכיון */
+.case-meta {
+  margin: 10px 0 15px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.case-status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #fff;
+  background: linear-gradient(135deg, #6c757d, #495057); /* אפור כהה יפה */
+  box-shadow: 0 4px 12px rgba(73, 80, 87, 0.25);
+}
+
+.case-closed-at {
+  font-size: 13px;
+  color: #666;
+}
+
+.case-note {
+  font-size: 13px;
+  color: #444;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 8px 10px;
+  width: 100%;
+}
+.case-note i {
+  margin-left: 6px;
+}
+
+
+/* Modal */
+.modal.hidden { display: none; }
+.modal {
+  position: fixed; inset: 0; z-index: 2000;
+}
+.modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s ease-out;
+}
+.modal-dialog {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  padding: 22px 22px 18px;
+  animation: scaleIn 0.18s ease-out;
+}
+.modal-close {
+  position: absolute; top: 10px; left: 10px;
+  width: 36px; height: 36px;
+  border: none; border-radius: 50%;
+  background: #f1f3f5; color: #495057;
+  display:flex; align-items:center; justify-content:center;
+  cursor: pointer; transition: all .2s;
+}
+.modal-close:hover { background: #e9ecef; transform: rotate(90deg); }
+.modal-dialog h3 {
+  margin: 0 0 6px; font-size: 20px; color: #333; font-weight: 700;
+}
+.modal-subtitle {
+  margin: 0 0 12px; font-size: 14px; color:#6c757d;
+}
+#closing-note {
+  width: 100%; min-height: 110px; resize: vertical;
+  border: 2px solid #e9ecef; border-radius: 12px;
+  padding: 12px 14px; font-size: 14px; outline: none;
+  transition: all .2s; background: #fff;
+}
+#closing-note:focus {
+  border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.12);
+}
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;
+}
+.modal-actions .cancel,
+.modal-actions .confirm {
+  padding: 10px 16px; border: none; border-radius: 10px;
+  font-weight: 700; cursor: pointer; display:flex; gap:8px; align-items:center;
+  transition: all .2s; font-size: 14px;
+}
+.modal-actions .cancel {
+  background: #f1f3f5; color: #495057;
+}
+.modal-actions .cancel:hover {
+  background: #e9ecef; transform: translateY(-1px);
+}
+.modal-actions .confirm {
+  background: linear-gradient(135deg, #6f42c1, #6610f2); color: #fff;
+  box-shadow: 0 6px 16px rgba(102,16,242,0.28);
+}
+.modal-actions .confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(102,16,242,0.35);
+}
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes scaleIn { from { transform: translate(-50%,-50%) scale(.96); opacity:.85 } to { transform: translate(-50%,-50%) scale(1); opacity:1 } }

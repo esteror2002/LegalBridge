@@ -30,7 +30,7 @@ const caseSchema = new mongoose.Schema({
   clientId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
-    required: true 
+    required: true
   },
   
   // שדות קיימים לתאימות
@@ -40,10 +40,12 @@ const caseSchema = new mongoose.Schema({
   clientAddress: { type: String },
   
   // פרטי התיק
-  status: { type: String, default: 'פתוח' },
+  status: { type: String, default: 'פתוח' }, // פתוח/סגור
   openDate: { type: Date, default: Date.now },
   closeDate: Date,
+  closingNote: String,
   description: String,
+  
   
   // תתי-תיקים
   subCases: [subCaseSchema],
@@ -51,5 +53,7 @@ const caseSchema = new mongoose.Schema({
   // מעקב התקדמות
   progress: [progressSchema]
 });
+
+caseSchema.index({ clientId: 1 }, { unique: true, partialFilterExpression: { clientId: { $exists: true } } });
 
 module.exports = mongoose.model('Case', caseSchema);

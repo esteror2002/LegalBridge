@@ -95,7 +95,7 @@
             </a>
           </li>
           <li>
-            <a href="lawyer-cases.html" class="nav-item">
+            <a href="lawyer-cases.html" class="nav-item active">
               <div class="nav-icon">
                 <i class="bi bi-folder"></i>
               </div>
@@ -116,7 +116,7 @@
           <span class="title-text">ניהול תיקים</span>
           <span class="title-highlight">Legal Bridge</span>
         </h1>
-        <p class="subtitle">כאן תוכלי לנהל ולעקוב אחר כל התיקים הפעילים שלך בקלות וביעילות</p>
+        <p class="subtitle">כאן תוכלי לנהל ולעקוב אחר כל התיקים שלך בקלות וביעילות</p>
       </div>
 
       <!-- Search Section -->
@@ -127,8 +127,15 @@
         </div>
       </div>
 
-      <!-- Cases Grid -->
-      <div id="cases-container" class="cases-grid"></div>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('open')">תיקים פתוחים</button>
+        <button class="tab-btn" onclick="showTab('archive')">ארכיון תיקים</button>
+      </div>
+
+      <!-- Cases Containers -->
+      <div id="cases-container" class="cases-grid tab-content active"></div>
+      <div id="archive-container" class="cases-grid tab-content"></div>
 
       <!-- Add Case Form -->
       <div id="add-case-form" class="add-case-form" style="display: none;">
@@ -168,6 +175,25 @@
   <button class="add-case-btn" onclick="showAddCaseForm()" title="הוסף תיק חדש">
     <i class="bi bi-folder-plus"></i>
   </button>
+<!-- Close Case Modal -->
+<div id="close-case-modal" class="modal hidden">
+  <div class="modal-backdrop" onclick="hideCloseCaseModal()"></div>
+  <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="closeCaseTitle">
+    <button class="modal-close" onclick="hideCloseCaseModal()" aria-label="סגירה">
+      <i class="bi bi-x"></i>
+    </button>
+    <h3 id="closeCaseTitle">סגירת תיק</h3>
+    <p class="modal-subtitle">הוסיפי הערת סגירה (אופציונלי):</p>
+    <textarea id="closing-note" placeholder="למשל: הלקוחה קיבלה את הסעד המבוקש..."></textarea>
+    <div class="modal-actions">
+      <button class="cancel" onclick="hideCloseCaseModal()">ביטול</button>
+      <button class="confirm" onclick="confirmCloseCase()">
+        <i class="bi bi-archive"></i>
+        סגור תיק
+      </button>
+    </div>
+  </div>
+</div>
 
   <script src="../js/lawyer-cases.js"></script>
 </body>

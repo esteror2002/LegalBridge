@@ -33,6 +33,14 @@ router.post('/', caseController.addCase);
 
 router.get('/:id', caseController.getCaseById);
 router.put('/:id/status', caseController.updateStatus);
+// === Progress (עדכוני התקדמות) ===
+router.post('/:id/progress', caseController.addProgress);
+router.put('/:id/progress', caseController.addProgress);
+router.put('/:id/progress/:progressId', caseController.editProgress);     // אופציונלי
+router.delete('/:id/progress/:progressId', caseController.deleteProgress); // אופציונלי
+
+router.put('/:id/close', caseController.closeCase);// סגירת תיק והעברה לארכיון
+router.put('/:id/reopen', caseController.reopenCase);// שחזור תיק סגור
 router.put('/:id/documents', caseController.uploadDocuments);
 
 router.put('/:id/subcases', caseController.addSubcase);
