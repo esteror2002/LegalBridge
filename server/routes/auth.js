@@ -18,6 +18,6 @@ router.post('/2fa/setup/:username', authController.setup2FA);
 router.post('/2fa/enable/:username', authController.enable2FA);
 router.post('/2fa/sms/send/:username', authController.sendSmsCode);
 router.post('/2fa/sms/verify/:username', authController.verifySmsCode);
-
+router.post('/contact', authController.contactForm);
 
 module.exports = router;

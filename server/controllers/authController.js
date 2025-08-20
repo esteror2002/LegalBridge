@@ -26,7 +26,7 @@ const sendEmail = async (to, subject, text) => {
   });
 };
 
-// רישום משתמש
+
 // רישום משתמש
 exports.register = async (req, res) => {
   try {
@@ -473,5 +473,53 @@ exports.verifySmsCode = async (req, res) => {
   } catch (e) {
     console.error('verifySmsCode error:', e);
     res.status(500).json({ message: 'שגיאה באימות קוד' });
+  }
+};
+
+
+// טיפול בטופס צור קשר
+exports.contactForm = async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+
+    // ולידציה בסיסית
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: 'אנא מלא את השדות החובה' });
+    }
+
+    // הכנת תוכן המייל
+    const emailContent = `
+הודעה חדשה מאתר Legal Bridge:
+
+שם: ${name}
+אימייל: ${email}
+טלפון: ${phone || 'לא צוין'}
+נושא: ${subject || 'כללי'}
+
+הודעה:
+${message}
+
+---
+נשלח מאתר Legal Bridge
+    `.trim();
+
+    // שליחת מייל אליך
+    await sendEmail(
+      'esteror2002@gmail.com',  // המייל שלך
+      `הודעה חדשה מ-Legal Bridge: ${subject || 'צור קשר'}`,
+      emailContent
+    );
+
+    console.log(`📧 נשלחה הודעת צור קשר מ-${name} (${email})`);
+
+    return res.status(200).json({ 
+      message: 'ההודעה נשלחה בהצלחה! נחזור אליך בהקדם.' 
+    });
+
+  } catch (error) {
+    console.error('שגיאה בשליחת הודעת צור קשר:', error);
+    return res.status(500).json({ 
+      message: 'שגיאה בשליחת ההודעה, אנא נסה שוב מאוחר יותר' 
+    });
   }
 };

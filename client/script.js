@@ -19,13 +19,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const forgotForm = document.getElementById('forgot-password-form');
     const forgotPasswordContainer = document.getElementById('forgot-password-container');
 
+    // טופס צור קשר
+    const contactForm = document.getElementById('contact-form');
+
     let isLogin = false;
     let pendingLogin = null; // { username, password }
-
 
     // הסתרת המודל כברירת מחדל
     modal.style.display = 'none';
 
+    // Smooth scroll לתפריט הניווט
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // כפתור הרשמה
     registerBtn.addEventListener('click', function () {
         openModal('הרשמה למערכת');
         
@@ -53,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // כפתור התחברות
     loginBtn.addEventListener('click', function () {
         openModal('התחברות למערכת');
         
@@ -161,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     show2FAModal(userData.username);
                     return;
                 }
-                
                 
                 // הצגת הודעת הצלחה
                 showSuccessMessage(data.message || 'הפעולה בוצעה בהצלחה!');
@@ -282,89 +299,54 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // פונקציות עזר להודעות
-    function showSuccessMessage(message) {
-        showNotification(message, 'success');
-    }
+    // טיפול בטופס צור קשר
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = contactForm.querySelector('.btn-submit');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>שולח...';
+            submitBtn.disabled = true;
+            
+            // איסוף נתוני הטופס
+            const formData = new FormData(contactForm);
+            const contactData = {
+                name: formData.get('name') || contactForm.querySelector('input[placeholder="שם מלא"]').value,
+                email: formData.get('email') || contactForm.querySelector('input[placeholder="כתובת אימייל"]').value,
+                phone: formData.get('phone') || contactForm.querySelector('input[placeholder="מספר טלפון"]').value,
+                subject: formData.get('subject') || contactForm.querySelector('select').value,
+                message: formData.get('message') || contactForm.querySelector('textarea').value
+            };
 
-    function showErrorMessage(message) {
-        showNotification(message, 'error');
-    }
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(contactData),
+                });
 
-    function showNotification(message, type) {
-        // הסרת הודעות קיימות
-        const existingNotifications = document.querySelectorAll('.notification');
-        existingNotifications.forEach(notification => notification.remove());
+                const data = await response.json();
 
-        // יצירת הודעה חדשה
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-            ${message}
-        `;
-
-        // עיצוב ההודעה
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '15px 20px',
-            borderRadius: '10px',
-            color: 'white',
-            fontWeight: '500',
-            zIndex: '3000',
-            minWidth: '300px',
-            textAlign: 'right',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
-            background: type === 'success' ? 
-                'linear-gradient(135deg, #10b981, #059669)' : 
-                'linear-gradient(135deg, #ef4444, #dc2626)',
-            animation: 'slideInRight 0.3s ease-out'
+                if (response.ok) {
+                    showSuccessMessage(data.message || 'ההודעה נשלחה בהצלחה! נחזור אליכם בהקדם.');
+                    contactForm.reset();
+                } else {
+                    showErrorMessage(data.message || 'שגיאה בשליחת ההודעה.');
+                }
+            } catch (error) {
+                console.error('שגיאה בשליחת הודעת צור קשר:', error);
+                showErrorMessage('שגיאה בחיבור לשרת. אנא נסה שוב מאוחר יותר.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
-
-        // הוספת CSS לאנימציות אם לא קיים
-        if (!document.querySelector('#notification-styles')) {
-            const style = document.createElement('style');
-            style.id = 'notification-styles';
-            style.textContent = `
-                @keyframes slideInRight {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                @keyframes slideOutRight {
-                    from {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                    to {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        document.body.appendChild(notification);
-
-        // הסרה אוטומטית אחרי 4 שניות
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 300);
-        }, 4000);
     }
 
+    // פונקציה להצגת מודל 2FA
     function show2FAModal(username) {
         const modal2FA = document.createElement('div');
         modal2FA.className = 'modal-overlay';
@@ -455,6 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
+    // פונקציה לאימות קוד 2FA
     async function verify2FACode(username, code) {
         if (!code || code.length !== 6) {
             showErrorMessage('אנא הזן קוד בן 6 ספרות');
@@ -507,9 +490,101 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.disabled = false;
         }
     }
-    
 
-    // פונקציה לאימות עם קוד גיבוי
+    // פונקציות עזר להודעות
+    function showSuccessMessage(message) {
+        showNotification(message, 'success');
+    }
+
+    function showErrorMessage(message) {
+        showNotification(message, 'error');
+    }
+
+    function showNotification(message, type) {
+        // הסרת הודעות קיימות
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+
+        // יצירת הודעה חדשה
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+        `;
+
+        // עיצוב ההודעה
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '15px 20px',
+            borderRadius: '10px',
+            color: 'white',
+            fontWeight: '500',
+            zIndex: '3000',
+            minWidth: '300px',
+            textAlign: 'right',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+            background: type === 'success' ? 
+                'linear-gradient(135deg, #10b981, #059669)' : 
+                'linear-gradient(135deg, #ef4444, #dc2626)',
+            animation: 'slideInRight 0.3s ease-out'
+        });
+
+        // הוספת CSS לאנימציות אם לא קיים
+        if (!document.querySelector('#notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(notification);
+
+        // הסרה אוטומטית אחרי 4 שניות
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, 4000);
+    }
+
+    // האזנה לסקרול לעדכון navbar
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.style.background = 'rgba(26, 29, 35, 0.98)';
+        } else {
+            navbar.style.background = 'rgba(26, 29, 35, 0.95)';
+        }
+    });
+
+    // פונקציה לאימות עם קוד גיבוי (אם נדרש בעתיד)
     window.verifyWithBackupCode = async function(username) {
         const backupCode = document.getElementById('backup-code').value.trim();
         await verify2FACode(username, backupCode, true);

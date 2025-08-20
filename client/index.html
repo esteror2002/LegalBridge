@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Bridge - מערכת לניהול תיקים</title>
+    <title>Legal Bridge - מערכת לניהול תיקים משפטיים</title>
     
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -19,23 +19,32 @@
     <!-- תפריט ניווט -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="#home">
                 <i class="fas fa-balance-scale me-2"></i>
                 Legal Bridge
             </a>
+            
+            <!-- קישור כניסה לעורכת דין -->
+            <div class="lawyer-login-link">
+                <a href="/admin.html" class="nav-link-special">
+                    <i class="fas fa-user-tie me-1"></i>
+                    כניסה לעורכי דין
+                </a>
+            </div>
+            
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-home me-1"></i>בית</a>
+                        <a class="nav-link" href="#home"><i class="fas fa-home me-1"></i>בית</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-info-circle me-1"></i>אודות</a>
+                        <a class="nav-link" href="#about"><i class="fas fa-info-circle me-1"></i>אודות</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-envelope me-1"></i>צור קשר</a>
+                        <a class="nav-link" href="#contact"><i class="fas fa-envelope me-1"></i>צור קשר</a>
                     </li>
                 </ul>
             </div>
@@ -43,7 +52,7 @@
     </nav>
 
     <!-- דף הבית -->
-    <header class="hero-section text-center">
+    <header id="home" class="hero-section text-center">
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">
@@ -51,12 +60,12 @@
                     Legal Bridge
                 </h1>
                 <p class="hero-subtitle">
-                    המערכת המתקדמת והחכמה לניהול מסמכים ותיקים עבור עורכי דין ומשרדים משפטיים מודרניים
+                    פתרון דיגיטלי מתקדם לניהול תיקים משפטיים
                 </p>
                 <div class="hero-buttons">
                     <button class="btn-hero btn-primary-hero" id="register-btn">
                         <i class="fas fa-user-plus"></i>
-                        הרשמה למערכת
+                        הרשמה
                     </button>
                     <button class="btn-hero btn-secondary-hero" id="login-btn">
                         <i class="fas fa-sign-in-alt"></i>
@@ -141,7 +150,147 @@
         </div>
     </section>
 
-    <!-- חלון קופץ (Modal) -->
+    <!-- אזור אודות -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="section-header">
+                    <h2 class="section-title" style="color: var(--text-light);">אודות הפרויקט</h2>
+                    <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.8);">
+                        פיתוח פתרון טכנולוגי מתקדם לתחום המשפטי
+                    </p>
+                </div>
+                
+                <div class="about-text">
+                    <p>
+                        פרויקט Legal Bridge נועד לתת מענה לעורכי דין המנהלים תיקים משפטיים מול לקוחות. 
+                        המערכת מאפשרת לעורך הדין לנהל פניות ותיקים, לעקוב אחר סטטוס התיקים, לתעד משימות, 
+                        ולקבל סיכום יומי על פעילותו. מהצד השני, הלקוח יכול לעקוב בכל עת אחר ההתקדמות בתיק שלו, 
+                        לקבל עדכונים, ולקיים תקשורת ישירה עם עורך הדין.
+                    </p>
+                    <p style="margin-top: 20px;">
+                        הפרויקט פותח כחלק מפרויקט גמר בהנדסת תוכנה, בשיתוף עם עו"ד לימור בן חמו - 
+                        עורכת דין מנוסה בתחום נזקי גוף עם 17 שנות ניסיון. המערכת בנויה לספק מענה אמיתי 
+                        לצרכים היומיומיים של משרד עורכי דין מודרני.
+                    </p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">24/6</span>
+                        <div class="stat-label">זמינות המערכת</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <div class="stat-label">אבטחת מידע</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">17</span>
+                        <div class="stat-label">שנות ניסיון של השותפה המקצועית</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2025</span>
+                        <div class="stat-label">טכנולוגיה מתקדמת</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- אזור צור קשר -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">צור קשר</h2>
+                <p class="section-subtitle">
+                    יש לכם שאלות או רוצים לדעת יותר על המערכת? נשמח לעזור!
+                </p>
+            </div>
+
+            <div class="contact-form">
+                <h3 style="text-align: center; margin-bottom: 30px; color: var(--text-dark);">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    שלחו לנו הודעה
+                </h3>
+                <form id="contact-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="שם מלא" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="email" name="email" class="form-control" placeholder="כתובת אימייל" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="tel" name="phone" class="form-control" placeholder="מספר טלפון">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="subject" class="form-control" required>
+                                    <option value="">נושא הפנייה</option>
+                                    <option value="demo">בקשה להדגמה</option>
+                                    <option value="technical">שאלה טכנית</option>
+                                    <option value="collaboration">שיתוף פעולה</option>
+                                    <option value="feedback">משוב על המערכת</option>
+                                    <option value="other">אחר</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" class="form-control" rows="5" placeholder="הודעתכם" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        שלח הודעה
+                    </button>
+                </form>
+            </div>
+
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h4>מפתחת המערכת</h4>
+                    <p>אסתר יחזקאל<br>מהנדסת תוכנה</p>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h4>טלפון</h4>
+                    <p>053-474-2513<br>זמינה לשאלות ותמיכה</p>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h4>אימייל</h4>
+                    <p>esteror2002@gmail.com<br>מענה תוך 24 שעות</p>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h4>יעוץ מקצועי</h4>
+                    <p>עו"ד לימור בן חמו<br>17 שנות ניסיון בנזקי גוף</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- חלון קופץ (Modal) להרשמה/התחברות -->
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-btn">&times;</span>
@@ -164,11 +313,9 @@
                     <input type="text" id="address" class="form-control" placeholder="כתובת מגורים">
                 </div>
                 
-                <div class="form-group" id="role-group">
+                <div class="form-group" id="role-group" style="display: none;">
                     <select id="role" class="form-control" required>
-                        <option value="">בחר תפקיד</option>
-                        <option value="lawyer">עורכת דין</option>
-                        <option value="client">לקוח</option>
+                        <option value="client" selected>לקוח</option>
                     </select>
                 </div>
                 
@@ -215,10 +362,27 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p class="mb-0">
-                <i class="fas fa-copyright me-2"></i>
-                2025 Legal Bridge. כל הזכויות שמורות.
-            </p>
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        <i class="fas fa-copyright me-2"></i>
+                        2025 Legal Bridge - פותח על ידי אסתר יחזקאל. כל הזכויות שמורות.
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div style="display: inline-flex; gap: 20px; align-items: center;">
+                        <a href="mailto:esteror2002@gmail.com" style="color: var(--accent-gold); text-decoration: none;" title="שלח מייל">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <a href="tel:0534742513" style="color: var(--accent-gold); text-decoration: none;" title="התקשר">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                        <span style="color: var(--accent-gold);">
+                            <i class="fas fa-code"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
