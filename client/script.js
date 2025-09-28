@@ -44,11 +44,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // כפתור הרשמה
     registerBtn.addEventListener('click', function () {
-        openModal('הרשמה למערכת');
+        openModal('הרשמה כלקוח');
         
         // הצגת שדות הרשמה
         emailField.parentElement.style.display = 'block';
-        roleField.parentElement.style.display = 'block';
+        roleField.parentElement.style.display = 'none'; // שדה התפקיד נסתר
         phoneField.parentElement.style.display = 'block';
         addressField.parentElement.style.display = 'block';
         
@@ -57,22 +57,25 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // הגדרת שדות חובה
         emailField.required = true;
-        roleField.required = true;
+        roleField.required = false; // לא נדרש כי נסתר
         phoneField.required = true;
         addressField.required = true;
+        
+        // הגדרת ערך ברירת מחדל לתפקיד
+        roleField.value = 'client';
         
         isLogin = false;
         
         // עדכון טקסט הכפתור
-        const submitButton = document.querySelector('.btn-submit');
+        const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
-            submitButton.innerHTML = '<i class="fas fa-user-plus me-2"></i>הרשם למערכת';
+            submitButton.innerHTML = '<i class="fas fa-user-plus me-2"></i>הרשם כלקוח';
         }
     });
 
     // כפתור התחברות
     loginBtn.addEventListener('click', function () {
-        openModal('התחברות למערכת');
+        openModal('התחברות לקוחות');
         
         // הסתרת שדות הרשמה
         emailField.parentElement.style.display = 'none';
@@ -92,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isLogin = true;
         
         // עדכון טקסט הכפתור
-        const submitButton = document.querySelector('.btn-submit');
+        const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
             submitButton.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>התחבר למערכת';
         }
@@ -149,10 +152,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const endpoint = isLogin ? 'login' : 'register';
 
-        console.log(`🚀 שולח לשרת:`, userData);
+        console.log(` שולח לשרת:`, userData);
 
         // הצגת מצב טעינה
-        const submitButton = document.querySelector('.btn-submit');
+        const submitButton = document.querySelector('#modal .btn-submit');
         const originalText = submitButton.innerHTML;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>מעבד...';
         submitButton.disabled = true;
@@ -167,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             const data = await response.json();
-            console.log(`🔍 תגובת השרת:`, data);
+            console.log(` תגובת השרת:`, data);
 
             if (response.ok) {
                 // בדיקה אם נדרש 2FA
@@ -186,16 +189,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (isLogin && data.username && data.role) {
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('role', data.role);
-                    
+                  
+                    if (data.userId) {
+                      localStorage.setItem('userId', data.userId);
+                      localStorage.setItem('lawyerId', data.userId); // אופציונלי
+                    }
+                  
                     setTimeout(() => {
-                        closeModal();
-                        if (data.role === 'lawyer') {
-                            window.location.href = 'pages/lawyer-home.html';
-                        } else if (data.role === 'client') {
-                            window.location.href = 'pages/client-home.html';
-                        }
+                      closeModal();
+                      if (data.role === 'lawyer') {
+                        window.location.href = 'pages/lawyer-home.html';
+                      } else if (data.role === 'client') {
+                        window.location.href = 'pages/client-home.html';
+                      }
                     }, 1500);
-                } else if (!isLogin) {
+                  }
+                   else if (!isLogin) {
                     // עבור הרשמה מוצלחת
                     setTimeout(() => {
                         closeModal();
@@ -206,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
         } catch (error) {
-            console.error('❌ שגיאה בשליחת הנתונים:', error);
+            console.error(' שגיאה בשליחת הנתונים:', error);
             showErrorMessage('שגיאה בשרת, נסה שוב מאוחר יותר.');
         } finally {
             // החזרת מצב הכפתור
@@ -243,12 +252,11 @@ document.addEventListener('DOMContentLoaded', function () {
         forgotForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            console.log('🔄 מתחיל תהליך איפוס סיסמה...');
             
             const username = document.getElementById('forgot-username').value.trim();
             const email = document.getElementById('forgot-email').value.trim();
             
-            console.log('📝 נתונים:', { username, email });
+            console.log(' נתונים:', { username, email });
             
             if (!username || !email) {
                 showErrorMessage('אנא מלא את כל השדות');
@@ -262,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
             submitButton.disabled = true;
             
             try {
-                console.log('📡 שולח בקשה לשרת...');
+                console.log('שולח בקשה לשרת...');
                 
                 const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
                     method: 'POST',
@@ -272,10 +280,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify({ username, email }),
                 });
                 
-                console.log('📥 תגובה מהשרת:', response.status);
+                console.log('תגובה מהשרת:', response.status);
                 
                 const data = await response.json();
-                console.log('📋 נתוני תגובה:', data);
+                console.log('נתוני תגובה:', data);
                 
                 if (response.ok) {
                     showSuccessMessage('✅ ' + data.message);
@@ -289,8 +297,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 
             } catch (err) {
-                console.error('❌ שגיאה מפורטת:', err);
-                showErrorMessage('🚨 שגיאה בחיבור לשרת. בדוק שהשרת פועל.');
+                console.error('שגיאה מפורטת:', err);
+                showErrorMessage('שגיאה בחיבור לשרת. בדוק שהשרת פועל.');
             } finally {
                 // החזרת מצב הכפתור
                 submitButton.innerHTML = originalText;
@@ -340,7 +348,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('שגיאה בשליחת הודעת צור קשר:', error);
                 showErrorMessage('שגיאה בחיבור לשרת. אנא נסה שוב מאוחר יותר.');
             } finally {
-                submitBtn.innerHTML = originalText;
+                // החזרת הטקסט המקורי של הכפתור במקום של auth modal
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>שלח הודעה';
                 submitBtn.disabled = false;
             }
         });
@@ -467,21 +476,28 @@ document.addEventListener('DOMContentLoaded', function () {
     
             if (!response.ok) throw new Error(data.message || 'קוד שגוי');
     
-            // התחברות הושלמה
-            showSuccessMessage('התחברת בהצלחה! 🎉');
+           // התחברות הושלמה
+            showSuccessMessage('התחברת בהצלחה!');
             localStorage.setItem('token', data.token);
             localStorage.setItem('username', data.username);
             localStorage.setItem('role', data.role);
-    
+
+            if (data.userId) {
+            localStorage.setItem('userId', data.userId);
+            localStorage.setItem('lawyerId', data.userId); // אופציונלי
+            }
+
             setTimeout(() => {
-                close2FAModal();
-                closeModal();
-                if (data.role === 'lawyer') {
-                    window.location.href = 'pages/lawyer-home.html';
-                } else {
-                    window.location.href = 'pages/client-home.html';
-                }
+            close2FAModal();
+            closeModal();
+            if (data.role === 'lawyer') {
+                window.location.href = 'pages/lawyer-home.html';
+            } else {
+                window.location.href = 'pages/client-home.html';
+            }
             }, 800);
+
+
         } catch (err) {
             showErrorMessage(err.message || 'שגיאה באימות הקוד');
             document.getElementById('two-factor-code').select();

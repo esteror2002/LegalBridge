@@ -185,6 +185,32 @@
         </div>
       </div>
 
+      <!-- 🆕 סיכום עבודה יומי - מעל הסטטיסטיקות -->
+      <div class="daily-work-dashboard">
+        <div class="work-summary-card">
+          <div class="work-summary-header">
+            <div class="work-summary-icon">
+              <i class="bi bi-stopwatch"></i>
+            </div>
+            <div class="work-summary-title">
+              <h3>סיכום עבודה היום</h3>
+              <p id="work-summary-date">טוען...</p>
+            </div>
+            <button class="refresh-work-summary" onclick="loadDailySummary()">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+          
+          <div class="work-summary-content" id="work-summary-content">
+            <div class="loading-work-summary">
+              <i class="bi bi-hourglass-split"></i>
+              <span>טוען נתוני עבודה...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- הסטטיסטיקות הקיימות -->
       <div class="stats-section">
         <div class="stat-card">
           <div id="active-clients-count" class="stat-number">0</div>

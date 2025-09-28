@@ -1,12 +1,10 @@
 // lawyer-case-details.js
 
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('📄 העמוד נטען');
   
   const params = new URLSearchParams(window.location.search);
   const caseId = params.get('id');
   
-  console.log('🔍 מזהה תיק:', caseId);
   
   if (!caseId) {
     alert('לא נמצא מזהה תיק');
@@ -21,27 +19,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    console.log('🌐 שולח בקשה לשרת...');
+    console.log('שולח בקשה לשרת...');
     const res = await fetch(`http://localhost:5000/api/cases/${caseId}`);
     
-    console.log('📡 תגובת שרת:', res.status);
+    console.log(' תגובת שרת:', res.status);
     
     if (!res.ok) {
       throw new Error(`שגיאה ${res.status}: ${res.statusText}`);
     }
     
     const caseData = await res.json();
-    console.log('📋 נתוני תיק:', caseData);
+    console.log('נתוני תיק:', caseData);
 
     renderClientInfo(caseData);
     renderCaseDetails(caseData);
     renderProgress(caseData.progress || []);
     renderSubcases(caseData.subCases || [], caseData._id);
+
+    await startAutoTimer(caseId);
+
     
-    console.log('✅ הדף נטען בהצלחה');
+    // 🆕 זמן מצטבר לתיק + כפתור זמן ידני
+    await loadCaseTimeTotal(caseId);
+    injectManualTimeButton(caseId);
+    startCaseTimeAutoRefresh(caseId);
+      
+  
+    console.log(' הדף נטען בהצלחה');
     
   } catch (error) {
-    console.error('❌ שגיאה:', error);
+    console.error('שגיאה:', error);
     alert(`שגיאה בטעינת התיק: ${error.message}`);
   } finally {
     // הסתרת loading
@@ -52,7 +59,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function renderClientInfo(data) {
-  console.log('👤 מציג פרטי לקוח');
   const container = document.getElementById('client-info').querySelector('.card-content');
   
   const clientInfo = [
@@ -74,7 +80,6 @@ function renderClientInfo(data) {
 }
 
 function renderCaseDetails(data) {
-  console.log('📁 מציג פרטי תיק');
   const container = document.getElementById('case-details').querySelector('.card-content');
   
   const openDate = new Date(data.openDate);
@@ -93,8 +98,13 @@ function renderCaseDetails(data) {
       icon: 'bi-flag' 
     },
     { label: 'תאריך פתיחה', value: formattedDate, icon: 'bi-calendar' },
-    { label: 'תיאור התיק', value: data.description || 'לא צוין תיאור', icon: 'bi-file-text' }
-  ];
+    { label: 'תיאור התיק', value: data.description || 'לא צוין תיאור', icon: 'bi-file-text' },
+    { 
+      label: 'זמן עבודה מצטבר', 
+      value: `<span id="case-time-total">--:--</span> <small id="case-time-active" class="timer-badge" style="display:none;margin-right:8px;padding:2px 8px;border-radius:999px;background:#ffd54f;color:#6b5000;font-weight:600;">טיימר פעיל</small>`, 
+      icon: 'bi-stopwatch' 
+    }
+       ];
 
   container.innerHTML = caseDetails.map(item => `
     <div class="info-item">
@@ -106,6 +116,20 @@ function renderCaseDetails(data) {
     </div>
   `).join('');
 }
+
+function injectManualTimeButton(caseId) {
+  const card = document.getElementById('case-details')?.querySelector('.card-content');
+  if (!card || document.getElementById('manual-time-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'manual-time-btn';
+  btn.className = 'add-progress-btn'; // יש לך כבר סגנון יפה לכפתור – ממחזר
+  btn.style.marginTop = '12px';
+  btn.innerHTML = `<i class="bi bi-plus-circle"></i> הוסף זמן ידני`;
+  btn.onclick = () => addManualTimeForCase(caseId);
+  card.appendChild(btn);
+}
+
 
 function getStatusClass(status) {
   switch (status) {
@@ -122,7 +146,6 @@ function getStatusText(status) {
 
 // פונקציה מעודכנת לרינדור תתי התיקים עם העיצוב החדש
 function renderSubcases(subCases, caseId) {
-  console.log('📂 מציג תתי-תיקים:', subCases.length);
   const container = document.getElementById('subcases-container');
   
   if (subCases.length === 0) {
@@ -603,3 +626,135 @@ function pickFileAndUpload(caseId, subcaseIndex) {
 
   input.click();
 }
+
+async function startAutoTimer(caseId){
+  try {
+    if (!window.TimeTracker) {
+      console.warn('TimeTracker לא נטען');
+      return;
+    }
+    // scope ייחודי לדף/תיק הזה
+    window.stopCaseTimer = await TimeTracker.init({
+      scope: `case_${caseId}`,
+      activity: 'case',
+      caseId: caseId,
+      notes: 'עבודה על פרטי תיק',
+      idleMinutes: 5 // עצירה אוטומטית אחרי 5 דקות אי-פעילות
+    });
+  } catch (e) {
+    console.error('שגיאה בהפעלת טיימר:', e);
+  }
+}
+
+// אופציונלי: כפתור לעצירה ידנית אם תרצי
+async function stopTimerManually(){
+  if (window.stopCaseTimer) await window.stopCaseTimer();
+  alert('הטיימר נעצר ידנית');
+}
+
+
+// המרת דקות לפורמט  HH:MM
+function minutesToHHMM(mins) {
+  const h = Math.floor((mins || 0) / 60).toString().padStart(2, '0');
+  const m = Math.floor((mins || 0) % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+// טעינת זמן מצטבר לתיק
+async function loadCaseTimeTotal(caseId) {
+  try {
+    const uid = localStorage.getItem('userId');
+    if (!uid) return;
+
+    const res = await fetch(`http://localhost:5000/api/time/case/${caseId}/total`, {
+      headers: { 'x-user-id': uid }
+    });
+    const data = await res.json();
+    const el = document.getElementById('case-time-total');
+    if (el) el.textContent = minutesToHHMM(data.minutes || 0);
+  } catch (e) {
+    console.error('שגיאה בשליפת זמן לתיק:', e);
+  }
+}
+
+// הוספת זמן ידני (אם שכחנו טיימר)
+async function addManualTimeForCase(caseId) {
+  const uid = localStorage.getItem('userId');
+  if (!uid) return alert('אין userId – התחברי מחדש');
+
+  const minutes = Number(prompt('כמה דקות להוסיף לתיק? (מספר שלם)'));
+  if (!minutes || minutes < 1) return;
+
+  const notes = prompt('הערה (לא חובה):') || '';
+  const date  = new Date().toISOString(); // עכשיו
+
+  try {
+    const res = await fetch('http://localhost:5000/api/time/manual', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-user-id': uid },
+      body: JSON.stringify({
+        caseId, activity: 'case', minutes, date, notes
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'שגיאה');
+    // רענון התצוגה
+    await loadCaseTimeTotal(caseId);
+    alert('הזמן נוסף בהצלחה');
+  } catch (e) {
+    console.error('שגיאה בהוספת זמן ידני:', e);
+    alert(e.message || 'שגיאה בהוספת זמן');
+  }
+}
+
+let _caseTimeInterval = null;
+
+function minutesToHHMM(mins) {
+  const h = Math.floor((mins || 0) / 60).toString().padStart(2, '0');
+  const m = Math.floor((mins || 0) % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+async function loadCaseTimeTotal(caseId) {
+  try {
+    const uid = localStorage.getItem('userId');
+    if (!uid) return;
+    const res = await fetch(`http://localhost:5000/api/time/case/${caseId}/total`, {
+      headers: { 'x-user-id': uid }
+    });
+    const data = await res.json();
+    if (res.ok) {
+      const el = document.getElementById('case-time-total');
+      if (el) el.textContent = minutesToHHMM(data.minutes || 0);
+    }
+  } catch (e) { /* no-op */ }
+}
+
+function updateActiveBadge(caseId) {
+  const badge = document.getElementById('case-time-active');
+  if (!badge) return;
+  const active = !!localStorage.getItem(`lb_timeLogId_case_${caseId}`);
+  badge.style.display = active ? 'inline-block' : 'none';
+}
+
+function startCaseTimeAutoRefresh(caseId) {
+  clearInterval(_caseTimeInterval);
+  // ריענון ראשוני ומהיר
+  loadCaseTimeTotal(caseId);
+  updateActiveBadge(caseId);
+  // ריענון כל 30 שניות (אפשר לשנות ל-20/60)
+  _caseTimeInterval = setInterval(() => {
+    loadCaseTimeTotal(caseId);
+    updateActiveBadge(caseId);
+  }, 30000);
+
+  // כשחוזרים לטאב – לרענן מיד
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      loadCaseTimeTotal(caseId);
+      updateActiveBadge(caseId);
+    }
+  });
+}
+
+

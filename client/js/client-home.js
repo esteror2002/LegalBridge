@@ -234,7 +234,7 @@ async function loadNotifications() {
 
     const data = await response.json();
 
-    // ✅ התיקון: unreadCount מגיע מ-data.pagination.unreadCount
+    //  התיקון: unreadCount מגיע מ-data.pagination.unreadCount
     const unreadCount = data?.pagination?.unreadCount || 0;
     updateNotificationBadge(unreadCount);
 

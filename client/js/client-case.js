@@ -400,4 +400,3 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-console.log('🎉 סקריפט התיק נטען בהצלחה!');

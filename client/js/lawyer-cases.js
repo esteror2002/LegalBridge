@@ -101,24 +101,20 @@ function createCaseElement(caseItem, isArchive) {
       <button class="view-btn" onclick="viewCase('${caseItem._id}')" title="צפייה בתיק">
         <i class="bi bi-eye"></i>
       </button>
-
       ${!isArchive ? `
-        <button class="archive-btn" onclick="closeCase('${caseItem._id}')" title="סגירת תיק">
+        <button class="archive-btn" onclick="closeCase('${caseItem._id}')" title="סגירת תיק (העברה לארכיון)">
           <i class="bi bi-archive"></i>
         </button>
       ` : `
-        <button class="reopen-btn" onclick="reopenCase('${caseItem._id}')" title="שחזור תיק">
+        <button class="reopen-btn" onclick="reopenCase('${caseItem._id}')" title="שחזור תיק מהארכיון">
           <i class="bi bi-arrow-counterclockwise"></i>
         </button>
       `}
-
-      <button class="delete-btn" onclick="deleteCase('${caseItem._id}')" title="מחיקת תיק">
-        <i class="bi bi-trash"></i>
-      </button>
     </div>
   `;
   return div;
 }
+
 
 /** ===== חיפוש לפי טאב נוכחי ===== */
 function filterCases() {
@@ -160,23 +156,23 @@ function viewCase(caseId) {
 }
 
 /** ===== מחיקת תיק ===== */
-async function deleteCase(caseId) {
-  const result = confirm('האם את בטוחה שברצונך למחוק את התיק?\nפעולה זו אינה ניתנת לביטול.');
-  if (!result) return;
+// async function deleteCase(caseId) {
+//   const result = confirm('האם את בטוחה שברצונך למחוק את התיק?\nפעולה זו אינה ניתנת לביטול.');
+//   if (!result) return;
 
-  try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('שגיאה במחיקת התיק');
+//   try {
+//     const response = await fetch(`http://localhost:5000/api/cases/${caseId}`, { method: 'DELETE' });
+//     if (!response.ok) throw new Error('שגיאה במחיקת התיק');
 
-    // עדכון רשימה והצגה מחדש
-    allCases = allCases.filter(c => c._id !== caseId);
-    await loadCases();
-    showSuccessMessage('התיק נמחק בהצלחה');
-  } catch (error) {
-    console.error('שגיאה במחיקת התיק:', error);
-    alert('אירעה שגיאה במחיקת התיק. אנא נסי שוב.');
-  }
-}
+//     // עדכון רשימה והצגה מחדש
+//     allCases = allCases.filter(c => c._id !== caseId);
+//     await loadCases();
+//     showSuccessMessage('התיק נמחק בהצלחה');
+//   } catch (error) {
+//     console.error('שגיאה במחיקת התיק:', error);
+//     alert('אירעה שגיאה במחיקת התיק. אנא נסי שוב.');
+//   }
+// }
 
 /** ===== פתיחת טופס הוספת תיק ===== */
 async function showAddCaseForm() {

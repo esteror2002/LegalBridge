@@ -238,9 +238,7 @@ class LawyerCalendar {
         const day = this.currentDate.getDate();
         const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         
-        console.log('Day view date calculation:');
-        console.log('currentDate object:', this.currentDate);
-        console.log('Calculated dateStr:', dateStr);
+        
         
         const dayEvents = this.getEventsForDate(dateStr);
         const hours = Array.from({length: 13}, (_, i) => i + 8); // 8:00-20:00
@@ -294,14 +292,8 @@ class LawyerCalendar {
 
     // ===== EVENT MANAGEMENT =====
     getEventsForDate(dateStr) {
-        console.log('=== DEBUG ===');
-        console.log('Looking for events on:', dateStr);
-        console.log('All events:', this.events);
-        console.log('Event dates:', this.events.map(e => e.date));
-        
+         
         const filtered = this.events.filter(event => event.date === dateStr);
-        console.log('Found events:', filtered);
-        console.log('=============');
         
         return filtered;
     }
@@ -322,11 +314,6 @@ class LawyerCalendar {
             this.showAlert('אנא מלא את כל השדות הנדרשים', 'error');
             return;
         }
-    
-        // DEBUG: הדפסת מידע על התאריך
-        console.log('=== ADD EVENT DEBUG ===');
-        console.log('Original date from form:', date);
-        console.log('Current calendar date:', this.currentDate.toISOString().split('T')[0]);
     
         const eventData = {
             title,
@@ -351,7 +338,7 @@ class LawyerCalendar {
             this.renderCalendar();
             this.hideAddEventModal();
             this.showAlert('האירוע נוסף בהצלחה!', 'success');
-            console.log('===================');
+           
         } catch (error) {
             this.showAlert('שגיאה בהוספת האירוע', 'error');
             console.log('Error:', error);
@@ -647,8 +634,7 @@ class LawyerCalendar {
     }
 
     selectDate(dateStr) {
-        console.log('=== SELECT DATE DEBUG ===');
-        console.log('Input dateStr:', dateStr);
+      
         
         const [year, month, day] = dateStr.split('-').map(Number);
         
@@ -656,11 +642,6 @@ class LawyerCalendar {
         this.currentDate = new Date(year, month - 1, day);
         
         const resultDateStr = this.currentDate.toISOString().split('T')[0];
-        console.log('Created date object:', this.currentDate);
-        console.log('Result dateStr:', resultDateStr);
-        console.log('Match:', dateStr === resultDateStr ? 'YES' : 'NO');
-        console.log('=======================');
-        
         this.changeView('day');
     }
 

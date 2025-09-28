@@ -38,6 +38,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/meetings', require('./routes/meetings'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/time', require('./routes/time'));
 
 
 /** ===== Client static ===== */
@@ -59,7 +60,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📁 Static files served from: ${path.join(__dirname, '../client')}`);
-  console.log(`🔔 Notifications system ready!`);
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Static files served from: ${path.join(__dirname, '../client')}`);
+  console.log(`Notifications system ready!`);
 });

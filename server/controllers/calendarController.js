@@ -101,7 +101,6 @@ exports.addEvent = async (req, res) => {
             eventTime: newEvent.startTime
           }
         );
-        console.log('✅ התראה נשלחה ללקוח על פגישה חדשה');
       } catch (notifError) {
         console.error('❌ שגיאה בשליחת התראה:', notifError);
       }

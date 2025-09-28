@@ -37,7 +37,6 @@ exports.createMeeting = async (req, res) => {
       const randomStr = Math.random().toString(36).substring(2, 10);
       const uniqueId = Math.floor(Math.random() * 10000);
       meetingId = `${timestamp}-${randomStr}-${uniqueId}`;
-      console.log('🎯 יצרתי meetingId חדש בשרת:', meetingId);
     }
 
     // יצירת URL אם לא קיים
@@ -45,15 +44,12 @@ exports.createMeeting = async (req, res) => {
       meetingUrl = `https://meet.jit.si/legal-bridge-${meetingId}`;
     }
 
-    console.log('🔍 meetingId סופי:', meetingId); // לוג לבדיקה
-
     // חיפוש הלקוח
     const client = await User.findById(clientId);
     if (!client) {
       return res.status(404).json({ message: 'לקוח לא נמצא' });
     }
 
-    console.log('🔍 נמצא לקוח:', client.username, client.email); // לוג לבדיקה
 
     // יצירת הפגישה
     const newMeeting = new VideoMeeting({
@@ -75,11 +71,8 @@ exports.createMeeting = async (req, res) => {
 
     // שליחת מייל ללקוח (אם נכשלת - לא נופל)
     try {
-      console.log('📧 שולח מייל ללקוח:', client.email);
       await sendMeetingEmailToClient(client, newMeeting);
-      console.log('✅ מייל נשלח בהצלחה!');
     } catch (emailError) {
-      console.log('⚠️ שגיאה בשליחת מייל (לא קריטי):', emailError.message);
       // ממשיכים למרות השגיאה במייל
     }
 

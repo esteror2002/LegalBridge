@@ -13,8 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // טעינת נתונים בסיסיים
   loadPendingClients();
   loadOpenRequestsCount();
-  loadApprovedClients(); // טעינת לקוחות לרשימה
-  loadActiveMeetingsCount(); // טעינת מונה פגישות פעילות
+  loadApprovedClients();
+  loadActiveMeetingsCount();
+  loadDailySummary(); // 🆕 הוספה חדשה
   
   // אנימציות
   animateDashboardCards();
@@ -78,7 +79,6 @@ async function loadActiveMeetingsCount() {
       return now < thirtyMinutesAfter;
     });
     
-    console.log('🎯 פגישות פעילות (כולל 30 דק אחרי):', activeMeetings.length); // לוג לבדיקה
     
     const badge = document.getElementById('active-meetings-count');
     if (activeMeetings.length > 0) {
@@ -149,7 +149,6 @@ async function handleVideoMeetingSubmit(event) {
     const jitsiRoomName = `legal-bridge-${meetingId}`;
     const meetingUrl = `https://meet.jit.si/${jitsiRoomName}`;
     
-    console.log('🎯 יוצר פגישה עם ID:', meetingId); // לוג לבדיקה
     
     const meetingData = {
       clientId,
@@ -191,7 +190,6 @@ function generateMeetingId() {
   const timestamp = Date.now().toString(36);
   const randomStr = Math.random().toString(36).substring(2, 8);
   const meetingId = `${timestamp}-${randomStr}`;
-  console.log('🎯 מזהה פגישה שנוצר:', meetingId); // לוג לבדיקה
   return meetingId;
 }
 
@@ -209,7 +207,6 @@ async function loadActiveMeetings() {
       return now < thirtyMinutesAfter;
     });
     
-    console.log('🎯 פגישות פעילות שנטענו:', activeMeetings.length); // לוג לבדיקה
     
     const meetingsList = document.getElementById('meetings-list');
     
@@ -217,7 +214,6 @@ async function loadActiveMeetings() {
       meetingsList.innerHTML = '';
       
       activeMeetings.forEach(meeting => {
-        console.log('🎪 יוצר אלמנט לפגישה:', meeting.title); // לוג לבדיקה
         const meetingElement = createMeetingElement(meeting);
         meetingsList.appendChild(meetingElement);
       });
@@ -229,7 +225,6 @@ async function loadActiveMeetings() {
           <small>כל הפגישות הסתיימו (כולל חצי שעה נוספת לאיחורים)</small>
         </div>
       `;
-      console.log('📭 אין פגישות פעילות'); // לוג לבדיקה
     }
     
     // עדכון מונה
@@ -375,7 +370,6 @@ async function cancelMeeting(meetingId) {
   }
   
   try {
-    console.log('🚫 מבטל פגישה:', meetingId); // לוג לבדיקה
     
     const response = await fetch(`http://localhost:5000/api/meetings/cancel/${meetingId}`, {
       method: 'PUT',
@@ -384,7 +378,6 @@ async function cancelMeeting(meetingId) {
       }
     });
     
-    console.log('📡 תגובת השרת:', response.status); // לוג לבדיקה
     
     if (response.ok) {
       showSuccessMessage('הפגישה בוטלה בהצלחה');
@@ -717,6 +710,7 @@ async function loadRealStats() {
 
     if (!res.ok) throw new Error(data.message || 'שגיאה בשליפת סטטיסטיקות');
 
+    
     setStat('#active-clients-count', data.activeClients);
     setStat('#open-cases-count',     data.openCases);
     setStat('#new-messages-count',   data.newMessages);
@@ -725,6 +719,204 @@ async function loadRealStats() {
     showErrorMessage('שגיאה בטעינת הסטטיסטיקות');
   }
 }
+
+// טעינת סיכום יומי
+async function loadDailySummary() {
+  try {
+    const response = await fetch('http://localhost:5000/api/stats/daily-summary');
+    
+    if (!response.ok) {
+      throw new Error('שגיאה בטעינת הסיכום');
+    }
+    
+    const data = await response.json();
+    
+    // עדכון תאריך
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('he-IL', { 
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+    document.getElementById('work-summary-date').textContent = dateStr;
+    
+    // עדכון תוכן הסיכום
+    updateWorkSummaryDisplay(data);
+    
+  } catch (error) {
+    console.error('שגיאה בטעינת סיכום יומי:', error);
+    showWorkSummaryError();
+  }
+}
+
+function updateWorkSummaryDisplay(data) {
+  const container = document.getElementById('work-summary-content');
+  
+  
+  // בדיקה אם עבדה היום
+  if (data.totalMinutes === 0) {
+    container.innerHTML = `
+      <div class="no-work-today">
+        <i class="bi bi-info-circle"></i>
+        <h4>עדיין לא נרשמה עבודה היום</h4>
+        <div style="font-size: 13px; margin: 15px 0; line-height: 1.6;">
+          <p><strong>כדי שהנתונים יתעדכנו:</strong></p>
+          <p>• עבדי על תיקים (הטיימר ירשום אוטומטית)</p>
+          <p>• הוסיפי פגישות ביומן האישי</p>
+          <p>• סמני משימות כהושלמו</p>
+        </div>
+        ${data.error ? `<p style="color: #dc3545; font-size: 12px;">שגיאה: ${data.error}</p>` : ''}
+      </div>
+    `;
+    return;
+  }
+  
+  // חישוב אחוזים לגרף
+  const casesPercent = data.totalMinutes > 0 ? (data.casesWork.totalMinutes / data.totalMinutes) * 100 : 0;
+  const meetingsPercent = data.totalMinutes > 0 ? (data.meetingsWork.totalMinutes / data.totalMinutes) * 100 : 0;
+  
+  // חישוב זוויות לגרף (360 מעלות = 100%)
+  const casesAngle = (casesPercent / 100) * 360;
+  const meetingsAngle = (meetingsPercent / 100) * 360;
+  
+  container.innerHTML = `
+    <div class="work-summary-display">
+      <div class="work-stats-simple">
+        <div class="work-stat-row">
+          <div class="work-stat-info">
+            <div class="work-stat-value">${data.casesWork.totalHours}</div>
+            <div class="work-stat-label">שעות עבודה על תיקים</div>
+          </div>
+        </div>
+        
+        <div class="work-stat-row meetings">
+          <div class="work-stat-info">
+            <div class="work-stat-value">${data.meetingsWork.totalHours}</div>
+            <div class="work-stat-label">פגישות</div>
+            <div class="work-stat-details">${data.meetingsWork.sessions} פגישות</div>
+          </div>
+        </div>
+        
+        ${data.tasksWork.completed > 0 ? `
+        <div class="work-stat-row tasks" style="border-right-color: #ffc107;">
+          <div class="work-stat-info">
+            <div class="work-stat-value">${data.tasksWork.completed}</div>
+            <div class="work-stat-label">משימות הושלמו</div>
+            <div class="work-stat-details">משימות שסומנו כהושלמו היום</div>
+          </div>
+        </div>
+        ` : ''}
+        
+        <div style="text-align: center; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #e3f2fd, #f3e5f5); border-radius: 12px;">
+          <div style="font-size: 32px; font-weight: bold; color: #007bff;">
+            ${data.totalHours}
+          </div>
+          <div style="color: #666; font-size: 14px;">
+            סך הכל שעות עבודה היום
+          </div>
+        </div>
+      </div>
+
+
+      
+      <div class="chart-area">
+        <div class="simple-chart" style="background: conic-gradient(
+          #007bff 0deg ${casesAngle}deg,
+          #28a745 ${casesAngle}deg ${casesAngle + meetingsAngle}deg,
+          #f1f3f4 ${casesAngle + meetingsAngle}deg 360deg
+        );">
+          <div class="chart-center">
+            <div class="chart-total">${data.totalHours}</div>
+            <div class="chart-label">שעות</div>
+          </div>
+        </div>
+        
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #007bff;"></div>
+            <div class="legend-text">תיקים</div>
+            <div class="legend-value">${data.casesWork.totalHours}ש</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #28a745;"></div>
+            <div class="legend-text">פגישות</div>
+            <div class="legend-value">${data.meetingsWork.totalHours}ש</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showWorkSummaryError() {
+  const container = document.getElementById('work-summary-content');
+  container.innerHTML = `
+    <div class="no-work-today">
+      <i class="bi bi-exclamation-triangle"></i>
+      <h4>שגיאה בטעינת הסיכום</h4>
+      <p>נסי לרענן או פני לתמיכה טכנית</p>
+    </div>
+  `;
+}
+
+function updateDailySummaryDisplay(data) {
+  const container = document.getElementById('daily-summary-content');
+  
+  // בדיקה אם עבדה היום
+  if (data.totalMinutes === 0) {
+    container.innerHTML = `
+      <div class="no-work-today">
+        <i class="bi bi-calendar-plus"></i>
+        <h4>עדיין לא תכננת עבודה היום</h4>
+        <p>הזמנים יתעדכנו כשתוסיפי אירועים ליומן האישי</p>
+        <button class="btn btn-primary" onclick="window.location.href='lawyer-calendar.html'">
+          <i class="bi bi-calendar-week"></i>
+          לך ליומן האישי
+        </button>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="summary-stats">
+      <div class="summary-stat-item">
+        <span class="summary-stat-number">${data.caseHours}</span>
+        <div class="summary-stat-label">שעות עבודה על תיקים</div>
+        <div class="summary-stat-count">${data.caseCount} אירועים מתוכננים</div>
+      </div>
+      <div class="summary-stat-item">
+        <span class="summary-stat-number">${data.meetingHours}</span>
+        <div class="summary-stat-label">שעות פגישות</div>
+        <div class="summary-stat-count">${data.meetingCount} פגישות מתוכננות</div>
+      </div>
+    </div>
+    
+    <div class="summary-total">
+      <div class="summary-total-number">${data.totalHours}</div>
+      <div class="summary-total-label">סך הכל שעות מתוכננות היום</div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 15px;">
+      <button class="btn btn-secondary btn-sm" onclick="window.location.href='lawyer-calendar.html'">
+        <i class="bi bi-calendar-week"></i>
+        צפי ביומן המלא
+      </button>
+    </div>
+  `;
+}
+
+function showDailySummaryError() {
+  const container = document.getElementById('daily-summary-content');
+  container.innerHTML = `
+    <div class="no-work-today">
+      <i class="bi bi-exclamation-triangle"></i>
+      <h4>שגיאה בטעינת הסיכום</h4>
+      <p>נסה לרענן או פנה לתמיכה טכנית</p>
+    </div>
+  `;
+}
+
 
 function setStat(selector, target) {
   const el = document.querySelector(selector);

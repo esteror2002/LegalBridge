@@ -89,9 +89,8 @@ exports.updateStatus = async (req, res) => {
             caseId: updated._id
           }
         );
-        console.log('✅ התראה נשלחה ללקוח על שינוי סטטוס');
       } catch (notifError) {
-        console.error('❌ שגיאה בשליחת התראה:', notifError);
+        console.error(' שגיאה בשליחת התראה:', notifError);
       }
     }
 
@@ -159,9 +158,8 @@ exports.addSubcase = async (req, res) => {
             caseId: updated._id
           }
         );
-        console.log('✅ התראה נשלחה ללקוח על תת-תיק חדש');
       } catch (notifError) {
-        console.error('❌ שגיאה בשליחת התראה:', notifError);
+        console.error(' שגיאה בשליחת התראה:', notifError);
       }
     }
 
@@ -196,9 +194,8 @@ exports.addDocumentToSubcase = async (req, res) => {
             caseId: caseItem._id
           }
         );
-        console.log('✅ התראה נשלחה ללקוח על מסמך חדש');
       } catch (notifError) {
-        console.error('❌ שגיאה בשליחת התראה:', notifError);
+        console.error(' שגיאה בשליחת התראה:', notifError);
       }
     }
 
@@ -254,9 +251,8 @@ exports.addProgress = async (req, res) => {
             caseId: updated._id
           }
         );
-        console.log('✅ התראה נשלחה ללקוח על עדכון התקדמות');
       } catch (notifError) {
-        console.error('❌ שגיאה בשליחת התראה:', notifError);
+        console.error(' שגיאה בשליחת התראה:', notifError);
       }
     }
 

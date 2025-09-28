@@ -157,8 +157,10 @@ exports.login = async (req, res) => {
       message: 'התחברת בהצלחה!',
       username: user.username,
       role: user.role,
-      token
+      token,
+      userId: user._id.toString()  
     });
+    
   } catch (error) {
     console.error('שגיאה בשרת (login):', error);
     return res.status(500).json({ message: 'שגיאה בשרת, נסה שוב מאוחר יותר' });
@@ -510,7 +512,6 @@ ${message}
       emailContent
     );
 
-    console.log(`📧 נשלחה הודעת צור קשר מ-${name} (${email})`);
 
     return res.status(200).json({ 
       message: 'ההודעה נשלחה בהצלחה! נחזור אליך בהקדם.' 
