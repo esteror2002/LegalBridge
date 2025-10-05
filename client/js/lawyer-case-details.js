@@ -145,10 +145,11 @@ function getStatusText(status) {
 }
 
 // פונקציה מעודכנת לרינדור תתי התיקים עם העיצוב החדש
+// רינדור תתי-תיקים במצב "סגור" כברירת מחדל + פתיחה/סגירה בלחיצה
 function renderSubcases(subCases, caseId) {
   const container = document.getElementById('subcases-container');
-  
-  if (subCases.length === 0) {
+
+  if (!subCases || subCases.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <i class="bi bi-folder-x"></i>
@@ -169,43 +170,78 @@ function renderSubcases(subCases, caseId) {
     const documentsCount = validDocuments.length;
     const documentsHtml = generateDocumentsHtml(validDocuments, caseId, index);
 
+    const isOpen = isSubcaseOpen(caseId, index); // ברירת מחדל: סגור (false)
+    const safeTitle = (sub.title || '').replace(/'/g, "\\'");
+    const contentId = `subcontent_${caseId}_${index}`; // ל־aria-controls
+
     return `
-      <div class="subcase-card" style="animation-delay: ${index * 0.1}s">
-        <div class="subcase-header">
+      <div class="subcase-card ${isOpen ? 'is-open' : 'is-collapsed'}"
+           data-case-id="${caseId}" data-index="${index}"
+           style="animation-delay:${index * 0.1}s">
+        
+        <!-- כותרת תת-תיק: כפתור נגיש שמחליף מצב פתוח/סגור -->
+        <button type="button"
+                class="subcase-toggle"
+                onclick="toggleSubcase('${caseId}', ${index})"
+                aria-expanded="${isOpen ? 'true' : 'false'}"
+                aria-controls="${contentId}"
+                title="פתח/סגור תת-תיק">
           <div class="subcase-title">
-            <i class="bi bi-folder"></i>
+            <i class="bi bi-folder2${isOpen ? '-open' : ''}"></i>
             <span>${sub.title}</span>
           </div>
-          <div class="subcase-actions">
-            <button class="edit-btn" onclick="editSubcase('${caseId}', ${index}, '${sub.title.replace(/'/g, "\\'")}')" title="ערוך תת-תיק">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="delete-btn" onclick="deleteSubcase('${caseId}', ${index})" title="מחק תת-תיק">
-              <i class="bi bi-trash"></i>
-            </button>
+          <div class="subcase-meta">
+            <span class="badge" title="מספר מסמכים">${documentsCount}</span>
+            <i class="chevron bi bi-chevron-down"></i>
           </div>
-        </div>
-        
-        <div class="documents-section">
-          <div class="documents-header">
-            <div class="documents-count">
-              <i class="bi bi-file-earmark-text"></i>
-              <span>מסמכים</span>
-              <span class="count">${documentsCount}</span>
+        </button>
+
+        <!-- תוכן שנפתח/נסגר -->
+        <div class="documents-wrapper" id="${contentId}" style="display:${isOpen ? 'block' : 'none'}">
+          <div class="documents-section">
+            <div class="documents-header">
+              <div class="documents-count">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>מסמכים</span>
+                <span class="count">${documentsCount}</span>
+              </div>
+              <div class="subcase-actions">
+                <button type="button" class="edit-btn"
+                        onclick="editSubcase('${caseId}', ${index}, '${safeTitle}')"
+                        title="ערוך את שם התת-תיק">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="delete-btn"
+                        onclick="deleteSubcase('${caseId}', ${index})"
+                        title="מחק את התת-תיק (כולל כל המסמכים שבו)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            ${documentsHtml}
+
+            <div class="doc-actions">
+              <button type="button" class="btn-upload"
+                      onclick="addDocument('${caseId}', ${index})"
+                      title="העלאת קובץ (PDF / Word / תמונה וכו') ושיוכו לתיק">
+                <i class="bi bi-cloud-upload"></i>
+                <span>${documentsCount === 0 ? 'העלה מסמך' : 'העלה מסמך חדש'}</span>
+              </button>
+              <button type="button" class="btn-note"
+                      onclick="addTextNote('${caseId}', ${index})"
+                      title="פתיחת עורך פתק TXT לשמירת הערות בתיק">
+                <i class="bi bi-journal-text"></i>
+                <span>פתק TXT</span>
+              </button>
             </div>
           </div>
-          
-          ${documentsHtml}
-          
-          <button class="add-document-btn" onclick="addDocument('${caseId}', ${index})">
-            <i class="bi bi-cloud-upload"></i>
-            <span>${documentsCount === 0 ? 'העלה מסמך ראשון' : 'העלה מסמך חדש'}</span>
-          </button>
         </div>
       </div>
     `;
   }).join('');
 }
+
 
 // פונקציה עזר ליצירת HTML של המסמכים
 function generateDocumentsHtml(documents, caseId, subcaseIndex) {
@@ -259,6 +295,12 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
             icon = 'bi-file-earmark-excel';
             fileType = 'Excel';
             break;
+          
+            case 'txt':
+            icon = 'bi-file-earmark-text';
+            fileType = 'TXT';
+            break;
+
           default:
             icon = 'bi-file-earmark-text';
             fileType = 'מסמך';
@@ -276,7 +318,12 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
                 <span>עודכן ${getRelativeTime(doc.uploadDate || new Date())}</span>
               </div>
             </div>
-            <div class="document-actions">
+           <div class="document-actions">
+              ${extension === 'txt' ? `
+                <button class="edit-doc-btn" onclick="openTextNote('${caseId}', ${subcaseIndex}, ${docIndex})" title="ערוך תוכן TXT">
+                  <i class="bi bi-journal-text"></i>
+                </button>
+              ` : ''}
               <button class="edit-doc-btn" onclick="editDocument('${caseId}', ${subcaseIndex}, ${docIndex}, '${safeName}')" title="ערוך מסמך">
                 <i class="bi bi-pencil"></i>
               </button>
@@ -284,6 +331,7 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
                 <i class="bi bi-trash"></i>
               </button>
             </div>
+
           </div>
         `;
       }).join('')}
@@ -603,29 +651,44 @@ async function uploadDocument(caseId, subcaseIndex, file, displayName) {
 
 // --- פתיחת בוחר קבצים + שליחה ---
 function pickFileAndUpload(caseId, subcaseIndex) {
-  const input = document.getElementById('hidden-file-input');
-  if (!input) return alert('קלט קובץ לא נמצא');
+  // ודא שקיים input; אם לא – צור אחד
+  let input = document.getElementById('hidden-file-input');
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'hidden-file-input';
+    input.accept = '.pdf,.png,.jpg,.jpeg,.doc,.docx,.xlsx,.xls,.txt';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+  }
 
-  input.value = ''; // איפוס בחירה קודמת
+  // נקה מאזין קודם (אם היה) כדי למנוע העלאות כפולות
+  input.value = '';
+  input.onchange = null;
+
   input.onchange = async () => {
     const file = input.files && input.files[0];
     if (!file) return;
 
-    const displayName = prompt('שם לתצוגה :', file.name);
+    const displayName = prompt('שם לתצוגה:', file.name) || file.name;
+
     try {
       await uploadDocument(caseId, subcaseIndex, file, displayName);
       alert('המסמך הועלה בהצלחה');
-      location.reload(); 
+      location.reload();
     } catch (e) {
       console.error(e);
-      alert(e.message || 'שגיאה בהעלאה');
+      alert(e?.message || 'שגיאה בהעלאה');
     } finally {
       input.value = '';
+      input.onchange = null;
     }
   };
 
+  // פתח את בוחר הקבצים
   input.click();
 }
+
 
 async function startAutoTimer(caseId){
   try {
@@ -757,4 +820,113 @@ function startCaseTimeAutoRefresh(caseId) {
   });
 }
 
+// --- Text Note state ---
+let _textNote = { mode: 'create', caseId: '', subIdx: -1, docIdx: -1, docId: null };
 
+function showTextNoteModal(title, filename='', content='') {
+  document.getElementById('text-note-title').textContent = title;
+  document.getElementById('text-note-filename').value = filename;
+  document.getElementById('text-note-content').value = content;
+  document.getElementById('text-note-modal').style.display = 'flex';
+}
+function hideTextNoteModal() {
+  document.getElementById('text-note-modal').style.display = 'none';
+  _textNote = { mode: 'create', caseId: '', subIdx: -1, docIdx: -1, docId: null };
+}
+
+// יצירת פתק חדש
+function addTextNote(caseId, subcaseIndex) {
+  _textNote = { mode: 'create', caseId, subIdx: subcaseIndex, docIdx: -1, docId: null };
+  showTextNoteModal('פתק TXT חדש', 'notes.txt', '');
+}
+
+// פתיחת קובץ TXT קיים לעריכה
+async function openTextNote(caseId, subcaseIndex, docIndex) {
+  _textNote = { mode: 'edit', caseId, subIdx: subcaseIndex, docIdx: docIndex, docId: null };
+
+  // נשלוף את פרטי המסמך מהנתונים שכבר מוצגים בדף (או נקרא לשרת)
+  // הכי בטוח: בקשה לשרת להחזרת מטא+תוכן
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents/${docIndex}/text`, { headers });
+    if (!res.ok) throw new Error('שגיאה בטעינת תוכן הפתק');
+    const data = await res.json(); // מצפה: { id, name, content }
+    _textNote.docId = data.id || null;
+    showTextNoteModal(`עריכת פתק: ${data.name || 'notes.txt'}`, data.name || 'notes.txt', data.content || '');
+  } catch (e) {
+    console.error(e);
+    alert(e.message || 'שגיאה בפתיחת פתק TXT');
+  }
+}
+
+// שמירה (יצירה/עדכון)
+async function saveTextNote() {
+  const filename = (document.getElementById('text-note-filename').value || '').trim();
+  const content  = document.getElementById('text-note-content').value || '';
+  if (!filename) return alert('אנא הזן שם קובץ (למשל notes.txt)');
+  if (!filename.toLowerCase().endsWith('.txt')) return alert('שם הקובץ חייב להסתיים ב-.txt');
+
+  const token = localStorage.getItem('token');
+  const headers = { 'Content-Type':'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    let res;
+    if (_textNote.mode === 'create') {
+      res = await fetch(`http://localhost:5000/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/text`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ name: filename, content })
+      });
+    } else {
+      // עדכון: לפי מזהה/אינדקס המסמך
+      res = await fetch(`http://localhost:5000/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/${_textNote.docIdx}/text`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ name: filename, content })
+      });
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error:'שגיאה בשמירת פתק'}));
+      throw new Error(err.error || 'שגיאה בשמירת פתק');
+    }
+
+    hideTextNoteModal();
+    alert('הפתק נשמר בהצלחה');
+    location.reload();
+  } catch (e) {
+    console.error(e);
+    alert(e.message || 'שגיאה בשמירת פתק');
+  }
+}
+
+// שמירת מצב פתוח/סגור של כל תת-תיק לפי caseId+index
+function isSubcaseOpen(caseId, index) {
+  return localStorage.getItem(`lb_subcase_open_${caseId}_${index}`) === '1';
+}
+function setSubcaseOpen(caseId, index, open) {
+  localStorage.setItem(`lb_subcase_open_${caseId}_${index}`, open ? '1' : '0');
+}
+
+
+function toggleSubcase(caseId, index) {
+  const card = document.querySelector(`.subcase-card[data-case-id="${caseId}"][data-index="${index}"]`);
+  if (!card) return;
+
+  const wrapper = card.querySelector('.documents-wrapper');
+  const toggleBtn = card.querySelector('.subcase-toggle');
+  const open = !card.classList.contains('is-open');
+
+  card.classList.toggle('is-open', open);
+  card.classList.toggle('is-collapsed', !open);
+  if (wrapper) wrapper.style.display = open ? 'block' : 'none';
+  if (toggleBtn) toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+  // שינוי אייקון התיק (פתוח/סגור)
+  const icon = toggleBtn?.querySelector('.subcase-title i');
+  if (icon) icon.className = `bi bi-folder2${open ? '-open' : ''}`;
+
+  setSubcaseOpen(caseId, index, open);
+}

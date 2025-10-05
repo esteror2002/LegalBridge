@@ -65,8 +65,6 @@ exports.addCase = async (req, res) => {
   }
 };
 
-
-
 // עדכון סטטוס
 exports.updateStatus = async (req, res) => {
   try {
@@ -325,7 +323,6 @@ exports.editDocument = async (req, res) => {
   }
 };
 
-
 //  מחיקת מסמך
 exports.deleteDocument = async (req, res) => {
   try {
@@ -346,7 +343,6 @@ exports.deleteDocument = async (req, res) => {
     res.status(400).json({ error: 'שגיאה במחיקת מסמך' });
   }
 };
-
 
 // העלאת קובץ אמיתי ושיוכו לתת-תיק + נרמול מסמכים ישנים
 exports.uploadDocumentToSubcase = async (req, res) => {
@@ -561,6 +557,130 @@ exports.deleteProgress = async (req, res) => {
 };
 
 
+const path = require('path');
+const fs = require('fs');
+
+function ensureDirSync(dir) { fs.mkdirSync(dir, { recursive: true }); }
+function writeTextFileSync(filePath, content) {
+  ensureDirSync(path.dirname(filePath));
+  fs.writeFileSync(filePath, content ?? '', 'utf8');
+}
+function safeUploadsPath(...parts) {
+  // נשמור טקסטים תחת /uploads/cases/<caseId>/<subIdx>/<name>
+  return path.join(__dirname, '..', 'uploads', 'cases', ...parts.map(String));
+}
+
+// GET תוכן TXT קיים
+exports.getTextDocument = async (req, res) => {
+  try {
+    const { id, subIdx, docIdx } = req.params;
+    const c = await Case.findById(id);
+    if (!c || !c.subCases?.[subIdx] || !c.subCases[subIdx].documents?.[docIdx]) {
+      return res.status(404).json({ error: 'תיק/תת-תיק/מסמך לא נמצא' });
+    }
+    const doc = c.subCases[subIdx].documents[docIdx];
+    const name = doc.name || doc.originalName || 'notes.txt';
+    if (!name.toLowerCase().endsWith('.txt')) return res.status(400).json({ error: 'לא קובץ TXT' });
+
+    // אם נשמר כקובץ יחסי ב־uploads
+    let absFile;
+    if (doc.url && doc.url.startsWith('/uploads/')) {
+      absFile = path.join(__dirname, '..', doc.url.replace(/^\//, ''));
+    } else {
+      absFile = safeUploadsPath(id, subIdx, name);
+    }
+    const content = fs.existsSync(absFile) ? fs.readFileSync(absFile, 'utf8') : '';
+
+    return res.json({ id: String(doc._id || ''), name, content });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'שגיאה בשרת' });
+  }
+};
+
+// POST יצירת TXT חדש
+exports.createTextDocument = async (req, res) => {
+  try {
+    const { id, subIdx } = req.params;
+    const { name, content } = req.body || {};
+    if (!name || !name.toLowerCase().endsWith('.txt')) {
+      return res.status(400).json({ error: 'שם קובץ לא תקין (חייב .txt)' });
+    }
+
+    const c = await Case.findById(id);
+    if (!c || !c.subCases?.[subIdx]) {
+      return res.status(404).json({ error: 'תיק/תת-תיק לא נמצא' });
+    }
+
+    const absFile = safeUploadsPath(id, subIdx, name);
+    writeTextFileSync(absFile, content || '');
+    const stats = fs.statSync(absFile);
+
+    const relUrl = `/uploads/cases/${id}/${subIdx}/${name}`.replace(/\\/g, '/');
+    const docObj = {
+      name,
+      originalName: name,
+      mimeType: 'text/plain',
+      size: stats.size,
+      url: relUrl,
+      uploadedAt: new Date()
+    };
+
+    c.subCases[subIdx].documents = c.subCases[subIdx].documents || [];
+    c.subCases[subIdx].documents.push(docObj);
+    await c.save();
+
+    return res.status(201).json({ message: 'נוצר', document: docObj });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'שגיאה בשרת' });
+  }
+};
+
+// PUT עדכון TXT קיים (שם ותוכן)
+exports.updateTextDocument = async (req, res) => {
+  try {
+    const { id, subIdx, docIdx } = req.params;
+    const { name, content } = req.body || {};
+    if (!name || !name.toLowerCase().endsWith('.txt')) {
+      return res.status(400).json({ error: 'שם קובץ לא תקין (חייב .txt)' });
+    }
+
+    const c = await Case.findById(id);
+    if (!c || !c.subCases?.[subIdx] || !c.subCases[subIdx].documents?.[docIdx]) {
+      return res.status(404).json({ error: 'תיק/תת-תיק/מסמך לא נמצא' });
+    }
+
+    const doc = c.subCases[subIdx].documents[docIdx];
+    const oldName = doc.name || doc.originalName || 'notes.txt';
+    const dirAbs = safeUploadsPath(id, subIdx);
+
+    const oldFile = path.join(dirAbs, oldName);
+    const newFile = path.join(dirAbs, name);
+
+    ensureDirSync(dirAbs);
+    if (oldName !== name && fs.existsSync(oldFile)) {
+      fs.renameSync(oldFile, newFile);
+    }
+    writeTextFileSync(newFile, content || '');
+
+    const stats = fs.statSync(newFile);
+    const relUrl = `/uploads/cases/${id}/${subIdx}/${name}`.replace(/\\/g, '/');
+
+    doc.name = name;
+    doc.originalName = name;
+    doc.mimeType = 'text/plain';
+    doc.size = stats.size;
+    doc.url = relUrl;
+    doc.uploadedAt = new Date();
+
+    await c.save();
+    return res.json({ message: 'עודכן', document: doc });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'שגיאה בשרת' });
+  }
+};
 
 
 

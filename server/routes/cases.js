@@ -61,4 +61,8 @@ router.delete('/:id/subcases/:subcaseIndex/documents/:docIndex', caseController.
 router.put('/:id/subcases/:index/documents', caseController.addDocumentToSubcase); // ישן (מחרוזת) – אפשר למחוק בהמשך
 router.delete('/:id', caseController.deleteCase);
 
+router.post('/:id/subcases/:subIdx/documents/text', caseController.createTextDocument);
+router.put('/:id/subcases/:subIdx/documents/:docIdx/text', caseController.updateTextDocument);
+router.get('/:id/subcases/:subIdx/documents/:docIdx/text', caseController.getTextDocument);
+
 module.exports = router;
