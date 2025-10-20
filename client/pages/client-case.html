@@ -140,6 +140,68 @@
         </div>
       </div>
 
+      <!-- 🆕 Client Upload Section -->
+      <div class="client-upload-section" id="client-upload-section" style="display:none;">
+        <div class="section-header">
+          <h2>
+            <i class="bi bi-cloud-upload"></i>
+            <span>העלה מסמכים לעורך הדין</span>
+          </h2>
+        </div>
+        
+        <div class="upload-container">
+          <div class="upload-card">
+            <div class="upload-area" id="upload-area">
+              <div class="upload-icon">
+                <i class="bi bi-cloud-arrow-up"></i>
+              </div>
+              <h3>גרור קובץ לכאן או לחץ לבחירה</h3>
+              <p>תומך ב-PDF, Word, תמונות, Excel ועוד</p>
+              <p class="file-size-limit">גודל מקסימלי: 10MB</p>
+              
+              <input type="file" id="client-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls,.txt" style="display:none">
+              
+              <button class="btn-upload-file" onclick="document.getElementById('client-file-input').click()">
+                <i class="bi bi-folder2-open"></i>
+                בחר קובץ מהמחשב
+              </button>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="upload-progress" id="upload-progress" style="display:none;">
+              <div class="progress-info">
+                <span id="upload-filename">מעלה קובץ...</span>
+                <span id="upload-percentage">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Client Documents List -->
+          <div class="client-documents-card">
+            <div class="documents-card-header">
+              <h3>
+                <i class="bi bi-files"></i>
+                המסמכים שהעלתי
+              </h3>
+              <button class="refresh-docs-btn" onclick="loadClientDocuments()" title="רענן רשימה">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+            
+            <div id="client-documents-list" class="client-documents-list">
+              <!-- המסמכים שהלקוח העלה יופיעו כאן -->
+              <div class="loading-docs">
+                <i class="bi bi-hourglass-split"></i>
+                <span>טוען מסמכים...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Progress Timeline -->
       <div class="progress-section">
         <div class="section-header">

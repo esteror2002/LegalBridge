@@ -3,29 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./database');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
-
-/** ===== uploads dir + static ===== */
-const uploadsDir = path.join(__dirname, 'uploads');
-fs.mkdirSync(uploadsDir, { recursive: true });
-app.use('/uploads', express.static(uploadsDir));
 
 /** ===== DB ===== */
 connectDB();
 
 /** ===== CORS ===== */
-app.use(cors({
-  origin: [
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-app.options('*', cors());
+app.use(cors({ origin: true, credentials: true }));
+app.options('*', cors({ origin: true, credentials: true }));
 
 /** ===== JSON ===== */
 app.use(express.json());
@@ -39,7 +25,6 @@ app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/meetings', require('./routes/meetings'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/time', require('./routes/time'));
-
 
 /** ===== Client static ===== */
 app.use(express.static(path.join(__dirname, '../client')));
