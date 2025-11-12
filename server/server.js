@@ -4,8 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./database');
 const path = require('path');
-const passport = require("./config/passport");
-const session = require("express-session");
+
 
 const app = express();
 
@@ -18,17 +17,6 @@ app.options('*', cors({ origin: true, credentials: true }));
 
 /** ===== JSON ===== */
 app.use(express.json());
-
-/** ===== Sessions & Passport ===== */
-app.use(
-  session({
-    secret: process.env.JWT_SECRET || "keyboard cat",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
 
 /** ===== API routes ===== */
 app.use('/api/auth', require('./routes/auth'));
@@ -69,34 +57,6 @@ app.get(['/client-requests', '/client-requests.html'], (req, res) => sendPage(re
 app.get(['/lawyer-home', '/lawyer-home.html'], (req, res) => sendPage(res, 'lawyer-home.html'));
 
 
-
-
-/** ===== התחברות עם Google ===== */
-app.get(
-  "/api/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-/** ===== Callback אחרי ההתחברות ===== */
-app.get(
-  "/api/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login-failed" }),
-  (req, res) => {
-    if (!req.user) return res.redirect("/login-failed");
-
-    // שמירת פרטים כ-cookie (לא מאובטח, אבל מספיק לפיתוח)
-    res.cookie('userRole', req.user.role, { httpOnly: false });
-    res.cookie('username', encodeURIComponent(req.user.username || ''), { httpOnly: false });
-    res.cookie('userId', req.user._id.toString(), { httpOnly: false });
-
-    // הפניה לעמוד המתאים
-    if (req.user.role === "lawyer") {
-      return res.redirect("/lawyer-home");
-    } else {
-      return res.redirect("/client-home");
-    }
-  }
-);
 
 
 

@@ -777,3 +777,22 @@ body {
         justify-content: center;
     }
 }
+
+.password-wrapper {
+    position: relative;
+  }
+  
+  .password-wrapper .toggle-password {
+    position: absolute;
+    top: 50%;
+    left: 10px; /* 👈 במקום right */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 1.1rem;
+  }
+  
+  .password-wrapper .toggle-password:hover {
+    color: var(--accent-gold);
+  }
+  

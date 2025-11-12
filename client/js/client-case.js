@@ -23,21 +23,13 @@ async function loadCaseData() {
   
   try {
     const username = localStorage.getItem('username');
-    const userResponse = await fetch('http://localhost:5000/api/auth/profile', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
     
-    let userId;
-    if (userResponse.ok) {
-      const userData = await userResponse.json();
-      userId = userData._id;
-    } else {
       const usersResponse = await fetch('http://localhost:5000/api/auth/clients');
       const users = await usersResponse.json();
       const currentUser = users.find(user => user.username === username);
       if (!currentUser) throw new Error('משתמש לא נמצא');
       userId = currentUser._id;
-    }
+    
     
     const caseResponse = await fetch(`http://localhost:5000/api/cases/client/${userId}`);
     const cases = await caseResponse.json();
@@ -126,13 +118,19 @@ function displaySubcases(subcases) {
       </div>`;
     return;
   }
+
   container.innerHTML = subcases.map((subcase, index) => {
+    // שמירה רק על מסמכים תקינים
     const validDocuments = (subcase.documents || []).filter(doc => {
       const url = (typeof doc === 'object' && doc.gridId) ? `/api/cases/files/${doc.gridId}` : '';
-      return !!url;
+      const name = doc.name ? doc.name.toLowerCase() : '';
+      // ❗ מסנן גם את notes.txt ודומיו
+      return !!url && !(name.startsWith('notes') || name === 'notes.txt');
     });
-    const documentsCount = validDocuments.length;
+
+    const documentsCount = validDocuments.length; // ✅ ספירה מתוקנת אחרי הסינון
     const documentsHtml = generateDocumentsHtml(validDocuments);
+
     return `
       <div class="subcase-card" style="animation-delay: ${index * 0.1}s">
         <div class="subcase-header">
@@ -155,50 +153,96 @@ function displaySubcases(subcases) {
   }).join('');
 }
 
+
 // HTML למסמכים בתת-תיק
 function generateDocumentsHtml(documents) {
+  // אין מסמכים בכלל
   if (!documents || documents.length === 0) {
     return `
       <div class="no-documents">
         <i class="bi bi-file-x"></i>
         <p>אין מסמכים בתת-תיק זה</p>
-      </div>`;
+      </div>
+    `;
   }
+
+  // סינון קבצים שלא אמורים להופיע ללקוח (notes*, notes.txt)
+  documents = documents.filter((doc) => {
+    const name = (doc && doc.name ? String(doc.name) : '').toLowerCase();
+    if (!name) return true;
+    return !(name.startsWith('notes') || name === 'notes.txt');
+  });
+
+  // אם אחרי הסינון לא נשארו מסמכים
+  if (documents.length === 0) {
+    return `
+      <div class="no-documents">
+        <i class="bi bi-file-x"></i>
+        <p>אין מסמכים להצגה</p>
+      </div>
+    `;
+  }
+
+  // בניית הרשימה
+  const itemsHtml = documents.map((doc) => {
+    const name = doc.name || 'מסמך';
+    const url = doc.gridId ? `/api/cases/files/${doc.gridId}` : '#';
+    const extension = name.toLowerCase().split('.').pop();
+    let icon = 'bi-file-earmark';
+    let fileType = 'קובץ';
+    let fileSize = '';
+
+    if (doc.size) fileSize = formatFileSize(doc.size);
+
+    switch (extension) {
+      case 'pdf':
+        icon = 'bi-file-earmark-pdf';
+        fileType = 'PDF';
+        break;
+      case 'doc':
+      case 'docx':
+        icon = 'bi-file-earmark-word';
+        fileType = 'Word';
+        break;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        icon = 'bi-file-earmark-image';
+        fileType = 'תמונה';
+        break;
+      case 'xlsx':
+      case 'xls':
+        icon = 'bi-file-earmark-excel';
+        fileType = 'Excel';
+        break;
+      default:
+        icon = 'bi-file-earmark-text';
+        fileType = 'מסמך';
+        break;
+    }
+
+    return `
+      <div class="document-item">
+        <div class="document-icon"><i class="bi ${icon}"></i></div>
+        <div class="document-info">
+          <a href="${url}" target="_blank" rel="noopener" class="document-name">${name}</a>
+          <div class="document-meta">
+            <span>${fileType}${fileSize ? ' • ' + fileSize : ''}</span>
+            <span>עודכן ${getRelativeTime(doc.uploadDate || new Date())}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 
   return `
     <div class="documents-grid">
-      ${documents.map((doc) => {
-        const name = doc.name || 'מסמך';
-        const url = doc.gridId ? `/api/cases/files/${doc.gridId}` : '#';
-        const extension = name.toLowerCase().split('.').pop();
-        let icon = 'bi-file-earmark', fileType = 'קובץ', fileSize = '';
-        if (doc.size) fileSize = formatFileSize(doc.size);
-        switch (extension) {
-          case 'pdf': icon = 'bi-file-earmark-pdf'; fileType = 'PDF'; break;
-          case 'doc':
-          case 'docx': icon = 'bi-file-earmark-word'; fileType = 'Word'; break;
-          case 'jpg':
-          case 'jpeg':
-          case 'png':
-          case 'gif': icon = 'bi-file-earmark-image'; fileType = 'תמונה'; break;
-          case 'xlsx':
-          case 'xls': icon = 'bi-file-earmark-excel'; fileType = 'Excel'; break;
-          default: icon = 'bi-file-earmark-text'; fileType = 'מסמך';
-        }
-        return `
-          <div class="document-item">
-            <div class="document-icon"><i class="bi ${icon}"></i></div>
-            <div class="document-info">
-              <a href="${url}" target="_blank" rel="noopener" class="document-name">${name}</a>
-              <div class="document-meta">
-                <span>${fileType}${fileSize ? ' • ' + fileSize : ''}</span>
-                <span>עודכן ${getRelativeTime(doc.uploadDate || new Date())}</span>
-              </div>
-            </div>
-          </div>`;
-      }).join('')}
-    </div>`;
+      ${itemsHtml}
+    </div>
+  `;
 }
+
 
 // ===== העלאת מסמכים (לקוח) =====
 function initializeFileUpload() {
@@ -456,3 +500,39 @@ window.addEventListener('error', function(event) {
 document.addEventListener('visibilitychange', function() {
   if (!document.hidden && currentCase) loadCaseData();
 });
+
+
+// --- פתיחה/סגירה של תתי-תיקים ---
+document.addEventListener('click', function(e) {
+  const header = e.target.closest('.subcase-header');
+  if (!header) return;
+  const card = header.closest('.subcase-card');
+  if (!card) return;
+  card.classList.toggle('active');
+});
+
+// --- צמצום רשימת העדכונים (להציג רק אחרונים) ---
+function displayProgress(progressItems) {
+  const timeline = document.getElementById('progress-timeline');
+  if (!progressItems.length) {
+    timeline.innerHTML = `<div class="empty-state"><i class="bi bi-clock-history"></i><p>אין עדכונים זמינים</p></div>`;
+    return;
+  }
+
+  const sorted = [...progressItems].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const latest = sorted.slice(0, 5); // מציג רק 5 עדכונים אחרונים
+
+  timeline.innerHTML = latest.map((item, index) => {
+    const date = new Date(item.date);
+    return `
+      <div class="timeline-item${index === 0 ? ' latest' : ''}">
+        <div class="timeline-content">
+          <h4>${item.title}</h4>
+          <p>${item.description}</p>
+          <div class="timeline-meta">
+            <span>${date.toLocaleDateString('he-IL')}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}

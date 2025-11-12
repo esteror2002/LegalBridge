@@ -1349,3 +1349,311 @@ body {
     justify-content: center;
   }
 }
+
+/* === עיצוב פריסת תוכן חדש === */
+.content-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* סרגל עדכוני התקדמות */
+.progress-sidebar {
+  background: white;
+  border-radius: 20px;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-sidebar i {
+  color: #007bff;
+  font-size: 20px;
+}
+
+/* אזור הגלילה */
+.scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #007bff, #28a745);
+  border-radius: 10px;
+}
+.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* צמצום גודל הפריטים בלוח ההתקדמות */
+.progress-timeline .timeline-item {
+  font-size: 13px;
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+/* === עיצוב תתי-תיקים כאקורדיון === */
+.subcase-card {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.subcase-header {
+  cursor: pointer;
+  position: relative;
+}
+
+.subcase-header::after {
+  content: "\f282"; /* bootstrap chevron-down */
+  font-family: "bootstrap-icons";
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+  transition: transform 0.3s ease;
+}
+
+.subcase-card.active .subcase-header::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.subcase-card .documents-section {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.subcase-card.active .documents-section {
+  max-height: 800px; /* גובה פתיחה */
+}
+
+@media (max-width: 992px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+  .progress-sidebar {
+    order: 2;
+    margin-top: 20px;
+  }
+  .case-content {
+    order: 1;
+  }
+}
+
+
+/* שינוי מבנה הפריסה כך שהעדכונים יופיעו בצד שמאל */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px; /* הצד השמאלי (עדכונים) יהיה העמודה השנייה */
+  gap: 30px;
+  align-items: start;
+  direction: rtl; /* נשאר RTL לטקסט */
+}
+
+/* קבע שהעדכונים יישבו בצד שמאל */
+.progress-sidebar {
+  order: 2;
+}
+
+/* תוכן התיק ותתי-התיקים בצד ימין */
+.case-content {
+  order: 1;
+}
+
+
+/* === פריסת צד שמאל - עדכוני התקדמות === */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px; /* תוכן תיק | עדכונים */
+  gap: 30px;
+  align-items: start;
+  direction: rtl;
+}
+
+/* קבע שהעדכונים יהיו בצד שמאל */
+.case-content { order: 1; }
+.progress-sidebar { order: 2; }
+
+/* אזור העדכונים */
+.progress-sidebar {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+  padding: 20px 15px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+}
+
+.progress-sidebar h2 {
+  font-size: 18px;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+.progress-sidebar i {
+  color: #007bff;
+  font-size: 20px;
+}
+
+/* רשימת העדכונים - גלילה */
+.scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-left: 5px;
+  padding-right: 10px;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #007bff, #28a745);
+  border-radius: 10px;
+}
+.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* === עיצוב פריטי העדכון עצמם === */
+.progress-timeline {
+  position: relative;
+  padding: 10px 15px;
+}
+
+.progress-timeline::before {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #007bff, #28a745);
+  border-radius: 3px;
+}
+
+/* כל עדכון */
+.timeline-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  position: relative;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
+}
+
+.timeline-item:hover {
+  background: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,123,255,0.15);
+}
+
+/* נקודת ציר */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  right: -13px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  background: #007bff;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px #007bff;
+}
+
+/* נקודה לעדכון אחרון */
+.timeline-item.latest::before {
+  background: #28a745;
+  box-shadow: 0 0 0 3px rgba(40,167,69,0.6);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 3px rgba(40,167,69,0.6); }
+  50% { box-shadow: 0 0 0 7px rgba(40,167,69,0.3); }
+  100% { box-shadow: 0 0 0 3px rgba(40,167,69,0.6); }
+}
+
+/* תוכן העדכון */
+.timeline-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.timeline-content p {
+  font-size: 13px;
+  color: #4a5568;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #718096;
+  border-top: 1px solid #edf2f7;
+  padding-top: 6px;
+}
+
+/* מצב שאין עדכונים */
+.progress-timeline .empty-state {
+  text-align: center;
+  color: #a0aec0;
+  padding: 40px 10px;
+}
+.progress-timeline .empty-state i {
+  font-size: 30px;
+  color: #cbd5e0;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* רספונסיביות */
+@media (max-width: 992px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+  .progress-sidebar {
+    order: 2;
+    height: auto;
+    margin-top: 25px;
+    position: static;
+  }
+}
+

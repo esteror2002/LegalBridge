@@ -66,7 +66,7 @@
           <div class="profile-avatar">
             <i class="bi bi-person-circle"></i>
           </div>
-          <h2 id="greeting">שלום, לקוח</h2>
+          <h2 id="greeting">שלום</h2>
         </div>
         
         <div class="header-actions">
@@ -227,32 +227,7 @@
       </ul>
     </div>
   </div>
-
-  <!-- תיקון זיהוי משתמש מגוגל + עדכון ברכה -->
-  <script>
-    const cookies = document.cookie.split(';').reduce((acc, c) => {
-      const [key, val] = c.split('=');
-      acc[key.trim()] = decodeURIComponent(val || '');
-      return acc;
-    }, {});
-
-    if (cookies.userRole) {
-      const usernameDecoded = decodeURIComponent(cookies.username || '');
-      localStorage.setItem('role', cookies.userRole);
-      localStorage.setItem('username', usernameDecoded);
-      localStorage.setItem('userId', cookies.userId || '');
-
-      const greeting = document.getElementById('greeting');
-      if (greeting) greeting.textContent = `שלום, ${usernameDecoded}`;
-    }
-
-    // הגנה על הדף
-    const role = localStorage.getItem('role');
-    if (role !== 'client') {
-      alert('רק לקוחות רשאים לגשת לאזור זה.');
-      window.location.href = '/';
-    }
-  </script>
+  
 
   <script src="../js/client-home.js"></script>
 </body>

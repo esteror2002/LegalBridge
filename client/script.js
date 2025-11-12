@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleField = document.getElementById('role');
     const phoneField = document.getElementById('phone');
     const addressField = document.getElementById('address');
-    const googleContainer = document.getElementById('google-login').closest('.text-center');
 
     
     // שכחתי סיסמה
@@ -67,9 +66,6 @@ document.addEventListener('DOMContentLoaded', function () {
         roleField.value = 'client';
         
         isLogin = false;
-        // הסתרת כפתור Google בהרשמה
-        if (googleContainer) googleContainer.style.display = 'none';
-
         // עדכון טקסט הכפתור
         const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
@@ -97,8 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         addressField.required = false;
         
         isLogin = true;
-        // הצגת כפתור Google בהתחברות
-        if (googleContainer) googleContainer.style.display = 'block';
+        
 
         // עדכון טקסט הכפתור
         const submitButton = document.querySelector('#modal .btn-submit');
@@ -611,10 +606,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const backupCode = document.getElementById('backup-code').value.trim();
         await verify2FACode(username, backupCode, true);
     }
-
-    // ===== התחברות עם Google =====
-document.getElementById("google-login").addEventListener("click", () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
-  });
    
 });
+
+
+// ---- הצגת / הסתרת סיסמה ----
+document.addEventListener('DOMContentLoaded', () => {
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+  
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+      });
+    }
+  });
+  
