@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleField = document.getElementById('role');
     const phoneField = document.getElementById('phone');
     const addressField = document.getElementById('address');
+    const googleContainer = document.getElementById('google-login').closest('.text-center');
+
     
     // שכחתי סיסמה
     const forgotLink = document.getElementById('forgot-password-link');
@@ -65,7 +67,9 @@ document.addEventListener('DOMContentLoaded', function () {
         roleField.value = 'client';
         
         isLogin = false;
-        
+        // הסתרת כפתור Google בהרשמה
+        if (googleContainer) googleContainer.style.display = 'none';
+
         // עדכון טקסט הכפתור
         const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
@@ -93,7 +97,9 @@ document.addEventListener('DOMContentLoaded', function () {
         addressField.required = false;
         
         isLogin = true;
-        
+        // הצגת כפתור Google בהתחברות
+        if (googleContainer) googleContainer.style.display = 'block';
+
         // עדכון טקסט הכפתור
         const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
@@ -606,4 +612,9 @@ document.addEventListener('DOMContentLoaded', function () {
         await verify2FACode(username, backupCode, true);
     }
 
+    // ===== התחברות עם Google =====
+document.getElementById("google-login").addEventListener("click", () => {
+    window.location.href = "http://localhost:5000/api/auth/google";
+  });
+   
 });

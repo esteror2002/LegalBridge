@@ -82,37 +82,40 @@ exports.manual = async (req, res) => {
 };
 
 exports.caseTotal = async (req, res) => {
-    try {
-      const userId = req.headers['x-user-id'];
-      const { caseId } = req.params;
-  
-      if (!userId || !mongoose.isValidObjectId(userId)) {
-        return res.status(400).json({ message: 'missing/invalid x-user-id' });
-      }
-      if (!caseId || !mongoose.isValidObjectId(caseId)) {
-        return res.status(400).json({ message: 'invalid caseId' });
-      }
-  
-      const logs = await TimeLog.find({ lawyerId: userId, caseId })
-        .select('startedAt endedAt');
-  
-      const now = new Date();
-      let minutes = 0;
-  
-      for (const l of logs) {
-        if (!l.startedAt) continue;
-        const start = new Date(l.startedAt);
-        const end = l.endedAt ? new Date(l.endedAt) : now; // ⭐ מחשב גם לוג פתוח
-        const diff = end - start;
-        if (diff > 0) minutes += Math.floor(diff / 60000);
-      }
-  
-      res.json({ caseId, minutes });
-    } catch (e) {
-      console.error('caseTotal error:', e);
-      res.status(500).json({ message: 'server error' });
+  try {
+    const userId = req.headers['x-user-id'];
+    const { caseId } = req.params;
+
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ message: 'missing/invalid x-user-id' });
     }
-  };
+    if (!caseId || !mongoose.isValidObjectId(caseId)) {
+      return res.status(400).json({ message: 'invalid caseId' });
+    }
+
+    const lawyerId = oid(userId);
+
+    const logs = await TimeLog.find({ lawyerId, caseId: new mongoose.Types.ObjectId(caseId) })
+      .select('startedAt endedAt durationMin');
+
+    const now = new Date();
+    let minutes = 0;
+
+    for (const l of logs) {
+      if (!l.startedAt) continue;
+      const start = new Date(l.startedAt);
+      const end = l.endedAt ? new Date(l.endedAt) : now;
+      const diff = end - start;
+      if (diff > 0) minutes += Math.floor(diff / 60000);
+    }
+
+    res.json({ caseId, minutes });
+  } catch (e) {
+    console.error('caseTotal error:', e);
+    res.status(500).json({ message: 'server error' });
+  }
+};
+
 
 exports.daily = async (req, res) => {
   try {

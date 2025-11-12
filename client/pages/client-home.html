@@ -10,22 +10,21 @@
       color: white !important;
       border-color: #007bff !important;
     }
-    
+
     .featured-card .card-content h3,
     .featured-card .card-content p {
       color: white !important;
     }
-    
+
     .featured-card .card-icon {
       background: rgba(255, 255, 255, 0.2) !important;
     }
-    
+
     .featured-card:hover {
       transform: translateY(-10px) scale(1.02) !important;
       box-shadow: 0 25px 60px rgba(0, 123, 255, 0.4) !important;
     }
-  </style>
-  <style>
+
     /* מרכוז כפתור התנתקות והזזת פעמון ימינה */
     .header-actions {
       display: flex !important;
@@ -33,12 +32,12 @@
       align-items: center !important;
       margin-top: 20px !important;
     }
-    
+
     /* הזזת הפעמון ימינה */
     .notification-icon {
       order: 2 !important;
     }
-    
+
     /* התנתקות במרכז */
     .logout-btn {
       order: 1 !important;
@@ -85,19 +84,19 @@
 
       <nav class="client-options">
         <ul>
-            <li>
-                <a href="client-home.html" class="nav-item">
-                  <div class="nav-icon">
-                    <i class="bi bi-house"></i>
-                  </div>
-                  <span>עמוד הבית</span>
-                  <div class="nav-arrow">
-                    <i class="bi bi-chevron-left"></i>
-                  </div>
-                </a>
-              </li>
           <li>
-            <a href="client-profile.html" class="nav-item">
+            <a href="/client-home.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-house"></i>
+              </div>
+              <span>עמוד הבית</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="/client-profile.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-person"></i>
               </div>
@@ -108,7 +107,7 @@
             </a>
           </li>
           <li>
-            <a href="client-case.html" class="nav-item">
+            <a href="/client-case.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-folder"></i>
               </div>
@@ -119,7 +118,7 @@
             </a>
           </li>
           <li>
-            <a href="client-requests.html" class="nav-item">
+            <a href="/client-requests.html" class="nav-item">
               <div class="nav-icon">
                 <i class="bi bi-envelope"></i>
               </div>
@@ -144,7 +143,7 @@
       </div>
 
       <div class="dashboard-grid">
-        <div class="dashboard-card" onclick="navigateTo('client-profile.html')">
+        <div class="dashboard-card" onclick="navigateTo('/client-profile.html')">
           <div class="card-icon">
             <i class="bi bi-person-fill"></i>
           </div>
@@ -157,7 +156,7 @@
           </div>
         </div>
 
-        <div class="dashboard-card featured-card" onclick="navigateTo('client-case.html')">
+        <div class="dashboard-card featured-card" onclick="navigateTo('/client-case.html')">
           <div class="card-icon">
             <i class="bi bi-folder-fill"></i>
           </div>
@@ -170,7 +169,7 @@
           </div>
         </div>
 
-        <div class="dashboard-card" onclick="navigateTo('client-requests.html')">
+        <div class="dashboard-card" onclick="navigateTo('/client-requests.html')">
           <div class="card-icon">
             <i class="bi bi-envelope-fill"></i>
           </div>
@@ -228,6 +227,32 @@
       </ul>
     </div>
   </div>
+
+  <!-- תיקון זיהוי משתמש מגוגל + עדכון ברכה -->
+  <script>
+    const cookies = document.cookie.split(';').reduce((acc, c) => {
+      const [key, val] = c.split('=');
+      acc[key.trim()] = decodeURIComponent(val || '');
+      return acc;
+    }, {});
+
+    if (cookies.userRole) {
+      const usernameDecoded = decodeURIComponent(cookies.username || '');
+      localStorage.setItem('role', cookies.userRole);
+      localStorage.setItem('username', usernameDecoded);
+      localStorage.setItem('userId', cookies.userId || '');
+
+      const greeting = document.getElementById('greeting');
+      if (greeting) greeting.textContent = `שלום, ${usernameDecoded}`;
+    }
+
+    // הגנה על הדף
+    const role = localStorage.getItem('role');
+    if (role !== 'client') {
+      alert('רק לקוחות רשאים לגשת לאזור זה.');
+      window.location.href = '/';
+    }
+  </script>
 
   <script src="../js/client-home.js"></script>
 </body>
