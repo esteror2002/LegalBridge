@@ -4,46 +4,10 @@
   <meta charset="UTF-8">
   <title>בית לקוח | Legal Bridge</title>
   <link rel="stylesheet" href="../css/client-home.css">
-  <style>
-    .featured-card {
-      background: linear-gradient(135deg, #007bff, #0056b3) !important;
-      color: white !important;
-      border-color: #007bff !important;
-    }
 
-    .featured-card .card-content h3,
-    .featured-card .card-content p {
-      color: white !important;
-    }
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    .featured-card .card-icon {
-      background: rgba(255, 255, 255, 0.2) !important;
-    }
-
-    .featured-card:hover {
-      transform: translateY(-10px) scale(1.02) !important;
-      box-shadow: 0 25px 60px rgba(0, 123, 255, 0.4) !important;
-    }
-
-    /* מרכוז כפתור התנתקות והזזת פעמון ימינה */
-    .header-actions {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      margin-top: 20px !important;
-    }
-
-    /* הזזת הפעמון ימינה */
-    .notification-icon {
-      order: 2 !important;
-    }
-
-    /* התנתקות במרכז */
-    .logout-btn {
-      order: 1 !important;
-      margin: 0 auto !important;
-    }
-  </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
@@ -95,6 +59,7 @@
               </div>
             </a>
           </li>
+
           <li>
             <a href="/client-profile.html" class="nav-item">
               <div class="nav-icon">
@@ -106,6 +71,7 @@
               </div>
             </a>
           </li>
+
           <li>
             <a href="/client-case.html" class="nav-item">
               <div class="nav-icon">
@@ -117,6 +83,7 @@
               </div>
             </a>
           </li>
+
           <li>
             <a href="/client-requests.html" class="nav-item">
               <div class="nav-icon">
@@ -128,11 +95,25 @@
               </div>
             </a>
           </li>
+
+          <!-- ⭐ חדש: קישור ליומן -->
+          <li>
+            <a href="/client-calendar.html" class="nav-item">
+              <div class="nav-icon">
+                <i class="bi bi-calendar-week"></i>
+              </div>
+              <span>יומן פגישות</span>
+              <div class="nav-arrow">
+                <i class="bi bi-chevron-left"></i>
+              </div>
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <main class="main-content">
       <div class="content-header">
         <h1 class="main-title">
@@ -143,6 +124,7 @@
       </div>
 
       <div class="dashboard-grid">
+
         <div class="dashboard-card" onclick="navigateTo('/client-profile.html')">
           <div class="card-icon">
             <i class="bi bi-person-fill"></i>
@@ -182,18 +164,20 @@
           </div>
         </div>
 
-        <div class="dashboard-card coming-soon">
+        <!-- ⭐ פגישות הופך ללחיץ -->
+        <div class="dashboard-card" onclick="navigateTo('/client-calendar.html')">
           <div class="card-icon">
-            <i class="bi bi-calendar-fill"></i>
+            <i class="bi bi-calendar-week"></i>
           </div>
           <div class="card-content">
             <h3>פגישות</h3>
-            <p>תיאום פגישות עם עורכי דין</p>
+            <p>תיאום פגישות ויומן אישי</p>
           </div>
           <div class="card-action">
-            <span class="coming-soon-badge">בקרוב</span>
+            <i class="bi bi-arrow-left"></i>
           </div>
         </div>
+
       </div>
 
       <div class="stats-section">
@@ -201,25 +185,26 @@
           <div class="stat-number" id="case-status">-</div>
           <div class="stat-label">סטטוס התיק</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-number" id="progress-count">-</div>
           <div class="stat-label">עדכוני התקדמות</div>
         </div>
+
         <div class="stat-card">
           <div class="stat-number" id="messages-count">-</div>
           <div class="stat-label">הודעות חדשות</div>
         </div>
       </div>
+
     </main>
   </div>
 
-  <!-- Notification Panel -->
+  <!-- פאנל התראות -->
   <div id="notif-panel" class="notif-panel" style="display: none;">
     <div class="panel-header">
       <h3>התראות</h3>
-      <button class="close-panel" onclick="toggleNotifications()">
-        <i class="bi bi-x"></i>
-      </button>
+      <button class="close-panel" onclick="toggleNotifications()"><i class="bi bi-x"></i></button>
     </div>
     <div class="panel-content">
       <ul id="notif-list">
@@ -227,8 +212,9 @@
       </ul>
     </div>
   </div>
-  
 
-  <script src="../js/client-home.js"></script>
+<script src="../js/client-home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

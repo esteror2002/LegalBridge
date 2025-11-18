@@ -52,6 +52,7 @@ app.get(['/client-home', '/client-home.html'], (req, res) => sendPage(res, 'clie
 app.get(['/client-profile', '/client-profile.html'], (req, res) => sendPage(res, 'client-profile.html'));
 app.get(['/client-case', '/client-case.html'], (req, res) => sendPage(res, 'client-case.html'));
 app.get(['/client-requests', '/client-requests.html'], (req, res) => sendPage(res, 'client-requests.html'));
+app.get(['/client-calendar', '/client-calendar.html'], (req, res) => sendPage(res, 'client-calendar.html'));
 
 // עמוד עו"ד
 app.get(['/lawyer-home', '/lawyer-home.html'], (req, res) => sendPage(res, 'lawyer-home.html'));

@@ -1,0 +1,207 @@
+/* ============================
+   עיצוב יומן ללקוח – Legal Bridge
+   ============================ */
+
+   body {
+    direction: rtl;
+  }
+  
+  /* קונטיינר היומן */
+  .calendar-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 10px 25px rgba(40, 167, 69, 0.1);
+    transition: all .3s ease;
+  }
+  
+  .calendar-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(40, 167, 69, 0.15);
+  }
+  
+  /* כותרת יומן */
+  .calendar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+  
+  .calendar-header h2 {
+    font-size: 28px;
+    color: #28a745;
+    margin: 0;
+    font-weight: 700;
+  }
+  
+  /* טבלת יומן */
+  .calendar-table th {
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    color: #333;
+    background: #f1f3f4;
+    border-radius: 10px;
+  }
+  
+  .calendar-table td {
+    height: 100px;
+    vertical-align: top;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: .2s ease;
+  }
+  
+  .calendar-table td:hover {
+    background: rgba(40, 167, 69, .08);
+  }
+  
+  .calendar-table td.disabled {
+    color: #bbb !important;
+    background: #fafafa !important;
+    cursor: default !important;
+  }
+  
+  /* מספר היום */
+  .calendar-day-number {
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  
+  /* תצוגת אירוע בתוך היום */
+  .calendar-event {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 10px;
+    margin-top: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* משימות */
+  .tasks-section {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 10px 25px rgba(40, 167, 69, 0.1);
+    margin-bottom: 40px;
+  }
+  
+  .tasks-section h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #28a745;
+  }
+  
+  #taskList {
+    margin-top: 15px;
+  }
+  
+  .task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .task-item.done {
+    text-decoration: line-through;
+    opacity: .6;
+  }
+  
+  .task-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .task-actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: .2s;
+  }
+  
+  .task-actions button:hover {
+    transform: scale(1.2);
+  }
+  
+  /* Modal */
+  .modal-content {
+    border-radius: 20px !important;
+    border: none !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border-radius: 20px 20px 0 0 !important;
+  }
+  
+  .modal-title {
+    font-weight: 700;
+  }
+  
+  .btn-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+  }
+  
+  .btn-success:hover {
+    background: linear-gradient(135deg, #20c997, #28a745);
+  }
+  
+  /* Responsive */
+  @media(max-width: 768px) {
+    .calendar-card {
+      padding: 15px;
+    }
+    .calendar-table td {
+      height: 80px;
+    }
+  }
+
+  
+  /* מודאל משימה */
+.task-modal {
+    border-radius: 16px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+  }
+  
+  .task-modal .modal-header {
+    background: #0d6efd;
+    color: white;
+    padding: 14px 18px;
+  }
+  
+  .task-modal .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .task-modal .modal-body {
+    background: #f8f9fa;
+    padding: 18px 20px;
+  }
+  
+  .task-modal .modal-footer {
+    background: #f1f3f5;
+    padding: 10px 16px;
+  }
+  

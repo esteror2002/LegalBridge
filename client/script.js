@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // כפתור הרשמה
     registerBtn.addEventListener('click', function () {
-        openModal('הרשמה כלקוח');
+        openModal('הרשמה');
         
         // הצגת שדות הרשמה
         emailField.parentElement.style.display = 'block';
@@ -69,13 +69,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // עדכון טקסט הכפתור
         const submitButton = document.querySelector('#modal .btn-submit');
         if (submitButton) {
-            submitButton.innerHTML = '<i class="fas fa-user-plus me-2"></i>הרשם כלקוח';
+            submitButton.innerHTML = '<i class="fas fa-user-plus me-2"></i> הרשם למערכת';
         }
     });
 
     // כפתור התחברות
     loginBtn.addEventListener('click', function () {
-        openModal('התחברות לקוחות');
+        openModal('התחברות');
         
         // הסתרת שדות הרשמה
         emailField.parentElement.style.display = 'none';

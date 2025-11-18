@@ -145,8 +145,6 @@ exports.login = async (req, res) => {
         await user.save();
       }
     }
-
-    console.log(`התחברות מוצלחת. המשתמש שנמצא במסד הנתונים הוא: ${user.username}, תפקיד: ${user.role}`);
     
     // ===== התחברות מלאה =====
     const token = jwt.sign(
