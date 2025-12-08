@@ -1384,3 +1384,107 @@ html[dir="rtl"] .sticky-note-side { direction:rtl; }
   .doc-actions { gap: 6px; }
   .btn-upload { width: 100%; justify-content: center; }
 }
+
+.ai-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999;
+}
+
+.ai-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  z-index: 1000;
+  direction: rtl;
+  text-align: right;
+  font-family: 'Assistant', sans-serif;
+}
+
+.ai-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.ai-icon {
+  font-size: 26px;
+}
+
+.ai-popup-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.ai-popup-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #444;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-inline: 5px;
+}
+
+.ai-popup-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#ai-close-btn {
+  background: #057aff;
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+#ai-close-btn:hover {
+  background: #005fe0;
+}
+
+.secondary-btn {
+  background: #eeeeee;
+  border: none;
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 8px;
+  transition: 0.2s;
+}
+
+.secondary-btn:hover {
+  background: #e0e0e0;
+}
+
+/* הודעת "הועתק!" */
+.copy-hint {
+  position: absolute;
+  bottom: 18px;
+  right: 50%;
+  transform: translateX(50%) translateY(10px);
+  background: #4caf50;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 13px;
+  opacity: 0;
+  transition: 0.3s ease;
+  pointer-events: none;
+}

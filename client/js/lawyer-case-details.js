@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderProgress(caseData.progress || []);
     renderSubcases(caseData.subCases || [], caseData._id);
 
-    // 🆕 מסמכי לקוח - עיצוב חדש
+    //  מסמכי לקוח - עיצוב חדש
     renderClientUploads(caseData.clientDocuments || [], caseData);
 
     await startAutoTimer(caseId);
@@ -224,6 +224,7 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
           ? '<button class="edit-doc-btn" onclick="openTextNote(\''+caseId+'\','+subcaseIndex+','+docIndex+')" title="ערוך TXT"><i class="bi bi-journal-text"></i></button>'
           : '';
 
+        // כאן הוספתי את כפתור ה-AI
         return `
           <div class="document-item">
             <div class="document-icon"><i class="bi ${icon}"></i></div>
@@ -235,6 +236,10 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
               </div>
             </div>
             <div class="document-actions">
+              <button class="edit-doc-btn" style="color: #6f42c1;" onclick="getDocumentSummary('${doc.gridId}', this)"
+ title="תקציר AI">
+                <i class="bi bi-stars"></i>
+              </button>
               ${txtAction}
               <button class="edit-doc-btn" onclick="editDocument('${caseId}', ${subcaseIndex}, ${docIndex}, '${safeName}')" title="ערוך מסמך"><i class="bi bi-pencil"></i></button>
               <button class="delete-doc-btn" onclick="deleteDocument('${caseId}', ${subcaseIndex}, ${docIndex})" title="מחק"><i class="bi bi-trash"></i></button>
@@ -244,7 +249,7 @@ function generateDocumentsHtml(documents, caseId, subcaseIndex) {
     </div>`;
 }
 
-/* ---------- 🆕 מסמכי לקוח - עיצוב חדש ---------- */
+/* ------- מסמכי לקוח - עיצוב חדש ---------- */
 function renderClientUploads(uploads, caseData) {
   const el = document.getElementById('client-uploads-list');
   const caseId = caseData._id;
@@ -275,22 +280,18 @@ function renderClientUploads(uploads, caseData) {
     let cardClass = '';
     
     if (['pdf'].includes(fileExt)) {
-      iconClass = 'bi-file-pdf';
-      cardClass = 'is-pdf';
+      iconClass = 'bi-file-pdf'; cardClass = 'is-pdf';
     } else if (['doc', 'docx'].includes(fileExt)) {
-      iconClass = 'bi-file-word';
-      cardClass = 'is-doc';
+      iconClass = 'bi-file-word'; cardClass = 'is-doc';
     } else if (['xls', 'xlsx'].includes(fileExt)) {
-      iconClass = 'bi-file-excel';
-      cardClass = 'is-xls';
+      iconClass = 'bi-file-excel'; cardClass = 'is-xls';
     } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-      iconClass = 'bi-file-image';
-      cardClass = 'is-img';
+      iconClass = 'bi-file-image'; cardClass = 'is-img';
     } else if (['txt'].includes(fileExt)) {
-      iconClass = 'bi-file-text';
-      cardClass = 'is-txt';
+      iconClass = 'bi-file-text'; cardClass = 'is-txt';
     }
 
+    // הוספתי כאן את כפתור ה-AI (הכפתור הראשון ב-actions)
     return `
       <div class="upload-row ${cardClass}">
         <div class="upload-row__left">
@@ -303,10 +304,7 @@ function renderClientUploads(uploads, caseData) {
                 ${name}
               </a>
               <div class="upload-row__meta">
-                <span class="upload-row__date">
-                  <i class="bi bi-calendar"></i>
-                  ${date}
-                </span>
+                <span class="upload-row__date"><i class="bi bi-calendar"></i> ${date}</span>
                 <span class="upload-row__size">${size}</span>
               </div>
             </div>
@@ -314,6 +312,11 @@ function renderClientUploads(uploads, caseData) {
         </div>
         
         <div class="upload-row__actions">
+          <button class="icon-btn--ghost" style="color: #6f42c1;" onclick="getDocumentSummary('${doc.gridId}', this)"
+ title="תקציר AI">
+            <i class="bi bi-stars"></i>
+          </button>
+
           <button class="icon-btn--ghost" onclick="window.open('${url}?download=1','_blank')" title="הורד קובץ">
             <i class="bi bi-download"></i>
           </button>
@@ -773,3 +776,98 @@ window.addEventListener('error', (e) => {
   if (e.message && e.message.includes('Failed to fetch')) return;
   console.error('Critical error:', e.error);
 });
+
+
+
+/* ---------- AI Summary ---------- */
+async function getDocumentSummary(fileId, btnElement) {
+  const originalContent = btnElement.innerHTML;
+
+  btnElement.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+  btnElement.disabled = true;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/ai/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileId })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'שגיאה בניתוח המסמך');
+
+    showSummaryPopup(data.summary);
+
+  } catch (error) {
+    showSummaryPopup("שגיאה: " + error.message);
+  } finally {
+    btnElement.innerHTML = originalContent;
+    btnElement.disabled = false;
+  }
+}
+
+
+function showSummaryPopup(summaryText) {
+
+  const popup = document.createElement("div");
+
+  popup.innerHTML = `
+    <div class="ai-popup-overlay"></div>
+
+    <div class="ai-popup">
+      
+      <div class="ai-popup-header">
+        <span class="ai-icon"></span>
+        <h2>תקציר מסמך (AI)</h2>
+      </div>
+
+      <div class="ai-popup-content">
+        <p id="ai-summary-text">${summaryText}</p>
+      </div>
+
+      <div class="ai-popup-actions">
+
+        <button id="ai-copy-btn" class="secondary-btn">
+           העתק סיכום
+        </button>
+
+        <button id="ai-close-btn">
+          אישור
+        </button>
+
+      </div>
+
+      <div id="ai-copy-hint" class="copy-hint">הועתק!</div>
+
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  // כפתור סגירה
+  document.getElementById("ai-close-btn").onclick = () => {
+    popup.remove();
+  };
+
+  // כפתור העתקה
+  document.getElementById("ai-copy-btn").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(summaryText);
+
+      const hint = document.getElementById("ai-copy-hint");
+      hint.style.opacity = 1;
+      hint.style.transform = "translateY(0px)";
+
+      setTimeout(() => {
+        hint.style.opacity = 0;
+        hint.style.transform = "translateY(10px)";
+      }, 1200);
+
+    } catch (e) {
+      alert("לא ניתן להעתיק את הטקסט ");
+    }
+  };
+}
+
+
+

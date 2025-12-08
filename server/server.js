@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./database');
 const path = require('path');
-
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 
@@ -27,6 +27,10 @@ app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/meetings', require('./routes/meetings'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/time', require('./routes/time'));
+
+
+app.use('/api/ai', aiRoutes);
+
 
 /** ===== Static client ===== */
 app.use(express.static(path.join(__dirname, '../client')));
