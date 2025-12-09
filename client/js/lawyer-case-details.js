@@ -436,6 +436,11 @@ function renderProgress(progressItems) {
         <div class="timeline-content">
           <h4>${item.title}</h4>
           <p>${item.description}</p>
+          <button class="progress-delete-btn"
+           onclick="deleteProgress('${item._id}')">
+          <i class="bi bi-trash"></i> מחק
+          </button>
+
           <div class="timeline-meta">
             <span>נוסף על ידי: ${item.addedBy}</span>
             <span>${dd} בשעה ${tt}</span>
@@ -869,5 +874,34 @@ function showSummaryPopup(summaryText) {
   };
 }
 
+async function deleteProgress(progressId) {
+  if (!confirm('למחוק את עדכון ההתקדמות?')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const caseId = params.get('id');
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/progress/${progressId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      alert(data.message || 'שגיאה במחיקת עדכון');
+      return;
+    }
+
+    alert('העדכון נמחק בהצלחה');
+    location.reload();
+
+  } catch (err) {
+    console.error(err);
+    alert('שגיאה במחיקת עדכון');
+  }
+}
 
 

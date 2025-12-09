@@ -216,7 +216,11 @@ exports.uploadDocumentToSubcase = async (req, res) => {
       return res.status(404).json({ error: 'תיק או תת-תיק לא נמצאו' });
     }
 
-    const displayName = (req.body.displayName || req.file.originalname || 'file').trim();
+    let displayName = req.body.displayName || req.file.originalname || 'file';
+
+    // המרת שם הקובץ ל־UTF-8 (החלק הקריטי!)
+    displayName = Buffer.from(displayName, 'latin1').toString('utf8').trim();
+
     const fileId = await saveBufferToGridFS({
       buffer: req.file.buffer,
       filename: displayName,
@@ -414,9 +418,13 @@ exports.clientUploadDocument = async (req, res) => {
     const caseItem = await Case.findById(id);
     if (!caseItem) return res.status(404).json({ error: 'תיק לא נמצא' });
 
+    // 👇 כאן נוסיף את תיקון שם הקובץ
+    let originalName = req.file.originalname || 'client-file';
+    originalName = Buffer.from(originalName, 'latin1').toString('utf8');
+
     const fileId = await saveBufferToGridFS({
       buffer: req.file.buffer,
-      filename: req.file.originalname || 'client-file',
+      filename: originalName,
       contentType: req.file.mimetype
     });
 
@@ -428,7 +436,7 @@ exports.clientUploadDocument = async (req, res) => {
 
     const doc = {
       gridId: fileId,
-      name: fileDoc.filename,
+      name: fileDoc.filename,       // כאן כבר יישמר השם המתוקן בעברית
       mimeType: fileDoc.contentType || req.file.mimetype,
       size: fileDoc.length,
       uploadDate: fileDoc.uploadDate,
@@ -448,27 +456,13 @@ exports.clientUploadDocument = async (req, res) => {
 
     await caseItem.save();
 
-    if (caseItem.clientId) {
-      try {
-        const lawyer = await User.findOne({ role: 'lawyer' });
-        if (lawyer) {
-          await createAutoNotification('document_added', lawyer._id, caseItem.clientId, {
-            documentName: doc.name,
-            clientName,
-            caseId: caseItem._id
-          });
-        }
-      } catch (notifError) {
-        console.error('שגיאה בשליחת התראה:', notifError);
-      }
-    }
-
     res.status(201).json({ message: 'המסמך הועלה בהצלחה', document: doc });
   } catch (error) {
     console.error('שגיאה בהעלאת מסמך מלקוח:', error);
     res.status(500).json({ error: 'שגיאה בהעלאת המסמך' });
   }
 };
+
 
 exports.getClientDocuments = async (req, res) => {
   try {

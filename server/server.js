@@ -76,6 +76,51 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'שגיאה בשרת', error: err.message });
 });
 
+// === ניקוי עדכונים לא חשובים פעם בשבוע ===
+const cron = require('node-cron');
+const Case = require('./models/Case');
+
+// רשימת מילים שמסמנות שהעדכון לא חשוב
+const NON_IMPORTANT_KEYWORDS = [
+  'מסמך נמחק',
+  'מסמך חדש הועלה',
+  'הלקוח העלה את המסמך',
+  'שויך לתת-תיק',
+  'המסמך'
+];
+
+// ריצה כל יום ראשון בשעה 03:00 לפנות בוקר
+cron.schedule('0 3 * * 0', async () => {
+  console.log('🧹 מפנה עדכוני התקדמות לא חשובים...');
+
+  try {
+    const allCases = await Case.find();
+
+    for (const c of allCases) {
+      const before = c.progress.length;
+
+      c.progress = c.progress.filter(p => {
+        // בדיקה אם העדכון חשוב — אם כן נשמר
+        return !NON_IMPORTANT_KEYWORDS.some(keyword =>
+          (p.title || '').includes(keyword) ||
+          (p.description || '').includes(keyword)
+        );
+      });
+
+      // אם נמחקו עדכונים — שמירה למסד
+      if (c.progress.length !== before) {
+        await c.save();
+        console.log(`נוקו ${before - c.progress.length} עדכונים בתיק ${c._id}`);
+      }
+    }
+
+    console.log('✔ ניקוי שבועי הושלם!');
+  } catch (e) {
+    console.error('❌ שגיאה בניקוי עדכונים:', e);
+  }
+});
+
+
 /** ===== Server ===== */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

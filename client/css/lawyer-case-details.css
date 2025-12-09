@@ -1488,3 +1488,17 @@ html[dir="rtl"] .sticky-note-side { direction:rtl; }
   transition: 0.3s ease;
   pointer-events: none;
 }
+
+
+.progress-delete-btn {
+  background: none;
+  border: none;
+  color: #d9534f;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.progress-delete-btn:hover {
+  color: #b52b27;
+}
