@@ -194,3 +194,4 @@ if (!document.getElementById('profile-styles')) {
   `;
   document.head.appendChild(style);
 }
+
