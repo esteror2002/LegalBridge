@@ -47,7 +47,6 @@ app.get('/', (req, res) => {
 
 /** ===== דפי בית נפרדים ללקוח ולעורכת דין ===== */
 
-// גם עם .html וגם בלי, כדי למנוע שגיאות "Cannot GET"
 const sendPage = (res, page) => 
   res.sendFile(path.join(process.cwd(), `client/pages/${page}`));
 
