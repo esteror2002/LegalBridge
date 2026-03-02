@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         submitButton.disabled = true;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/auth/${endpoint}`, {
+            const response = await fetch(`/api/auth/${endpoint}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 console.log('שולח בקשה לשרת...');
                 
-                const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+                const response = await fetch('/api/auth/forgot-password', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json'
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             try {
-                const response = await fetch('http://localhost:5000/api/auth/contact', {
+                const response = await fetch('/api/auth/contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const old = resendBtn.innerHTML;
             resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>שולח...';
             try {
-                const r = await fetch(`http://localhost:5000/api/auth/2fa/sms/send/${encodeURIComponent(username)}`, {
+                const r = await fetch(`/api/auth/2fa/sms/send/${encodeURIComponent(username)}`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }
                 });
                 const j = await r.json();
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.disabled = true;
     
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
