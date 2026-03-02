@@ -1,30 +1,13 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const { sendVerification, checkVerification, SANDBOX } = require('../services/twilio');
 const { normalizeToE164IL } = require('../utils/phone');
+const { sendEmail } = require('../services/email');
 
 
-// פונקציית שליחת מייל
-const sendEmail = async (to, subject, text) => {
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"Legal Bridge" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    text,
-  });
-};
 
 
 // רישום משתמש

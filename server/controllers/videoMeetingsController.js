@@ -1,25 +1,7 @@
 const VideoMeeting = require('../models/VideoMeeting');
 const User = require('../models/User');
-const nodemailer = require('nodemailer');
+const { sendEmail } = require('../services/email');
 
-// פונקציית שליחת מייל
-const sendEmail = async (to, subject, text, html) => {
-  let transporter = nodemailer.createTransport({ // createTransport לא createTransporter
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  await transporter.sendMail({
-    from: `"Legal Bridge" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    text,
-    html: html || text,
-  });
-};
 
 // יצירת פגישת וידאו חדשה
 exports.createMeeting = async (req, res) => {
