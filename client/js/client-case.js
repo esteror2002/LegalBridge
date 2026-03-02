@@ -452,11 +452,17 @@ function getRelativeTime(date) {
 
 // הודעות/ניווט/אחר
 function showNoCaseMessage() {
-  document.getElementById('case-overview').style.display = 'none';
-  document.querySelector('.progress-section').style.display = 'none';
-  document.querySelector('.subcases-section').style.display = 'none';
-  document.getElementById('client-upload-section').style.display = 'none';
-  document.getElementById('no-case-message').style.display = 'block';
+  const caseOverview = document.getElementById('case-overview');
+  const progressSection = document.querySelector('.progress-section');
+  const subcasesSection = document.querySelector('.subcases-section');
+  const uploadSection = document.getElementById('client-upload-section');
+  const noCaseMessage = document.getElementById('no-case-message');
+
+  if (caseOverview) caseOverview.style.display = 'none';
+  if (progressSection) progressSection.style.display = 'none';
+  if (subcasesSection) subcasesSection.style.display = 'none';
+  if (uploadSection) uploadSection.style.display = 'none';
+  if (noCaseMessage) noCaseMessage.style.display = 'block';
 }
 
 function navigateTo(page) {
