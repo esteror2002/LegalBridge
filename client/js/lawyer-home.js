@@ -68,7 +68,7 @@ function toggleActiveMeetings() {
 // טעינת מונה פגישות פעילות (ללא הצגת הפגישות עצמן)
 async function loadActiveMeetingsCount() {
   try {
-    const response = await fetch('http://localhost:5000/api/meetings/active');
+    const response = await fetch('/api/meetings/active');
     const meetings = await response.json();
     
     // סינון פגישות - נעלמות רק חצי שעה אחרי הזמן המתוכנן
@@ -96,7 +96,7 @@ async function loadActiveMeetingsCount() {
 // טעינת לקוחות מאושרים לרשימה
 async function loadApprovedClients() {
   try {
-    const response = await fetch('http://localhost:5000/api/auth/clients'); // תואם לנתיב הקיים שלך
+    const response = await fetch('/api/auth/clients'); // תואם לנתיב הקיים שלך
     const clients = await response.json();
     
     const select = document.getElementById('client-select');
@@ -161,7 +161,7 @@ async function handleVideoMeetingSubmit(event) {
       status: 'scheduled'
     };
     
-    const response = await fetch('http://localhost:5000/api/meetings/create', {
+    const response = await fetch('/api/meetings/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ function generateMeetingId() {
 // טעינת פגישות פעילות - נעלמות רק חצי שעה אחרי הזמן המתוכנן
 async function loadActiveMeetings() {
   try {
-    const response = await fetch('http://localhost:5000/api/meetings/active');
+    const response = await fetch('/api/meetings/active');
     const meetings = await response.json();
     
     // סינון פגישות - נעלמות רק חצי שעה אחרי הזמן המתוכנן
@@ -371,7 +371,7 @@ async function cancelMeeting(meetingId) {
   
   try {
     
-    const response = await fetch(`http://localhost:5000/api/meetings/cancel/${meetingId}`, {
+    const response = await fetch(`/api/meetings/cancel/${meetingId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -424,7 +424,7 @@ function toggleNotifications() {
 
 async function loadPendingClients() {
   try {
-    const res = await fetch('http://localhost:5000/api/auth/pending-users');
+    const res = await fetch('/api/auth/pending-users');
     const users = await res.json();
     if (res.ok) {
       // מונה פעמון התראות
@@ -466,7 +466,7 @@ async function loadPendingClients() {
 
 async function loadOpenRequestsCount() {
   try {
-    const res = await fetch('http://localhost:5000/api/requests');
+    const res = await fetch('/api/requests');
     const requests = await res.json();
     if (res.ok) {
       const openCount = requests.filter(r => r.status !== 'closed').length;
@@ -512,7 +512,7 @@ function renderNotifications(users) {
 
 async function approveUser(id) {
   try {
-    const response = await fetch(`http://localhost:5000/api/auth/approve-user/${id}`, {
+    const response = await fetch(`/api/auth/approve-user/${id}`, {
       method: 'POST'
     });
     
@@ -534,7 +534,7 @@ async function deleteUser(id) {
   }
   
   try {
-    const response = await fetch(`http://localhost:5000/api/auth/delete-user/${id}`, {
+    const response = await fetch(`/api/auth/delete-user/${id}`, {
       method: 'DELETE'
     });
     
@@ -705,7 +705,7 @@ document.head.appendChild(style);
 
 async function loadRealStats() {
   try {
-    const res = await fetch('http://localhost:5000/api/stats/overview');
+    const res = await fetch('/api/stats/overview');
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.message || 'שגיאה בשליפת סטטיסטיקות');
@@ -723,7 +723,7 @@ async function loadRealStats() {
 // טעינת סיכום יומי
 async function loadDailySummary() {
   try {
-    const response = await fetch('http://localhost:5000/api/stats/daily-summary');
+    const response = await fetch('/api/stats/daily-summary');
     
     if (!response.ok) {
       throw new Error('שגיאה בטעינת הסיכום');

@@ -1,6 +1,6 @@
 // client/js/time-tracker.js
 (function(){
-    const API_BASE = 'http://localhost:5000/api/time';
+    const API_BASE = '/api/time';
     const UID = localStorage.getItem('userId') || localStorage.getItem('lawyerId') || ''; // תעדיפי לשמור userId בלוגין
     if (!UID) console.warn('time-tracker: missing user id (x-user-id)');
   

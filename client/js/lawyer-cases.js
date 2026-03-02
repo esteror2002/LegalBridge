@@ -22,7 +22,7 @@ let currentTab = 'open'; // 'open' | 'archive'
 /** ===== טעינת תיקים מהשרת והצגה בשני הקונטיינרים ===== */
 async function loadCases() {
   try {
-    const res = await fetch('http://localhost:5000/api/cases');
+    const res = await fetch('/api/cases');
     allCases = await res.json();
 
     const openCases = allCases.filter(c => c.status === 'פתוח');
@@ -161,7 +161,7 @@ function viewCase(caseId) {
 //   if (!result) return;
 
 //   try {
-//     const response = await fetch(`http://localhost:5000/api/cases/${caseId}`, { method: 'DELETE' });
+//     const response = await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
 //     if (!response.ok) throw new Error('שגיאה במחיקת התיק');
 
 //     // עדכון רשימה והצגה מחדש
@@ -186,7 +186,7 @@ async function showAddCaseForm() {
 
   try {
     // נטען לקוחות מאושרים
-    const respClients = await fetch('http://localhost:5000/api/auth/clients');
+    const respClients = await fetch('/api/auth/clients');
     const clients = await respClients.json();
 
     // ❗ נבנה סט לקוחות שכבר יש להם תיק כלשהו (פתוח או סגור)
@@ -255,7 +255,7 @@ async function submitNewCase() {
       return;
     }
 
-    const response = await fetch('http://localhost:5000/api/cases', {
+    const response = await fetch('/api/cases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -305,7 +305,7 @@ async function closeCase(caseId) {
   if (note === null) return; // בוטל
 
   try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}/close`, {
+    const response = await fetch(`/api/cases/${caseId}/close`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ closingNote: note || '' })
@@ -329,7 +329,7 @@ async function closeCase(caseId) {
 /** ===== שחזור תיק מארכיון ===== */
 async function reopenCase(caseId) {
   try {
-    const response = await fetch(`http://localhost:5000/api/cases/${caseId}/reopen`, {
+    const response = await fetch(`/api/cases/${caseId}/reopen`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' }
     });

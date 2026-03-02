@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadClients() {
   try {
     showLoadingState();
-    const res = await fetch('http://localhost:5000/api/auth/clients');
+    const res = await fetch('/api/auth/clients');
     clientsList = await res.json();
     
     if (res.ok) {

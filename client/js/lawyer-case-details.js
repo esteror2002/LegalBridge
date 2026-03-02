@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}`);
+    const res = await fetch(`/api/cases/${caseId}`);
     if (!res.ok) throw new Error(`שגיאה ${res.status}: ${res.statusText}`);
     const caseData = await res.json();
 
@@ -341,7 +341,7 @@ async function assignClientUpload(caseId, docId) {
   const sel = document.getElementById(`assign-${docId}`);
   if (!sel || !sel.value) return alert('בחרי תת-תיק לשיוך');
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/client-documents/${docId}/assign`, {
+    const res = await fetch(`/api/cases/${caseId}/client-documents/${docId}/assign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subcaseIndex: Number(sel.value) })
@@ -359,7 +359,7 @@ async function assignClientUpload(caseId, docId) {
 async function deleteClientUpload(caseId, docId) {
   if (!confirm('למחוק את המסמך שהלקוח העלה?')) return;
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/client-documents/${docId}`, {
+    const res = await fetch(`/api/cases/${caseId}/client-documents/${docId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
@@ -397,7 +397,7 @@ async function submitProgress() {
 
   try {
     const username = localStorage.getItem('username');
-    const response = await fetch(`http://localhost:5000/api/cases/${currentCaseId}/progress`, {
+    const response = await fetch(`/api/cases/${currentCaseId}/progress`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, description, addedBy: username || 'עורך דין' })
@@ -479,13 +479,13 @@ async function submitEdit() {
   if (!newValue) return alert('יש למלא את השדה');
   try {
     if (editType === 'subcase') {
-      const res = await fetch(`http://localhost:5000/api/cases/${editCaseId}/subcases/${editIndex}/edit`, {
+      const res = await fetch(`/api/cases/${editCaseId}/subcases/${editIndex}/edit`, {
         method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title:newValue })
       });
       if (!res.ok) return alert('שגיאה בעדכון תת-תיק');
       alert('תת-תיק עודכן בהצלחה'); hideEditModal(); location.reload();
     } else if (editType === 'document') {
-      const res = await fetch(`http://localhost:5000/api/cases/${editCaseId}/subcases/${editIndex}/documents/${editDocIndex}/edit`, {
+      const res = await fetch(`/api/cases/${editCaseId}/subcases/${editIndex}/documents/${editDocIndex}/edit`, {
         method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:newValue })
       });
       if (!res.ok) return alert('שגיאה בעדכון מסמך');
@@ -499,7 +499,7 @@ async function submitEdit() {
 async function deleteSubcase(caseId, index) {
   if (!confirm('מחק תת-תיק (כולל מסמכים)?')) return;
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${index}`, { method:'DELETE' });
+    const res = await fetch(`/api/cases/${caseId}/subcases/${index}`, { method:'DELETE' });
     if (!res.ok) return alert('שגיאה במחיקת תת-תיק');
     alert('תת-תיק נמחק'); location.reload();
   } catch (e) { console.error(e); alert('שגיאה במחיקת תת-תיק'); }
@@ -508,7 +508,7 @@ async function deleteSubcase(caseId, index) {
 async function deleteDocument(caseId, subcaseIndex, docIndex) {
   if (!confirm('למחוק את המסמך?')) return;
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents/${docIndex}`, { method:'DELETE' });
+    const res = await fetch(`/api/cases/${caseId}/subcases/${subcaseIndex}/documents/${docIndex}`, { method:'DELETE' });
     if (!res.ok) return alert('שגיאה במחיקת מסמך');
     alert('מסמך נמחק'); location.reload();
   } catch (e) { console.error(e); alert('שגיאה במחיקת מסמך'); }
@@ -519,7 +519,7 @@ function addSubcase() {
   const title = prompt('שם תת-תיק חדש:'); if (!title) return;
   const params = new URLSearchParams(window.location.search);
   const caseId = params.get('id');
-  fetch(`http://localhost:5000/api/cases/${caseId}/subcases`, {
+  fetch(`/api/cases/${caseId}/subcases`, {
     method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title })
   }).then(r=>r.ok?location.reload():alert('שגיאה בהוספת תת-תיק'))
    .catch(()=>alert('שגיאה בהוספת תת-תיק'));
@@ -531,7 +531,7 @@ async function uploadDocument(caseId, subcaseIndex, file, displayName) {
   const fd = new FormData(); fd.append('file', file);
   if (displayName && displayName.trim()) fd.append('displayName', displayName.trim());
   const headers = {}; const token = localStorage.getItem('token'); if (token) headers['Authorization'] = `Bearer ${token}`;
-  const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents/upload`, { method:'POST', headers, body: fd });
+  const res = await fetch(`/api/cases/${caseId}/subcases/${subcaseIndex}/documents/upload`, { method:'POST', headers, body: fd });
   if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error || 'שגיאה בהעלאה');
 }
 
@@ -578,7 +578,7 @@ async function openTextNote(caseId, subcaseIndex, docIndex) {
   try {
     const token = localStorage.getItem('token');
     const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/subcases/${subcaseIndex}/documents/${docIndex}/text`, { headers });
+    const res = await fetch(`/api/cases/${caseId}/subcases/${subcaseIndex}/documents/${docIndex}/text`, { headers });
     if (!res.ok) throw new Error('שגיאה בטעינת תוכן הפתק');
     const data = await res.json();
     _textNote.docId = data.id || null;
@@ -599,11 +599,11 @@ async function saveTextNote() {
   try {
     let res;
     if (_textNote.mode === 'create') {
-      res = await fetch(`http://localhost:5000/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/text`, {
+      res = await fetch(`/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/text`, {
         method: 'POST', headers, body: JSON.stringify({ name: filename, content })
       });
     } else {
-      res = await fetch(`http://localhost:5000/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/${_textNote.docIdx}/text`, {
+      res = await fetch(`/api/cases/${_textNote.caseId}/subcases/${_textNote.subIdx}/documents/${_textNote.docIdx}/text`, {
         method: 'PUT', headers, body: JSON.stringify({ name: filename, content })
       });
     }
@@ -719,7 +719,7 @@ async function loadCaseTimeTotal(caseId) {
   try {
     const uid = localStorage.getItem('userId'); 
     if (!uid) return;
-    const res = await fetch(`http://localhost:5000/api/time/case/${caseId}/total`, { 
+    const res = await fetch(`/api/time/case/${caseId}/total`, { 
       headers: { 'x-user-id': uid } 
     });
     const data = await res.json();
@@ -736,7 +736,7 @@ async function addManualTimeForCase(caseId) {
   const notes = prompt('הערה (לא חובה):') || ''; 
   const date  = new Date().toISOString();
   try {
-    const res = await fetch('http://localhost:5000/api/time/manual', {
+    const res = await fetch('/api/time/manual', {
       method:'POST', 
       headers:{ 'Content-Type':'application/json', 'x-user-id': uid },
       body: JSON.stringify({ caseId, activity:'case', minutes, date, notes })
@@ -792,7 +792,7 @@ async function getDocumentSummary(fileId, btnElement) {
   btnElement.disabled = true;
 
   try {
-    const res = await fetch('http://localhost:5000/api/ai/summarize', {
+    const res = await fetch('/api/ai/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileId })
@@ -881,7 +881,7 @@ async function deleteProgress(progressId) {
   const caseId = params.get('id');
 
   try {
-    const res = await fetch(`http://localhost:5000/api/cases/${caseId}/progress/${progressId}`, {
+    const res = await fetch(`/api/cases/${caseId}/progress/${progressId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'

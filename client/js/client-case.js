@@ -24,14 +24,14 @@ async function loadCaseData() {
   try {
     const username = localStorage.getItem('username');
     
-      const usersResponse = await fetch('http://localhost:5000/api/auth/clients');
+      const usersResponse = await fetch('/api/auth/clients');
       const users = await usersResponse.json();
       const currentUser = users.find(user => user.username === username);
       if (!currentUser) throw new Error('משתמש לא נמצא');
       userId = currentUser._id;
     
     
-    const caseResponse = await fetch(`http://localhost:5000/api/cases/client/${userId}`);
+    const caseResponse = await fetch(`/api/cases/client/${userId}`);
     const cases = await caseResponse.json();
     
     if (cases.length === 0) {
@@ -329,7 +329,7 @@ async function uploadClientDocument(file) {
 
   try {
     const token = localStorage.getItem('token');
-    xhr.open('POST', `http://localhost:5000/api/cases/${currentCase._id}/client-upload`);
+    xhr.open('POST', `/api/cases/${currentCase._id}/client-upload`);
     if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(formData);
   } catch (error) {
@@ -354,7 +354,7 @@ async function loadClientDocuments() {
   try {
     const token = localStorage.getItem('token');
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const response = await fetch(`http://localhost:5000/api/cases/${currentCase._id}/client-documents`, { headers });
+    const response = await fetch(`/api/cases/${currentCase._id}/client-documents`, { headers });
     if (!response.ok) throw new Error('שגיאה בטעינת מסמכים');
     const documents = await response.json();
 
@@ -417,7 +417,7 @@ async function deleteClientDocument(docId) {
 
   try {
     const response = await fetch(
-      `http://localhost:5000/api/cases/${currentCase._id}/client-documents/${docId}`,
+      `/api/cases/${currentCase._id}/client-documents/${docId}`,
       { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
     );
     if (response.ok) {

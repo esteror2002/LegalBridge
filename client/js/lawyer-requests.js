@@ -48,7 +48,7 @@ function addNewMessageButton() {
 // טעינת רשימת לקוחות
 async function loadClients() {
   try {
-    const response = await fetch('http://localhost:5000/api/requests/clients');
+    const response = await fetch('/api/requests/clients');
     if (response.ok) {
       clients = await response.json();
     }
@@ -201,7 +201,7 @@ async function sendNewMessage() {
 async function filterRequests(filterType) {
   try {
     showLoadingState();
-    const response = await fetch('http://localhost:5000/api/requests');
+    const response = await fetch('/api/requests');
     const requests = await response.json();
 
     if (!response.ok) {
@@ -423,8 +423,8 @@ async function closeRequestFromTable(id) {
 // פונקציה מאוחדת לסגירה וארכוב
 async function archiveAndClose(id) {
   try {
-    await fetch(`http://localhost:5000/api/requests/close/${id}`, { method: 'POST' });
-    await fetch(`http://localhost:5000/api/requests/archive/${id}`, { method: 'POST' });
+    await fetch(`/api/requests/close/${id}`, { method: 'POST' });
+    await fetch(`/api/requests/archive/${id}`, { method: 'POST' });
     showMessage('הפנייה סומנה כסגורה והועברה לארכיון', 'success');
   } catch (error) {
     console.error(error);

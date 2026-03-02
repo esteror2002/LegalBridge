@@ -35,7 +35,7 @@ async function saveChanges() {
   saveBtn.disabled = true;
 
   try {
-    const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+    const response = await fetch('/api/auth/update-profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, newPhone, newAddress }),
@@ -93,7 +93,7 @@ async function loadProfile() {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/auth/get-profile/${username}`);
+    const response = await fetch(`/api/auth/get-profile/${username}`);
     const data = await response.json();
 
     if (response.ok) {

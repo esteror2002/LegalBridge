@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!select) return;
   
     try {
-      const res = await fetch('http://localhost:5000/api/auth/clients');
+      const res = await fetch('/api/auth/clients');
       const clients = await res.json();
   
       select.innerHTML = '';
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   
     try {
-      await fetch('http://localhost:5000/api/meetings/create', {
+      await fetch('/api/meetings/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!upcoming || !past) return;
   
     try {
-      const res = await fetch('http://localhost:5000/api/meetings/all');
+      const res = await fetch('/api/meetings/all');
       const meetings = await res.json();
   
       const sortBy = document.getElementById('sort-select')?.value || 'date';
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   /* ===== Actions ===== */
   function joinMeeting(id, url) {
-    fetch(`http://localhost:5000/api/meetings/join/${id}`, {
+    fetch(`/api/meetings/join/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userType: 'lawyer' })
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function cancelMeeting(id) {
     if (!confirm('לבטל את הפגישה?')) return;
   
-    await fetch(`http://localhost:5000/api/meetings/cancel/${id}`, {
+    await fetch(`/api/meetings/cancel/${id}`, {
       method: 'PUT'
     });
   
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!confirm('האם למחוק את הפגישה לצמיתות?')) return;
   
     try {
-      await fetch(`http://localhost:5000/api/meetings/${meetingId}`, {
+      await fetch(`/api/meetings/${meetingId}`, {
         method: 'DELETE'
       });
       loadMeetings();

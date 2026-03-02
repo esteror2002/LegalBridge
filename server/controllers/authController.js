@@ -67,8 +67,8 @@ exports.register = async (req, res) => {
     await newUser.save();
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2d' });
-    const approvalLink = `http://localhost:5000/api/auth/approve/${token}`;
-
+    const approvalLink = `${process.env.BASE_URL}/api/auth/approve/${token}`;
+    
     if (role === 'lawyer') {
       await sendEmail(
         'esteror2002@gmail.com',

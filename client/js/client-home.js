@@ -204,7 +204,7 @@ let currentUserId = null;
 async function getCurrentUserId() {
   try {
     const username = localStorage.getItem('username');
-    const response = await fetch('http://localhost:5000/api/auth/clients');
+    const response = await fetch('/api/auth/clients');
     const users = await response.json();
     const currentUser = Array.isArray(users) ? users.find(u => u.username === username) : null;
     return currentUser ? currentUser._id : null;
@@ -226,7 +226,7 @@ async function loadNotifications() {
     }
 
     // אפשר גם ?unreadOnly=true כדי להציג רק לא-נקראו בפאנל
-    const response = await fetch(`http://localhost:5000/api/notifications/user/${currentUserId}`);
+    const response = await fetch(`/api/notifications/user/${currentUserId}`);
     if (!response.ok) {
       console.error('שגיאה בשליפת התראות:', response.status, response.statusText);
       return;
@@ -282,7 +282,7 @@ function displayNotifications(notifications) {
 // סימון התראה כנקראה + ניווט
 async function handleNotificationClick(notificationId, link) {
   try {
-    await fetch(`http://localhost:5000/api/notifications/${notificationId}/read`, { method: 'PUT' });
+    await fetch(`/api/notifications/${notificationId}/read`, { method: 'PUT' });
 
     if (link) {
       navigateTo(link);
