@@ -33,7 +33,7 @@ app.use('/api/ai', aiRoutes);
 
 
 /** ===== Static client ===== */
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(process.cwd(), 'client')));
 
 /** ===== Reset password page ===== */
 app.get('/reset-password', (req, res) => {
@@ -42,14 +42,14 @@ app.get('/reset-password', (req, res) => {
 
 /** ===== Home ===== */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/index.html'));
+  res.sendFile(path.join(process.cwd(), 'client/index.html'));
 });
 
 /** ===== דפי בית נפרדים ללקוח ולעורכת דין ===== */
 
 // גם עם .html וגם בלי, כדי למנוע שגיאות "Cannot GET"
 const sendPage = (res, page) => 
-  res.sendFile(path.join(__dirname, `../client/pages/${page}`));
+  res.sendFile(path.join(process.cwd(), `client/pages/${page}`));
 
 // דפי לקוח
 app.get(['/client-home', '/client-home.html'], (req, res) => sendPage(res, 'client-home.html'));
