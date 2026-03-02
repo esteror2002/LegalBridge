@@ -68,7 +68,7 @@ exports.register = async (req, res) => {
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '2d' });
     const approvalLink = `${process.env.BASE_URL}/api/auth/approve/${token}`;
-    
+
     if (role === 'lawyer') {
       await sendEmail(
         'esteror2002@gmail.com',
@@ -204,7 +204,7 @@ exports.forgotPassword = async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const resetLink = `http://localhost:5000/reset-password?token=${token}`;
+    const resetLink = `${process.env.BASE_URL}/pages/reset-password.html?token=${token}`;
 
     await sendEmail(
       user.email,
