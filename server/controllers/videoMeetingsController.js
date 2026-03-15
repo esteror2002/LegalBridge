@@ -87,7 +87,7 @@ async function sendMeetingEmailToClient(client, meeting) {
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; direction: rtl; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="margin: 0; font-size: 24px;">🎥 הזמנה לפגישת וידאו</h1>
+        <h1 style="margin: 0; font-size: 24px;"> הזמנה לפגישת וידאו</h1>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">Legal Bridge - ייעוץ משפטי מקצועי</p>
       </div>
       
@@ -99,7 +99,7 @@ async function sendMeetingEmailToClient(client, meeting) {
         </p>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
-          <h3 style="color: #333; margin-bottom: 15px;">📋 פרטי הפגישה</h3>
+          <h3 style="color: #333; margin-bottom: 15px;"> פרטי הפגישה</h3>
           <p style="margin: 8px 0; color: #555;"><strong>נושא:</strong> ${meeting.title}</p>
           <p style="margin: 8px 0; color: #555;"><strong>תאריך:</strong> ${formattedDate}</p>
           <p style="margin: 8px 0; color: #555;"><strong>שעה:</strong> ${formattedTime}</p>
@@ -117,7 +117,7 @@ async function sendMeetingEmailToClient(client, meeting) {
                     font-weight: bold; 
                     display: inline-block;
                     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
-            🎥 הצטרף לפגישה כאן
+             הצטרף לפגישה כאן
           </a>
         </div>
         
@@ -134,7 +134,7 @@ async function sendMeetingEmailToClient(client, meeting) {
         <p style="color: #666; text-align: center; font-size: 14px; margin-bottom: 0;">
           בברכה,<br>
           <strong>צוות Legal Bridge</strong><br>
-          📧 ${process.env.EMAIL_USER} | 📞 לפניות דחופות
+           ${process.env.EMAIL_USER} |  לפניות דחופות
         </p>
       </div>
     </div>
@@ -237,7 +237,7 @@ async function sendCancellationEmailToClient(meeting) {
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; direction: rtl; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="margin: 0; font-size: 24px;">❌ ביטול פגישת וידאו</h1>
+        <h1 style="margin: 0; font-size: 24px;"> ביטול פגישת וידאו</h1>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">Legal Bridge</p>
       </div>
       
@@ -262,7 +262,7 @@ async function sendCancellationEmailToClient(meeting) {
         <p style="color: #666; text-align: center; font-size: 14px; margin-bottom: 0;">
           בברכה,<br>
           <strong>צוות Legal Bridge</strong><br>
-          📧 ${process.env.EMAIL_USER}
+           ${process.env.EMAIL_USER}
         </p>
       </div>
     </div>

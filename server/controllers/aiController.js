@@ -74,7 +74,7 @@ async function summarizeText(text) {
     const result = await model.generateContent(prompt);
     return { success: true, summary: result.response.text() };
   } catch (err) {
-    console.error("❌ שגיאה מ-Gemini:", err.message);
+    console.error(" שגיאה מ-Gemini:", err.message);
     return {
       success: false,
       reason: err.status === 503 ? "OVERLOADED" : "AI_ERROR",
@@ -83,7 +83,7 @@ async function summarizeText(text) {
 }
 
 // ---------------------------------------------------------
-// 🎯 פונקציה ראשית — סיכום מסמך (עם Cache)
+//  פונקציה ראשית — סיכום מסמך (עם Cache)
 // ---------------------------------------------------------
 exports.summarizeDocument = async (req, res) => {
   try {
@@ -92,7 +92,7 @@ exports.summarizeDocument = async (req, res) => {
       return res.status(400).json({ message: "חסר fileId" });
     }
 
-    // 🔍 שלב 1 — בדיקה אם כבר קיים תקציר
+    //  שלב 1 — בדיקה אם כבר קיים תקציר
     const cachedSummary = await AISummary.findOne({ fileId });
     if (cachedSummary) {
       return res.json({
@@ -101,7 +101,7 @@ exports.summarizeDocument = async (req, res) => {
       });
     }
 
-    // 📂 שלב 2 — קריאת הקובץ מ־GridFS
+    //  שלב 2 — קריאת הקובץ מ־GridFS
     const bucket = new mongoose.mongo.GridFSBucket(
       mongoose.connection.db,
       { bucketName: "fs" }
@@ -134,7 +134,7 @@ exports.summarizeDocument = async (req, res) => {
         });
       }
 
-      // 🤖 שלב 3 — Gemini
+      //  שלב 3 — Gemini
       const aiResult = await summarizeText(text);
 
       if (!aiResult.success) {
@@ -144,20 +144,20 @@ exports.summarizeDocument = async (req, res) => {
         });
       }
 
-      // 💾 שלב 4 — שמירת התקציר
+      //  שלב 4 — שמירת התקציר
       await AISummary.create({
         fileId,
         summary: aiResult.summary,
       });
 
-      // ✅ תשובה
+
       return res.json({
         summary: aiResult.summary,
         cached: false,
       });
     });
   } catch (err) {
-    console.error("❌ שגיאה כללית:", err);
+    console.error(" שגיאה כללית:", err);
     return res.status(500).json({
       message: "שגיאה בזמן סיכום מסמך",
     });

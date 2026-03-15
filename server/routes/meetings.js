@@ -306,7 +306,7 @@ async function sendMeetingReminderEmail(meeting) {
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; direction: rtl; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #ffc107, #ff8f00); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="margin: 0; font-size: 24px;">⏰ תזכורת פגישת וידאו</h1>
+        <h1 style="margin: 0; font-size: 24px;"> תזכורת פגישת וידאו</h1>
         <p style="margin: 10px 0 0 0; opacity: 0.9;">Legal Bridge</p>
       </div>
       
@@ -318,7 +318,7 @@ async function sendMeetingReminderEmail(meeting) {
         </p>
         
         <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-right: 4px solid #ffc107;">
-          <h3 style="color: #856404; margin-bottom: 15px;">📋 פרטי הפגישה</h3>
+          <h3 style="color: #856404; margin-bottom: 15px;"> פרטי הפגישה</h3>
           <p style="margin: 8px 0; color: #555;"><strong>נושא:</strong> ${meeting.title}</p>
           <p style="margin: 8px 0; color: #555;"><strong>תאריך:</strong> ${formattedDate}</p>
           <p style="margin: 8px 0; color: #555;"><strong>שעה:</strong> ${formattedTime}</p>
@@ -335,7 +335,7 @@ async function sendMeetingReminderEmail(meeting) {
                     font-weight: bold; 
                     display: inline-block;
                     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
-            🎥 קישור לפגישה
+             קישור לפגישה
           </a>
         </div>
         

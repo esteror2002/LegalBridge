@@ -115,7 +115,7 @@ cron.schedule('0 3 * * 0', async () => {
 
     console.log('✔ ניקוי שבועי הושלם!');
   } catch (e) {
-    console.error('❌ שגיאה בניקוי עדכונים:', e);
+    console.error(' שגיאה בניקוי עדכונים:', e);
   }
 });
 

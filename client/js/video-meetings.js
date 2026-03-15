@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         select.appendChild(opt);
       });
     } catch (err) {
-      console.error('❌ Failed to load clients', err);
+      console.error(' Failed to load clients', err);
     }
   }
   
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.reset();
       loadMeetings();
     } catch (err) {
-      console.error('❌ Failed to create meeting', err);
+      console.error(' Failed to create meeting', err);
     }
   }
   
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sortPinnedFirst(pastCards.reverse()).forEach(c => past.appendChild(c));
   
     } catch (err) {
-      console.error('❌ Failed to load meetings', err);
+      console.error(' Failed to load meetings', err);
     }
   }
   
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       loadMeetings();
     } catch (err) {
-      console.error('❌ Failed to delete meeting', err);
+      console.error(' Failed to delete meeting', err);
     }
   }
   
